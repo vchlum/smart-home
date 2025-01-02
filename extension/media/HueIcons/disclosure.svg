@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="6px" height="11px" viewBox="0 0 6 11" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>disclosure</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g fill="#000000" fill-rule="nonzero">
+            <path d="M5.85355339,5.85355339 L0.853553391,10.8535534 C0.658291245,11.0488155 0.341708755,11.0488155 0.146446609,10.8535534 C-0.0488155365,10.6582912 -0.0488155365,10.3417088 0.146446609,10.1464466 L4.79289322,5.5 L0.146446609,0.853553391 C-0.0488155365,0.658291245 -0.0488155365,0.341708755 0.146446609,0.146446609 C0.341708755,-0.0488155365 0.658291245,-0.0488155365 0.853553391,0.146446609 L5.85355339,5.14644661 C6.04881554,5.34170876 6.04881554,5.65829124 5.85355339,5.85355339 Z"></path>
+        </g>
+    </g>
+</svg>

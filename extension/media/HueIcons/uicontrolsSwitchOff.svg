@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>uicontrolsSwitchOff</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g fill="#101010">
+            <path d="M16,22 C12.692,22 10,19.308 10,16 C10,12.692 12.692,10 16,10 C19.308,10 22,12.692 22,16 C22,19.308 19.308,22 16,22 M16,4 C9.373,4 4,9.373 4,16 C4,22.627 9.373,28 16,28 C22.627,28 28,22.627 28,16 C28,9.373 22.627,4 16,4 M16,13 C14.346,13 13,14.346 13,16 C13,17.654 14.346,19 16,19 C17.654,19 19,17.654 19,16 C19,14.346 17.654,13 16,13"></path>
+        </g>
+    </g>
+</svg>

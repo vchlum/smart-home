@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <interface domain="smart-home">
+  <template class="SmartHomeAddDevice" parent="AdwDialog">
+    <property name="title" translatable="yes">Add new device</property>
+    <property name="content_width">500</property>
+    <property name="child">
+        <object class="AdwToolbarView">
+          <child type="top">
+            <object class="AdwHeaderBar">
+            </object>
+          </child>
+          <property name="content">
+            <object class="AdwStatusPage" id="addDevicePage">
+              <property name="title" translatable="yes"></property>
+              <property name="description" translatable="yes"></property>
+
+              <property name="child">
+                <object class="GtkBox">
+                  <property name="halign">center</property>
+                  <property name="valign">center</property>
+                  <property name="orientation">vertical</property>
+                  <property name="spacing">18</property>
+
+                  <child>
+                    <object class="AdwClamp">
+                      <property name="maximum-size">300</property>
+                      <property name="tightening-threshold">300</property>
+                      <property name="unit">sp</property>
+                      <property name="child">
+                        <object class="AdwPreferencesGroup">
+                          <property name="title" translatable="yes">Add new device</property>
+
+                          <child>
+                            <object class="AdwEntryRow" id="ipAddress">
+                              <property name="title" translatable="yes">IP address</property>
+                              <property name="use_underline">True</property>
+                            </object>
+                          </child>
+
+                          <child>
+                            <object class="AdwActionRow" id="addButton">
+                              <property name="title" translatable="yes">Add</property>
+                              <property name="activatable">True</property>
+                              <signal name="activated" handler="_addActivated" swapped="no"/>
+                            </object>
+                          </child>
+
+                        </object>
+                      </property>
+                    </object>
+                  </child>
+
+                </object>
+              </property>
+            </object>
+          </property>
+        </object>
+    </property>
+  </template>
+</interface>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>otherHeart</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g fill="#101010">
+            <path d="M16,10.9913649 C14.262,2.98736487 4,5.44336487 4,12.4793649 C4,18.9093649 13.145,24.3513649 15.468,25.8433649 C15.796,26.0533649 16.204,26.0533649 16.532,25.8433649 C18.855,24.3513649 28,18.9093649 28,12.4793649 C28,5.44336487 17.738,2.98736487 16,10.9913649"></path>
+        </g>
+    </g>
+</svg>

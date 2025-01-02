@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <enum id="org.gnome.shell.extensions.smart-home.indicator-position">
+    <value value="0" nick="center"/>
+    <value value="1" nick="right"/>
+    <value value="2" nick="left"/>
+  </enum>
+  <enum id="org.gnome.shell.extensions.smart-home.icon-pack">
+    <value value="0" nick="none"/>
+    <value value="1" nick="bright"/>
+    <value value="2" nick="dark"/>
+  </enum>
+  <schema id="org.gnome.shell.extensions.smart-home" path="/org/gnome/shell/extensions/smart-home/">
+
+    <!-- See also: https://developer.gnome.org/glib/stable/gvariant-format-strings.html -->
+
+    <key name="force-english" type="b">
+      <default>false</default>
+      <summary>Force english language</summary>
+    </key>
+    <key name="debug" type="b">
+      <default>false</default>
+      <summary>Enable debugging messages</summary>
+    </key>
+    <key name="icon-pack" enum="org.gnome.shell.extensions.smart-home.icon-pack">
+      <default>"bright"</default>
+      <summary>Used icon pack</summary>
+    </key>
+    <key name="philipshue-bridge" type="a{sa{ss}}">
+      <default>{}</default>
+      <summary>Philips Hue Bridge</summary>
+    </key>
+    <key name="philipshue-desktopsync" type="a{sa{ss}}">
+      <default>{}</default>
+      <summary>Philips Hue Desktop Sync</summary>
+    </key>
+    <key name="philipshue-syncbox" type="a{sa{ss}}">
+      <default>{}</default>
+      <summary>Philips Hue Sync Box</summary>
+    </key>
+    <key name="nanoleaf" type="a{sa{ss}}">
+      <default>{}</default>
+      <summary>nanoleaf</summary>
+    </key>
+    <key name="ikea-dirigera" type="a{sa{ss}}">
+      <default>{}</default>
+      <summary>Dirigera</summary>
+    </key>
+    <key name="menu-selection" type="a{sa{ss}}">
+      <default>{}</default>
+      <summary>Current selection in menu.</summary>
+    </key>
+    <key name="miscellaneous-storage" type="a{sa{ss}}">
+      <default>{}</default>
+      <summary>Plugins miscellaneous storage.</summary>
+    </key>
+  </schema>
+</schemalist>

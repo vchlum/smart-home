@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <interface domain="smart-home">
+    <requires lib="gtk" version="4.0"/>
+    <requires lib="libadwaita" version="1.0"/>
+    <template class="SmartHomeMain" parent="AdwNavigationPage">
+      <property name="title" translatable="yes">All settings</property>
+      <property name="tag">all-settings</property>
+      <property name="child">
+        <object class="AdwToolbarView">
+
+          <property name="content">
+            <object class="GtkBox">
+              <property name="halign">center</property>
+              <property name="valign">center</property>
+              <property name="orientation">vertical</property>
+              <property name="spacing">18</property>
+
+              <child>
+                <object class="AdwClamp">
+                  <property name="maximum-size">700</property>
+                  <property name="tightening-threshold">700</property>
+                  <property name="unit">sp</property>
+                  <property name="child">
+                    <object class="AdwPreferencesGroup">
+                      <property name="title" translatable="yes">Settings</property>
+                      <child>
+                        <object class="AdwExpanderRow">
+                          <property name="title" translatable="yes">General settings</property>
+
+                          <child>
+                            <object class="AdwComboRow" id="comboIconPack">
+                              <property name="title" translatable="yes">Icon pack</property>
+                              <property name="model">
+                                <object class="GtkStringList">
+                                  <items>
+                                  <item translatable="yes" comments="none">none</item>
+                                    <item translatable="yes" comments="bright">bright</item>
+                                    <item translatable="yes" comments="dark">dark</item>
+                                  </items>
+                                </object>
+                              </property>
+                              <signal name="notify::selected-item" handler="_iconPackSelected" swapped="no"/>
+                            </object>
+                          </child>
+
+                          <child>
+                            <object class="AdwSwitchRow" id="switchForceEnglish">
+                              <property name="title" translatable="yes">Force English language</property>
+                              <property name="subtitle" translatable="yes">Requires relogin.</property>
+                              <signal name="notify::active" handler="_forceEnglichSwitched" swapped="no"/>
+                            </object>
+                          </child>
+
+                        </object>
+                      </child>
+
+                      <child>
+                        <object class="AdwExpanderRow">
+                          <property name="title" translatable="yes">Advanced settings</property>
+
+                          <child>
+                            <object class="AdwSwitchRow" id="switchDebug">
+                              <property name="title" translatable="yes">Log debug messages</property>
+                              <property name="subtitle" translatable="yes">Use with caution. It may overwhelm the log.</property>
+                              <signal name="notify::active" handler="_debugSwitched" swapped="no"/>
+                            </object>
+                          </child>
+
+                        </object>
+                      </child>
+
+                    </object>
+                  </property>
+                </object>
+              </child>
+
+              <child>
+                <object class="AdwClamp">
+                  <property name="maximum-size">700</property>
+                  <property name="tightening-threshold">700</property>
+                  <property name="unit">sp</property>
+                  <property name="child">
+                    <object class="AdwPreferencesGroup">
+                      <property name="title">Philips Hue</property>
+
+                      <child>
+                        <object class="AdwExpanderRow" id="philipsHueBridgeRows">
+                          <property name="title">Philips Hue Bridge</property>
+                          
+                          <child type="suffix">
+                            <object class="GtkButton">
+                              <property name="valign">center</property>
+                              <property name="icon_name">list-add-symbolic</property>
+                              <property name="tooltip-text" translatable="yes">Add</property>
+                              <property name="action-name">add-device-philipshue-bridge.run</property>
+                              <style>
+                                <class name="flat"/>
+                              </style>
+                            </object>
+                          </child>
+
+                        </object>
+                      </child>
+
+                      <child>
+                        <object class="AdwExpanderRow" id="philipsHueDesktopSyncRows">
+                          <property name="title" translatable="yes">Desktop Sync</property>
+                          <property name="subtitle" translatable="yes">Add by enabling in Philips Hue Bridge section.</property>
+                          
+                        </object>
+                      </child>
+
+                      <child>
+                        <object class="AdwExpanderRow" id="philipsHueSyncboxRows">
+                          <property name="title">Philips Hue Sync Box</property>
+                          
+                          <child type="suffix">
+                            <object class="GtkButton">
+                              <property name="valign">center</property>
+                              <property name="icon_name">list-add-symbolic</property>
+                              <property name="tooltip-text" translatable="yes">Add</property>
+                              <property name="action-name">add-device-philipshue-syncbox.run</property>
+                              <style>
+                                <class name="flat"/>
+                              </style>
+                            </object>
+                          </child>
+
+                        </object>
+                      </child>
+
+                    </object>
+                  </property>
+
+                </object>
+              </child>
+
+              <child>
+                <object class="AdwClamp">
+                  <property name="maximum-size">700</property>
+                  <property name="tightening-threshold">700</property>
+                  <property name="unit">sp</property>
+                  <property name="child">
+                    <object class="AdwPreferencesGroup">
+                      <property name="title">Nanoleaf</property>
+
+                      <child>
+                        <object class="AdwExpanderRow">
+                          <property name="title" translatable="yes">General settings</property>
+
+                          <child>
+                            <object class="AdwSwitchRow" id="hideUnavailableNanoleaf">
+                              <property name="title" translatable="yes">Hide unavailable device</property>
+                              <property name="subtitle" translatable="yes">If the device is not available, the status icon is hidden.</property>
+                              <signal name="notify::active" handler="_hideUnavailableNanoleafSwitched" swapped="no"/>
+                            </object>
+                          </child>
+
+                          <child>
+                            <object class="AdwComboRow" id="comboIndicatorPositionNanoleaf">
+                              <property name="title" translatable="yes">Status icon position</property>
+                              <property name="model">
+                                <object class="GtkStringList">
+                                  <items>
+                                  <item translatable="yes" comments="none">center</item>
+                                    <item translatable="yes" comments="bright">right</item>
+                                    <item translatable="yes" comments="dark">left</item>
+                                  </items>
+                                </object>
+                              </property>
+                              <signal name="notify::selected-item" handler="_indicatorPositionNanoleafSelected" swapped="no"/>
+                            </object>
+                          </child>
+
+                        </object>
+                      </child>
+
+                      <child>
+                        <object class="AdwExpanderRow" id="nanoleafRows">
+                          <property name="title" translatable="yes">Nanoleaf devices</property>
+
+                          <child type="suffix">
+                            <object class="GtkButton">
+                              <property name="valign">center</property>
+                              <property name="icon_name">list-add-symbolic</property>
+                              <property name="tooltip-text" translatable="yes">Add</property>
+                              <property name="action-name">add-device-nanoleaf.run</property>
+                              <style>
+                                <class name="flat"/>
+                              </style>
+                            </object>
+                          </child>
+
+                        </object>
+                      </child>
+                    </object>
+                  </property>
+
+                </object>
+              </child>
+
+              <child>
+                <object class="AdwClamp">
+                  <property name="maximum-size">700</property>
+                  <property name="tightening-threshold">700</property>
+                  <property name="unit">sp</property>
+                  <property name="child">
+                    <object class="AdwPreferencesGroup">
+                      <property name="title">Ikea</property>
+                      <child>
+                        <object class="AdwExpanderRow" id="ikeaDirigeraRows">
+                          <property name="title">Dirigera</property>
+
+                          <child type="suffix">
+                            <object class="GtkButton">
+                              <property name="valign">center</property>
+                              <property name="icon_name">list-add-symbolic</property>
+                              <property name="tooltip-text" translatable="yes">Add</property>
+                              <property name="action-name">add-device-ikea-dirigera.run</property>
+                              <style>
+                                <class name="flat"/>
+                              </style>
+                            </object>
+                          </child>
+
+                        </object>
+                      </child>
+                    </object>
+                  </property>
+
+                </object>
+              </child>
+
+              <child>
+                <object class="AdwClamp">
+                  <property name="maximum-size">700</property>
+                  <property name="tightening-threshold">700</property>
+                  <property name="unit">sp</property>
+                  <property name="child">
+                    <object class="AdwPreferencesGroup">
+                      <property name="title" translatable="yes">Miscellaneous</property>
+
+                      <child>
+                        <object class="AdwActionRow">
+                          <property name="title" translatable="yes">Discover devices</property>
+                          <property name="subtitle" translatable="yes">It requires 'avahi-browse' installed.</property>
+                          <property name="activatable">True</property>
+                          <property name="action-name">discover.run</property>
+                          </object>
+                      </child>
+
+                      <child>
+                        <object class="AdwActionRow">
+                          <property name="title" translatable="yes">About Smart Home</property>
+                          <property name="activatable">True</property>
+                          <property name="action-name">about.run</property>
+                          </object>
+                      </child>
+
+                    </object>
+                  </property>
+
+                </object>
+              </child>
+
+            </object>
+          </property>
+        </object>
+      </property>
+
+    </template>
+</interface>

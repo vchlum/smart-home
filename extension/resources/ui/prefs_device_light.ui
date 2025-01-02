@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface domain="smart-home">
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="libadwaita" version="1.0"/>
+
+  <object class="GtkAdjustment" id="brightnessAdjustment">
+    <property name="value">1.0</property>
+    <property name="lower">0</property>
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">20</property>
+    <property name="page_size">0</property>
+  </object>
+
+  <template class="SmartHomeDeviceLight" parent="AdwActionRow">
+    <property name="title"></property>
+
+    <child>
+      <object class="GtkBox" id="regexBox">
+        <property name="visible">false</property>
+        <property name="halign">end</property>
+        <property name="can-focus">True</property>
+        <property name="vexpand">True</property>
+        <property name="orientation">vertical</property>
+
+        <child>
+          <object class="GtkEntry" id="reTitle">
+            <property name="text">.*title.*</property>
+            <property name="can_focus">True</property>
+            <property name="editable">True</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkEntry" id="reBody">
+            <property name="text">.*body.*</property>
+            <property name="can_focus">True</property>
+            <property name="editable">True</property>
+          </object>
+        </child>
+
+      </object>
+    </child>
+
+    <child>
+      <object class="GtkScale" id="deviceBrightness">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="hexpand">True</property>
+        <property name="round_digits">1</property>
+        <property name="digits">0</property>
+        <property name="halign">end</property>
+        <property name="width_request">200</property>
+        <property name="adjustment">brightnessAdjustment</property>
+        <signal name="value-changed" handler="_deviceBrightnessChanged" swapped="no"/>
+      </object>
+    </child>
+
+    <child>
+      <object class="GtkColorButton" id="deviceColor">
+        <property name="halign">end</property>
+        <property name="margin-top">15%</property>
+        <property name="margin-bottom">15%</property>
+        <signal name="color-set" handler="_deviceColorChanged" swapped="no"/>
+      </object>
+    </child>
+
+    <child>
+      <object class="GtkSwitch" id="deviceSwitch">
+        <property name="halign">end</property>
+        <property name="vexpand">false</property>
+        <property name="valign">center</property>
+        <signal name="notify::active" handler="_deviceSwitchChanged" swapped="no"/>
+      </object>
+    </child>
+
+  </template>
+</interface>

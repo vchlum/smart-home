@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>settingsWidgets</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g fill="#101010">
+            <path d="M9.5,4 C12.537,4 15,6.463 15,9.5 C15,12.537 12.537,15 9.5,15 C6.463,15 4,12.537 4,9.5 C4,6.463 6.463,4 9.5,4 Z M22.5,15 C19.463,15 17,12.537 17,9.5 C17,6.463 19.463,4 22.5,4 C25.537,4 28,6.463 28,9.5 C28,12.537 25.537,15 22.5,15 Z M22.5,17 C25.537,17 28,19.463 28,22.5 C28,25.537 25.537,28 22.5,28 C19.463,28 17,25.537 17,22.5 C17,19.463 19.463,17 22.5,17 Z M22.5,26 C24.43,26 26,24.43 26,22.5 C26,20.57 24.43,19 22.5,19 C20.57,19 19,20.57 19,22.5 C19,24.43 20.57,26 22.5,26 Z M9.5,17 C12.537,17 15,19.463 15,22.5 C15,25.537 12.537,28 9.5,28 C6.463,28 4,25.537 4,22.5 C4,19.463 6.463,17 9.5,17 Z"></path>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,18 @@
+{
+    "uuid": "smart-home@chlumskyvaclav.gmail.com",
+    "settings-schema": "org.gnome.shell.extensions.smart-home",
+    "name": "Smart Home",
+    "description": "This extension controls Philips Hue Bridge, Philips Hue SyncBox, Nanoleaf devices, and Ikea Dirigera on your local network. If you are experiencing an error on the upgrade, please log out and log in again.",
+    "version": 1,
+    "original-author": "chlumskyvaclav@gmail.com",
+    "donations": {
+      "kofi": "vchlum",
+      "paypal": "vchlum"
+    },
+    "shell-version": [
+      "46",
+      "47"
+    ],
+    "gettext-domain": "smart-home",
+    "url": "https://github.com/vchlum/smart-home"
+}

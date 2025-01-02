@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <interface domain="smart-home">
+    <template class="SmartHomeIkeaDirigera" parent="AdwNavigationPage">
+    <property name="title">Ikea Dirigera</property>
+    <property name="tag"></property>
+    <property name="child">
+      <object class="AdwToolbarView">
+        <child type="top">
+          <object class="AdwHeaderBar">
+            <property name="show-end-title-buttons">false</property>
+          </object>
+        </child>
+        <property name="content">
+          <object class="AdwStatusPage" id="statusPage">
+            <property name="title" translatable="yes"></property>
+            <property name="description" translatable="yes"></property>
+
+              <property name="child">
+              <object class="GtkBox">
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">18</property>
+
+                <child>
+                  <object class="AdwClamp">
+                    <property name="maximum-size">700</property>
+                    <property name="tightening-threshold">700</property>
+                    <property name="unit">sp</property>
+                    <property name="child">
+                      <object class="AdwPreferencesGroup">
+                        <property name="title" translatable="yes">Settings</property>
+
+                        <child>
+                          <object class="AdwExpanderRow">
+                            <property name="title" translatable="yes">General settings</property>
+
+                            <child>
+                              <object class="AdwSwitchRow" id="hideUnavailable">
+                                <property name="title" translatable="yes">Hide unavailable device</property>
+                                <property name="subtitle" translatable="yes">If the device is not available, the status icon is hidden.</property>
+                                <signal name="notify::active" handler="_hideUnavailableSwitched" swapped="no"/>
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="AdwComboRow" id="comboIndicatorPosition">
+                                <property name="title" translatable="yes">Status icon position</property>
+                                <property name="model">
+                                  <object class="GtkStringList">
+                                    <items>
+                                    <item translatable="yes" comments="none">center</item>
+                                      <item translatable="yes" comments="bright">right</item>
+                                      <item translatable="yes" comments="dark">left</item>
+                                    </items>
+                                  </object>
+                                </property>
+                                <signal name="notify::selected-item" handler="_indicatorPositionSelected" swapped="no"/>
+                              </object>
+                            </child>
+
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="AdwExpanderRow" id="devicesOnLogin">
+                            <property name="title" translatable="yes">Turn on lights on login</property>
+                            <property name="subtitle" translatable="yes">Only previous state of color and brightness is supported.</property>
+
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="AdwExpanderRow">
+                            <property name="title" translatable="yes">Advanced settings</property>
+
+                            <child>
+                              <object class="AdwSpinRow" id="spinConnectionTimeout">
+                                <property name="title" translatable="yes">Connection timeout</property>
+                                <property name="adjustment">
+                                  <object class="GtkAdjustment">
+                                    <property name="lower">1</property>
+                                    <property name="upper">20</property>
+                                    <property name="value">5</property>
+                                    <property name="page-increment">3</property>
+                                    <property name="step-increment">1</property>
+                                    <signal name="value-changed" handler="_connectionTimeoutChanged" swapped="no"/>
+                                  </object>
+                                </property>
+                              </object>
+                            </child>
+
+                          </object>
+                        </child>
+
+                      </object>
+                    </property>
+                  </object>
+                </child>
+
+              </object>
+            </property>
+          </object>
+        </property>
+      </object>
+    </property>
+  </template>
+</interface>

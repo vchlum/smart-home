@@ -1,0 +1,13 @@
+smart-home@chlumskyvaclav.gmail.com.zip
+extension/schemas/gschemas.compiled
+extension/preferences.gresource
+build/
+
+eslint.config.mjs
+node_modules/
+package-lock.json
+package.json
+
+*.po~
+*.ui~
+*.ui#

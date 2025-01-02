@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>uicontrolsPhotoScene</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g fill="#101010">
+            <path d="M26,25 L6,25 C4.896,25 4,24.104 4,23 L4,11 C4,9.896 4.896,9 6,9 L9.586,9 C9.851,9 10.105,8.895 10.293,8.707 L13.414,5.586 C13.789,5.211 14.298,5 14.828,5 L17.172,5 C17.702,5 18.211,5.211 18.586,5.586 L21.707,8.707 C21.895,8.895 22.149,9 22.414,9 L26,9 C27.104,9 28,9.896 28,11 L28,23 C28,24.104 27.104,25 26,25 Z M22,16 C22,12.687 19.313,10 16,10 C12.687,10 10,12.687 10,16 C10,19.313 12.687,22 16,22 C19.313,22 22,19.313 22,16 Z M16,12 C18.205,12 20,13.795 20,16 C20,18.205 18.205,20 16,20 C13.795,20 12,18.205 12,16 C12,13.795 13.795,12 16,12 Z"></path>
+        </g>
+    </g>
+</svg>

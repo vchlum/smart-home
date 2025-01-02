@@ -1,0 +1,217 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-10-10 17:46+0200\n"
+"PO-Revision-Date: 2021-09-23 12:59+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.0\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n>=2 && n<=4 ? 1 : 2);\n"
+
+msgid "Refresh menu"
+msgstr "Obnovit menu"
+
+msgid "Settings"
+msgstr "Nastavení"
+
+msgid "All groups"
+msgstr "Všechny skupiny"
+
+msgid "No group selected"
+msgstr "Skupina není vybrána"
+
+msgid "No device selected"
+msgstr "Zařízení není vybráno"
+
+msgid "Color & Temperature"
+msgstr "Barva &  Teplota barvy"
+
+msgid "Scenes"
+msgstr "Scény"
+
+msgid "All rooms"
+msgstr "Všechny místnosti"
+
+msgid "All rooms and zones"
+msgstr "Všechny místnosti a zóny"
+
+msgid "Screen"
+msgstr "Obrazovka"
+
+msgid "Music"
+msgstr "Hudba"
+
+msgid "Track cursor"
+msgstr "Sledování kurzoru"
+
+msgid "Brightness"
+msgstr "Jas"
+
+msgid "Intensity"
+msgstr "Intenzita"
+
+msgid "Entertainment areas"
+msgstr "Zábavní oblasti"
+
+msgid "Please select entertainment area first."
+msgstr "Nejdříve vyberte zábavní oblast, prosím."
+
+msgid "Some other stream is active. Disable it first."
+msgstr "Jiné vysílání je aktivní. Nejdříve jej zastavte."
+
+msgid "is on"
+msgstr "je zapnutý"
+
+msgid "is syncing"
+msgstr "vysílá"
+
+msgid "Power"
+msgstr "Napájení"
+
+msgid "Restart"
+msgstr "Restartovat"
+
+msgid "Mode"
+msgstr "Mód"
+
+msgid "Input"
+msgstr "Vstup"
+
+msgid "Invalid IP address."
+msgstr "Neplatná IP adresa"
+
+msgid "Empty value ignored."
+msgstr "Prázdná hodnota je ignorována."
+
+msgid "Already enabled"
+msgstr "Již zapnuto"
+
+msgid "Add new device"
+msgstr "Přidat nové zařízení"
+
+msgid "IP address"
+msgstr "IP adresa"
+
+msgid "Add"
+msgstr "Přidat"
+
+msgid "Delete"
+msgstr "Odebrat"
+
+msgid "General settings"
+msgstr "Obecné nastavení"
+
+msgid "Hide unavailable device"
+msgstr "Skrýt nedostupné zařízení"
+
+msgid "If the device is not available, the status icon is hidden."
+msgstr "Pokud zařízení není dostupné, stavová ikona není zobrazena."
+
+msgid "Status icon position"
+msgstr "Posice ikony stavu"
+
+msgid "center"
+msgstr "střed"
+
+msgid "right"
+msgstr "vpravo"
+
+msgid "left"
+msgstr "vlevo"
+
+msgid "Turn on lights on login"
+msgstr "Zapnout světla při přihášení"
+
+msgid "Only previous state of color and brightness is supported."
+msgstr "Podporován je pouze předchozí stav barvy a jasu."
+
+msgid "Advanced settings"
+msgstr "Pokročílé nastavení"
+
+msgid "Connection timeout"
+msgstr "Doba vypršení spojení"
+
+msgid "All settings"
+msgstr "Všechno nastavení"
+
+msgid "Icon pack"
+msgstr "Sada ikon"
+
+msgid "none"
+msgstr "žádná"
+
+msgid "bright"
+msgstr "světlá"
+
+msgid "dark"
+msgstr "tmavá"
+
+msgid "Force English language"
+msgstr "Vynutit anglický jazyk"
+
+msgid "Requires relogin."
+msgstr "Vyžaduje znovupřihlášení."
+
+msgid "Log debug messages"
+msgstr "Zaznamenat ladící zprávy"
+
+msgid "Use with caution. It may overwhelm the log."
+msgstr "Používejte opatrně. Může zahlitit textový vystup."
+
+msgid "Desktop Sync"
+msgstr "Synchronizace plochy"
+
+msgid "Add by enabling in Philips Hue Bridge section."
+msgstr "Přidate v sekci Philips Hue mostu."
+
+msgid "Nanoleaf devices"
+msgstr "Nanoleaf zařízení"
+
+msgid "Miscellaneous"
+msgstr "Různé"
+
+msgid "Discover devices"
+msgstr "Objevit zařízení"
+
+msgid "It requires 'avahi-browse' installed."
+msgstr "Vyžaduje nainstalovaný 'avahi-browse'."
+
+msgid "About Smart Home"
+msgstr "O Smart Home"
+
+msgid "Device name"
+msgstr "Jméno zařízení"
+
+msgid "Jméno místnosti"
+msgstr ""
+
+msgid "Philips Hue Bridge"
+msgstr "Philips Hue most"
+
+msgid "Show zones first"
+msgstr "Zobrazit prvně zóny"
+
+msgid "Show scenes"
+msgstr "Zobrazit cény"
+
+msgid "Enable Desktop Sync features"
+msgstr "Zapnout funkce synchronizace plochy"
+
+msgid "Philips Hue Desktop Sync"
+msgstr "Philips Hue synchronizace plochy"
+
+msgid ""
+"This application makes use of fast changing light effects conditions alone, "
+"or in combination with certain content on the screen it may trigger "
+"previously undetected epileptic symptoms or seizures in persons who have no "
+"history of prior seizures or epilepsy."
+msgstr ""
+"Tato aplikace používá rychle se měnící světelné efekty a to buď samostatně "
+"nebo v kombinaci s obsahem obrazovky. Může tak spustit dříve neobjevené "
+"symptomy epilepsie nebo může vyvolat záchvaty u osob, které již epilepsii "
+"zažili."

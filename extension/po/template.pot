@@ -1,0 +1,211 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-10-10 17:46+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Refresh menu"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "All groups"
+msgstr ""
+
+msgid "No group selected"
+msgstr ""
+
+msgid "No device selected"
+msgstr ""
+
+msgid "Color & Temperature"
+msgstr ""
+
+msgid "Scenes"
+msgstr ""
+
+msgid "All rooms"
+msgstr ""
+
+msgid "All rooms and zones"
+msgstr ""
+
+msgid "Screen"
+msgstr ""
+
+msgid "Music"
+msgstr ""
+
+msgid "Track cursor"
+msgstr ""
+
+msgid "Brightness"
+msgstr ""
+
+msgid "Intensity"
+msgstr ""
+
+msgid "Entertainment areas"
+msgstr ""
+
+msgid "Please select entertainment area first."
+msgstr ""
+
+msgid "Some other stream is active. Disable it first."
+msgstr ""
+
+msgid "is on"
+msgstr ""
+
+msgid "is syncing"
+msgstr ""
+
+msgid "Power"
+msgstr ""
+
+msgid "Restart"
+msgstr ""
+
+msgid "Mode"
+msgstr ""
+
+msgid "Input"
+msgstr ""
+
+msgid "Invalid IP address."
+msgstr ""
+
+msgid ""Empty value ignored."
+msgstr ""
+
+msgid "Already enabled"
+msgstr ""
+
+msgid "Add new device"
+msgstr ""
+
+msgid "IP address"
+msgstr ""
+
+msgid "Add"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "General settings"
+msgstr ""
+
+msgid "If the device is not available, the status icon is hidden."
+msgstr ""
+
+msgid "Status icon position"
+msgstr ""
+
+msgid "center"
+msgstr ""
+
+msgid "right"
+msgstr ""
+
+msgid "left"
+msgstr ""
+
+msgid "Only previous state of color and brightness is supported."
+msgstr ""
+
+msgid "Advanced settings"
+msgstr ""
+
+msgid "Connection timeout"
+msgstr ""
+
+msgid "All settings"
+msgstr ""
+
+msgid "Icon pack"
+msgstr ""
+
+msgid "none"
+msgstr ""
+
+msgid "bright"
+msgstr ""
+
+msgid "dark"
+msgstr ""
+
+msgid "Force English language"
+msgstr ""
+
+msgid "Requires relogin."
+msgstr ""
+
+msgid "Log debug messages"
+msgstr ""
+
+msgid "Use with caution. It may overwhelm the log."
+msgstr ""
+
+msgid "Desktop Sync"
+msgstr ""
+
+msgid "Add by enabling in Philips Hue Bridge section."
+msgstr ""
+
+msgid "Hide unavailable device"
+msgstr ""
+
+msgid "Nanoleaf devices"
+msgstr ""
+
+msgid "Miscellaneous"
+msgstr ""
+
+msgid "Discover devices"
+msgstr ""
+
+msgid "It requires 'avahi-browse' installed."
+msgstr ""
+
+msgid "About Smart Home"
+msgstr ""
+
+msgid "Device name"
+msgstr ""
+
+msgid "Room name"
+msgstr ""
+
+msgid "Turn on lights on login"
+msgstr ""
+
+msgid "Philips Hue Bridge"
+msgstr ""
+
+msgid "Show zones first"
+msgstr ""
+
+msgid "Show scenes"
+msgstr ""
+
+msgid "Enable Desktop Sync features"
+msgstr ""
+
+msgid "Philips Hue Desktop Sync"
+msgstr ""
+
+msgid ""
+"This application makes use of fast changing light effects conditions alone, "
+"or in combination with certain content on the screen it may trigger "
+"previously undetected epileptic symptoms or seizures in persons who have no "
+"history of prior seizures or epilepsy."
+msgstr ""

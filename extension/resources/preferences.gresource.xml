@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+	<gresource prefix="/org/gnome/Shell/Extensions/smart-home">
+		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_page.ui</file>
+		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_main.ui</file>
+		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_add_device.ui</file>
+		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_device_row.ui</file>
+		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_device_light.ui</file>
+		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_philipshue-bridge.ui</file>
+		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_philipshue-desktopsync.ui</file>
+		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_philipshue-syncbox.ui</file>
+		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_ikea-dirigera.ui</file>
+		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_nanoleaf.ui</file>		
+	</gresource>
+</gresources>

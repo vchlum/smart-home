@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>lightdirectionLeftwards</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g fill="#101010">
+            <path d="M10.293,15.293 L14.293,11.293 C14.488,11.098 14.744,11 15,11 C15.256,11 15.512,11.098 15.707,11.293 C16.098,11.684 16.098,12.316 15.707,12.707 L13.414,15 L21,15 C21.553,15 22,15.447 22,16 C22,16.553 21.553,17 21,17 L13.414,17 L15.707,19.293 C16.098,19.684 16.098,20.316 15.707,20.707 C15.316,21.098 14.684,21.098 14.293,20.707 L10.293,16.707 C9.902,16.316 9.902,15.684 10.293,15.293 M16,28 C22.627,28 28,22.627 28,16 C28,9.373 22.627,4 16,4 C9.373,4 4,9.373 4,16 C4,22.627 9.373,28 16,28"></path>
+        </g>
+    </g>
+</svg>

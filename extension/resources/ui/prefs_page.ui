@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface domain="smart-home">
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="libadwaita" version="1.0"/>
+  <template class="SmartHomePrefsPage" parent="AdwPreferencesPage">
+    <child>
+      <object class="GtkScrolledWindow">
+        <property name="hscrollbar-policy">never</property>
+        <child>
+          <object class="AdwNavigationView" id="preferencesPage">
+
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>
