@@ -29,7 +29,7 @@ msgid "No device selected"
 msgstr "Zařízení není vybráno"
 
 msgid "Color & Temperature"
-msgstr "Barva &  Teplota barvy"
+msgstr "Barva & Teplota barvy"
 
 msgid "Scenes"
 msgstr "Scény"
@@ -113,7 +113,7 @@ msgid "If the device is not available, the status icon is hidden."
 msgstr "Pokud zařízení není dostupné, stavová ikona není zobrazena."
 
 msgid "Status icon position"
-msgstr "Posice ikony stavu"
+msgstr "Pozice ikony stavu"
 
 msgid "center"
 msgstr "střed"
@@ -155,13 +155,13 @@ msgid "Force English language"
 msgstr "Vynutit anglický jazyk"
 
 msgid "Requires relogin."
-msgstr "Vyžaduje znovupřihlášení."
+msgstr "Vyžaduje znovu přihlášení."
 
 msgid "Log debug messages"
 msgstr "Zaznamenat ladící zprávy"
 
 msgid "Use with caution. It may overwhelm the log."
-msgstr "Používejte opatrně. Může zahlitit textový vystup."
+msgstr "Používejte opatrně. Může zahltit textový výstup."
 
 msgid "Desktop Sync"
 msgstr "Synchronizace plochy"
@@ -187,17 +187,17 @@ msgstr "O Smart Home"
 msgid "Device name"
 msgstr "Jméno zařízení"
 
-msgid "Jméno místnosti"
-msgstr ""
+msgid "Room name"
+msgstr "Jméno místnosti"
 
 msgid "Philips Hue Bridge"
 msgstr "Philips Hue most"
 
 msgid "Show zones first"
-msgstr "Zobrazit prvně zóny"
+msgstr "Zobrazit zóny první"
 
 msgid "Show scenes"
-msgstr "Zobrazit cény"
+msgstr "Zobrazit scény"
 
 msgid "Enable Desktop Sync features"
 msgstr "Zapnout funkce synchronizace plochy"
