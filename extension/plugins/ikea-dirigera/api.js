@@ -497,8 +497,6 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
     }
 
     clear() {
-        Utils.logDebug("Ikea Dirigera clearing.");
-
         this.clearTimers();
     }
 });

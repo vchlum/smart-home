@@ -714,8 +714,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
     }
 
     /**
-     * Inform this parent class the connection to the device
-     * is in problem.
+     * Connection broken, try rebuild.
      *
      * @method connectionClosed
      */
@@ -1232,6 +1231,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         icon = object.get_children()[0];
         while (icon) {
             object.remove_child(icon);
+            icon.destroy();
             icon = object.get_children()[0];
         }
 
@@ -1707,7 +1707,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         }
 
         if (capabilities.includes('icon') && iconBox) {
-            this._itemRefresher[uuid]['icon'] = iconBox; // the label
+            this._itemRefresher[uuid]['icon'] = iconBox;
         }
 
         if (capabilities.includes('brightness') && itemType !== SmartHomeItemType.GROUP_ALL) {
@@ -1828,7 +1828,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
     _createGroup(ids, id, capabilities) {
         let item = new PopupMenu.PopupMenuItem('none');
 
+        let l = item.label;
         item.remove_child(item.label);
+        l.destroy();
         let [itemBox, label] = this.createItemBox(true);
         label.text = this.groups[id]['name'];
         item.insert_child_at_index(itemBox, 1);
@@ -1879,7 +1881,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
     _createDevice(id) {
         let item = new PopupMenu.PopupMenuItem('none');
 
+        let l = item.label;
         item.remove_child(item.label);
+        l.destroy();
         let [itemBox, label] = this.createItemBox(true);
         label.text = this.data['devices'][id]['name'];
         item.insert_child_at_index(itemBox, 1);
@@ -1943,7 +1947,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let items = [];
         let item = new PopupMenu.PopupMenuItem('');
         item.x_align = Clutter.ActorAlign.CENTER;
+        let l = item.label;
         item.remove_child(item.label);
+        l.destroy();
         let [hasColor, hasColorTemp] = this._checkColorOrColorTemp(controlIds);
         if (hasColor || hasColorTemp) {
             colorPickerBox = new ColorPicker.ColorPickerBox(
@@ -2280,7 +2286,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
             if (this.data['devices'][id]['section'] === 'static') {
                 let item = new PopupMenu.PopupMenuItem(this.data['devices'][id]['name']);
 
+                let l = item.label;
                 item.remove_child(item.label);
+                l.destroy();
                 let [itemBox, label] = this.createItemBox(true);
                 label.text = this.data['devices'][id]['name'];
                 item.insert_child_at_index(itemBox, 1);
@@ -2324,8 +2332,10 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
                 /* disable closing menu on item activated */
                 subMenu.menu.itemActivated = () => {};
-                
+
+                let l = subMenu.label;
                 subMenu.remove_child(subMenu.label);
+                l.destroy();
                 let [itemBox, label] = this.createItemBox(true);
                 label.text = this.data['groups'][id]['name'];
                 subMenu.insert_child_at_index(itemBox, 1);
@@ -2395,7 +2405,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
         /* disable closing menu on item activated */
         subMenu.menu.itemActivated = () => {};
 
+        let l = subMenu.label;
         subMenu.remove_child(subMenu.label);
+        l.destroy();
         let [itemBox, label] = this.createItemBox(true);
         label.text = this._("No group selected");
         subMenu.insert_child_at_index(itemBox, 1);
@@ -2451,7 +2463,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
         /* disable closing menu on item activated */
         subMenu.menu.itemActivated = () => {};
 
+        let l = subMenu.label;
         subMenu.remove_child(subMenu.label);
+        l.destroy();
         let [itemBox, label] = this.createItemBox(true);
         label.text = this._("No device selected");
         subMenu.insert_child_at_index(itemBox, 1);
