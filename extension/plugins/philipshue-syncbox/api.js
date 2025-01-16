@@ -503,18 +503,10 @@ export const PhilipsHueSyncBox =  GObject.registerClass({
      */
     async createRegistration() {
 
-        const CMD_HOSTNAME = "hostname";
-        let hostname = "";
         this._registrationCounter = 0;
 
-        try {
-            let output = GLib.spawn_command_line_sync(CMD_HOSTNAME);
-            let decoder = new TextDecoder();
-            hostname = decoder.decode(output[1]).trim();
-        } catch(e) {
-            hostname = "unknown-host";
-            Utils.logError(`Failed to get hostanme: ${e}`);
-        }
+        let hostname = GLib.get_host_name();
+        hostname = hostname.split(".")[0];
 
         /* device name can be up to 19 chars */
         if (hostname.length > 10) {

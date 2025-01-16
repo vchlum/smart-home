@@ -645,18 +645,10 @@ export const PhilipsHueBridge =  GObject.registerClass({
     }
 
     createUser() {
-        const CMD_HOSTNAME = "hostname";
-        let hostname = "";
         let username = "";
 
-        try {
-            let output = GLib.spawn_command_line_sync(CMD_HOSTNAME);
-            let decoder = new TextDecoder();
-            hostname = decoder.decode(output[1]).trim();
-        } catch(e) {
-            hostname = "unknown-host";
-            Utils.logError(`Failed to get hostanme: ${e}`);
-        }
+        let hostname = GLib.get_host_name();
+        hostname = hostname.split(".")[0];
 
         /* trim hostname to evoid too long username */
         if (hostname.length > 10) {
