@@ -18,7 +18,7 @@ This application makes use of fast changing light effects conditions alone, or i
 This extension supports Gnome Shell verison 46 and above.
 
 ## Installation from e.g.o
-
+https://extensions.gnome.org/extension/7737/smart-home/
 
 ## Manual installation
 
