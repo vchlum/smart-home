@@ -69,7 +69,7 @@ export const Plugin =  GObject.registerClass({
     preparePlugin() {
         let signal;
 
-        this.timers = [];
+        this._timers = [];
         this._ip = this._pluginSettings[this.id]['ip'];
         this._userName = this._pluginSettings[this.id]['username'];
         this._clientKey = this._pluginSettings[this.id]['clientkey'];
@@ -405,7 +405,7 @@ export const Plugin =  GObject.registerClass({
                 this._bridge.enableStream(this._currentAreaId);
                 return GLib.SOURCE_REMOVE;
             });
-            this.timers.push(timerId);
+            this._timers.push(timerId);
         }
     }
 
@@ -516,4 +516,19 @@ export const Plugin =  GObject.registerClass({
     }
 
     sceneGroup = this.sceneSingle;
+
+    /**
+     * Remove timers created by GLib.timeout_add
+     * 
+     * @method clearTimers
+     */
+    clearTimers() {
+        for (let t of this._timers) {
+            if (t) {
+                GLib.Source.remove(t);
+            }
+        }
+
+        this._timers = [];
+    }
 });

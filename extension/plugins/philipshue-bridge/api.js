@@ -263,7 +263,7 @@ export const PhilipsHueBridge =  GObject.registerClass({
     _init(props={}) {
         super._init(props);
 
-        this.timers = [];
+        this._timers = [];
 
         this._connected = false;
         this._session = Soup.Session.new();
@@ -421,11 +421,11 @@ export const PhilipsHueBridge =  GObject.registerClass({
                         () => {
                             this._request(method, url, requestType, data, ++counter);
 
-                            this.timers = Utils.removeFromArray(this.timers, timerId);
+                            this._timers = Utils.removeFromArray(this._timers, timerId);
                             return GLib.SOURCE_REMOVE;
                         }
                     );
-                    this.timers.push(timerId);
+                    this._timers.push(timerId);
 
                     return;
                 }
@@ -700,13 +700,13 @@ export const PhilipsHueBridge =  GObject.registerClass({
      * @method clearTimers
      */
     clearTimers() {
-        for (let t of this.timers) {
+        for (let t of this._timers) {
             if (t) {
                 GLib.Source.remove(t);
             }
         }
 
-        this.timers = [];
+        this._timers = [];
     }
 
     clear() {

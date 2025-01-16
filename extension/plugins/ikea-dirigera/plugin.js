@@ -475,12 +475,12 @@ export const Plugin =  GObject.registerClass({
             if (i < ids.length) {
                 return GLib.SOURCE_CONTINUE;
             } else {
-                this.timers = Utils.removeFromArray(this.timers, timerId);
+                this._timers = Utils.removeFromArray(this._timers, timerId);
                 return GLib.SOURCE_REMOVE;
             }
         });
 
-        this.timers.push(timerId);
+        this._timers.push(timerId);
     }
 
     positionSingle(id, value) {
@@ -630,5 +630,20 @@ export const Plugin =  GObject.registerClass({
                 await this._runOnStartDevice(id, device);
             }
         }
+    }
+
+    /**
+     * Remove timers created by GLib.timeout_add
+     * 
+     * @method clearTimers
+     */
+    clearTimers() {
+        for (let t of this._timers) {
+            if (t) {
+                GLib.Source.remove(t);
+            }
+        }
+
+        this._timers = [];
     }
 });

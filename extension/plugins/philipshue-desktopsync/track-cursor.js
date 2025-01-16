@@ -46,6 +46,7 @@ export const TrackCursor =  GObject.registerClass({
         super._init(ip, userName, clientKey);
         this.name = 'sync-cursor';
         this._id = id;
+        this._timers = [];
         this._channels = channels;
         this.screenshot = new Screenshot.Screenshot();
         this.streamingFunction = this.trackCursor;
@@ -81,8 +82,23 @@ export const TrackCursor =  GObject.registerClass({
 
         let timerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this.intensity, () => {
             this.trackCursor();
-            this.timers = Utils.removeFromArray(this.timers, timerId);
+            this._timers = Utils.removeFromArray(this._timers, timerId);
         });
-        this.timers.push(timerId);
+        this._timers.push(timerId);
+    }
+
+    /**
+     * Remove timers created by GLib.timeout_add
+     * 
+     * @method clearTimers
+     */
+    clearTimers() {
+        for (let t of this._timers) {
+            if (t) {
+                GLib.Source.remove(t);
+            }
+        }
+
+        this._timers = [];
     }
 });

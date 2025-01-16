@@ -174,7 +174,7 @@ export const Plugin =  GObject.registerClass({
 
     preparePlugin() {
         let signal;
-        this.timers = [];
+        this._timers = [];
 
         this._bridge = new Api.PhilipsHueBridge({
             ip: this._pluginSettings[this.id]['ip'],
@@ -659,12 +659,12 @@ export const Plugin =  GObject.registerClass({
                 return GLib.SOURCE_CONTINUE;
             } else {
                 this._bridge.getAll();
-                this.timers = Utils.removeFromArray(this.timers, timerId);
+                this._timers = Utils.removeFromArray(this._timers, timerId);
                 return GLib.SOURCE_REMOVE;
             }
         });
 
-        this.timers.push(timerId);
+        this._timers.push(timerId);
     }
 
     sceneGroup(id, ids) {
@@ -689,12 +689,12 @@ export const Plugin =  GObject.registerClass({
                         return GLib.SOURCE_CONTINUE;
                     } else {
                         this._bridge.getAll();
-                        this.timers = Utils.removeFromArray(this.timers, timerId);
+                        this._timers = Utils.removeFromArray(this._timers, timerId);
                         return GLib.SOURCE_REMOVE;
                     }
                 });
 
-                this.timers.push(timerId);
+                this._timers.push(timerId);
 
                 return;
             }
@@ -751,5 +751,20 @@ export const Plugin =  GObject.registerClass({
                 await this._runOnStartDevice(id, device);
             }
         }
+    }
+
+    /**
+     * Remove timers created by GLib.timeout_add
+     * 
+     * @method clearTimers
+     */
+    clearTimers() {
+        for (let t of this._timers) {
+            if (t) {
+                GLib.Source.remove(t);
+            }
+        }
+
+        this._timers = [];
     }
 });

@@ -178,7 +178,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._itemRefresher = {};
         this._iconPack = SmartHomeIconPack.BRIGHT;
         this._pluginSettings = {};
-        this.timers = [];
+        this._timers = [];
         this._needsRebuild = true;
         this._menuObjects = {};
         this._allMenusSelected = {};
@@ -886,7 +886,23 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._itemRefresher = {};
         this._openMenu = undefined;
         this.menu.removeAll();
-        this.clearTimers();
+
+        if (this.clearTimers) {
+            this.clearTimers();
+        }
+
+        if (this._reconnectTimer) {
+            GLib.Source.remove(this._reconnectTimer);
+            this._reconnectTimer = null;
+        }
+
+        for (let t of this._timers) {
+            if (t) {
+                GLib.Source.remove(t);
+            }
+        }
+
+        this._timers = [];
     }
 
     /**
@@ -2976,29 +2992,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
             fnc();
 
             this._runOnlyOnceInProgress = false;
-            this.timers = Utils.removeFromArray(this.timers, timerId);
+            this._timers = Utils.removeFromArray(this._timers, timerId);
         });
-        this.timers.push(timerId);
-    }
-
-    /**
-     * Remove timers created by GLib.timeout_add
-     * 
-     * @method clearTimers
-     */
-    clearTimers() {
-        if (this._reconnectTimer) {
-            GLib.Source.remove(this._reconnectTimer);
-            this._reconnectTimer = null;
-        }
-
-        for (let t of this.timers) {
-            if (t) {
-                GLib.Source.remove(t);
-            }
-        }
-
-        this.timers = [];
+        this._timers.push(timerId);
     }
 
     /**

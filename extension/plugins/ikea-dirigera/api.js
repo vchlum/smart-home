@@ -127,7 +127,7 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
         this._session = Soup.Session.new();
         this._session.timeout = Utils.IKEADIRIGERA_DEFAULT_TIMEOUT;
 
-        this.timers = [];
+        this._timers = [];
 
         let tlsDatabase =  new TlsDatabaseBridge();
         this._session.tls_database  = tlsDatabase;
@@ -445,10 +445,10 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
 
         let timerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
             this.getAuthorized(code);
-            this.timers = Utils.removeFromArray(this.timers, timerId);
+            this._timers = Utils.removeFromArray(this._timers, timerId);
             return GLib.SOURCE_REMOVE;
         });
-        this.timers.push(timerId);
+        this._timers.push(timerId);
     }
 
     getAll() {
@@ -479,13 +479,13 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
      * @method clearTimers
      */
     clearTimers() {
-        for (let t of this.timers) {
+        for (let t of this._timers) {
             if (t) {
                 GLib.Source.remove(t);
             }
         }
 
-        this.timers = [];
+        this._timers = [];
     }
 
     clear() {

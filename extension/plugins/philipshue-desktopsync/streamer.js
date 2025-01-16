@@ -43,7 +43,6 @@ export const Streamer =  GObject.registerClass({
     _init(ip, userName, clientKey) {
         super._init();
 
-        this.timers = [];
         this._streamingFunction = null;
         this.brightness = 1.0;
         this.intensity = 100;
@@ -82,7 +81,9 @@ export const Streamer =  GObject.registerClass({
     }
 
     disconnectStream() {
-        this.clearTimers();
+        if (this.clearTimers) {
+            this.clearTimers();
+        }
         this.dtls.closeBridge();
     }
 
@@ -163,21 +164,6 @@ export const Streamer =  GObject.registerClass({
         msg = msg.concat(DTLSClient.uintToArray(blue, 8));
         msg = msg.concat(DTLSClient.uintToArray(blue, 8));
         return msg;
-    }
-
-    /**
-     * Remove timers created by GLib.timeout_add
-     * 
-     * @method clearTimers
-     */
-    clearTimers() {
-        for (let t of this.timers) {
-            if (t) {
-                GLib.Source.remove(t);
-            }
-        }
-
-        this.timers = [];
     }
 
     disconnectSignals() {
