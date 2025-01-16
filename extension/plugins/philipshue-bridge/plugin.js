@@ -174,7 +174,7 @@ export const Plugin =  GObject.registerClass({
 
     preparePlugin() {
         let signal;
-        this._timers = [];
+        this.timers = [];
 
         this._bridge = new Api.PhilipsHueBridge({
             ip: this._pluginSettings[this.id]['ip'],
@@ -659,12 +659,12 @@ export const Plugin =  GObject.registerClass({
                 return GLib.SOURCE_CONTINUE;
             } else {
                 this._bridge.getAll();
-                this._timers = Utils.removeFromArray(this._timers, timerId);
+                this.timers = Utils.removeFromArray(this.timers, timerId);
                 return GLib.SOURCE_REMOVE;
             }
         });
 
-        this._timers.push(timerId);
+        this.timers.push(timerId);
     }
 
     sceneGroup(id, ids) {
@@ -689,12 +689,12 @@ export const Plugin =  GObject.registerClass({
                         return GLib.SOURCE_CONTINUE;
                     } else {
                         this._bridge.getAll();
-                        this._timers = Utils.removeFromArray(this._timers, timerId);
+                        this.timers = Utils.removeFromArray(this.timers, timerId);
                         return GLib.SOURCE_REMOVE;
                     }
                 });
 
-                this._timers.push(timerId);
+                this.timers.push(timerId);
 
                 return;
             }

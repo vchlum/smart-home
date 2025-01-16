@@ -69,7 +69,7 @@ export const Plugin =  GObject.registerClass({
     preparePlugin() {
         let signal;
 
-        this._timers = [];
+        this.timers = [];
         this._ip = this._pluginSettings[this.id]['ip'];
         this._userName = this._pluginSettings[this.id]['username'];
         this._clientKey = this._pluginSettings[this.id]['clientkey'];
@@ -405,7 +405,7 @@ export const Plugin =  GObject.registerClass({
                 this._bridge.enableStream(this._currentAreaId);
                 return GLib.SOURCE_REMOVE;
             });
-            this._timers.push(timerId);
+            this.timers.push(timerId);
         }
     }
 

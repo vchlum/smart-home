@@ -140,7 +140,7 @@ export const NanoLightsDevice =  GObject.registerClass({
 
         super._init(props);
 
-        this._timers = [];
+        this.timers = [];
         this._connected = false;
 
         this.name = "unknown name";
@@ -700,13 +700,13 @@ export const NanoLightsDevice =  GObject.registerClass({
      * @method clearTimers
      */
     clearTimers() {
-        for (let t of this._timers) {
+        for (let t of this.timers) {
             if (t) {
                 GLib.Source.remove(t);
             }
         }
 
-        this._timers = [];
+        this.timers = [];
     }
 
     clear() {

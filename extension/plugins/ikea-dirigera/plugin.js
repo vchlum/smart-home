@@ -475,12 +475,12 @@ export const Plugin =  GObject.registerClass({
             if (i < ids.length) {
                 return GLib.SOURCE_CONTINUE;
             } else {
-                this._timers = Utils.removeFromArray(this._timers, timerId);
+                this.timers = Utils.removeFromArray(this.timers, timerId);
                 return GLib.SOURCE_REMOVE;
             }
         });
 
-        this._timers.push(timerId);
+        this.timers.push(timerId);
     }
 
     positionSingle(id, value) {

@@ -236,7 +236,7 @@ export const PhilipsHueSyncBox =  GObject.registerClass({
 
         super._init(props);
 
-        this._timers = [];
+        this.timers = [];
         this._syncBoxError = [];
 
         this._appName = "hue-lights";
@@ -563,11 +563,11 @@ export const PhilipsHueSyncBox =  GObject.registerClass({
             this._POST(url, RequestType.REGISTRATION, data);
 
             let timerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
-                this._timers = Utils.removeFromArray(this._timers, timerId);
+                this.timers = Utils.removeFromArray(this.timers, timerId);
                 resolve();
                 return GLib.SOURCE_REMOVE;
             });
-            this._timers.push(timerId);
+            this.timers.push(timerId);
         });
     }
 
@@ -663,13 +663,13 @@ export const PhilipsHueSyncBox =  GObject.registerClass({
      * @method clearTimers
      */
     clearTimers() {
-        for (let t of this._timers) {
+        for (let t of this.timers) {
             if (t) {
                 GLib.Source.remove(t);
             }
         }
 
-        this._timers = [];
+        this.timers = [];
     }
 
     clear() {

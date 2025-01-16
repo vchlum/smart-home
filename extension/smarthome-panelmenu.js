@@ -178,7 +178,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._itemRefresher = {};
         this._iconPack = SmartHomeIconPack.BRIGHT;
         this._pluginSettings = {};
-        this._timers = [];
+        this.timers = [];
         this._needsRebuild = true;
         this._menuObjects = {};
         this._allMenusSelected = {};
@@ -2976,9 +2976,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
             fnc();
 
             this._runOnlyOnceInProgress = false;
-            this._timers = Utils.removeFromArray(this._timers, timerId);
+            this.timers = Utils.removeFromArray(this.timers, timerId);
         });
-        this._timers.push(timerId);
+        this.timers.push(timerId);
     }
 
     /**
@@ -2992,13 +2992,13 @@ export const SmartHomePanelMenu = GObject.registerClass({
             this._reconnectTimer = null;
         }
 
-        for (let t of this._timers) {
+        for (let t of this.timers) {
             if (t) {
                 GLib.Source.remove(t);
             }
         }
 
-        this._timers = [];
+        this.timers = [];
     }
 
     /**

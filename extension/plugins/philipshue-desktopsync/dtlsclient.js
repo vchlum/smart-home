@@ -224,7 +224,7 @@ export const DTLSClient =  GObject.registerClass({
     _init(props={}) {
         super._init(props);
 
-        this._timers = [];
+        this.timers = [];
         this._handshakeInProgress = true;
         this._connection = null;
         this._dataInputStream = null;
@@ -324,7 +324,7 @@ export const DTLSClient =  GObject.registerClass({
         this._sendHandshakeRequest();
 
         let timerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
-            this._timers = Utils.removeFromArray(this._timers, timerId);
+            this.timers = Utils.removeFromArray(this.timers, timerId);
 
             /* if  the handshake is still in progress, we have probably lost some UDP data, try again */
             if (this._handshakeInProgress) {
@@ -334,7 +334,7 @@ export const DTLSClient =  GObject.registerClass({
             return GLib.SOURCE_REMOVE;
         });
 
-        this._timers.push(timerId);
+        this.timers.push(timerId);
     }
 
     /**
@@ -1173,12 +1173,12 @@ export const DTLSClient =  GObject.registerClass({
     }
 
     clearTimers() {
-        for (let t of this._timers) {
+        for (let t of this.timers) {
             if (t) {
                 GLib.Source.remove(t);
             }
         }
 
-        this._timers = [];
+        this.timers = [];
     }
 })

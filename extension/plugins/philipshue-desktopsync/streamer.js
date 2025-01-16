@@ -43,7 +43,7 @@ export const Streamer =  GObject.registerClass({
     _init(ip, userName, clientKey) {
         super._init();
 
-        this._timers = [];
+        this.timers = [];
         this._streamingFunction = null;
         this.brightness = 1.0;
         this.intensity = 100;
@@ -171,13 +171,13 @@ export const Streamer =  GObject.registerClass({
      * @method clearTimers
      */
     clearTimers() {
-        for (let t of this._timers) {
+        for (let t of this.timers) {
             if (t) {
                 GLib.Source.remove(t);
             }
         }
 
-        this._timers = [];
+        this.timers = [];
     }
 
     disconnectSignals() {

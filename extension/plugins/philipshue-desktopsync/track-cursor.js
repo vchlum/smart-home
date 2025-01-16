@@ -81,8 +81,8 @@ export const TrackCursor =  GObject.registerClass({
 
         let timerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this.intensity, () => {
             this.trackCursor();
-            this._timers = Utils.removeFromArray(this._timers, timerId);
+            this.timers = Utils.removeFromArray(this.timers, timerId);
         });
-        this._timers.push(timerId);
+        this.timers.push(timerId);
     }
 });
