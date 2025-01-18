@@ -1,0 +1,217 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-10-10 17:46+0200\n"
+"PO-Revision-Date: 2025-01-18 12:51+0100\n"
+"Last-Translator: Christian Lauinger <christian@lauinger-clan.de>\n"
+"Language-Team: \n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.5\n"
+
+msgid "Refresh menu"
+msgstr "Menü aktualisieren"
+
+msgid "Settings"
+msgstr "Einstellungen"
+
+msgid "All groups"
+msgstr "Alle Gruppen"
+
+msgid "No group selected"
+msgstr "Keine Gruppe ausgewählt"
+
+msgid "No device selected"
+msgstr "Kein Gerät ausgewählt"
+
+msgid "Color & Temperature"
+msgstr "Farbe & Temperatur"
+
+msgid "Scenes"
+msgstr "Szene"
+
+msgid "All rooms"
+msgstr "Alle Räume"
+
+msgid "All rooms and zones"
+msgstr "Alle Räume und Zonen"
+
+msgid "Screen"
+msgstr "Bildschirm"
+
+msgid "Music"
+msgstr "Musik"
+
+msgid "Track cursor"
+msgstr "Cursor verfolgen"
+
+msgid "Brightness"
+msgstr "Helligkeit"
+
+msgid "Intensity"
+msgstr "Intensität"
+
+msgid "Entertainment areas"
+msgstr "Unterhaltungsbereiche"
+
+msgid "Please select entertainment area first."
+msgstr "Bitte wählen Sie zuerst den Unterhaltungsbereich aus."
+
+msgid "Some other stream is active. Disable it first."
+msgstr "Ein anderer Stream ist aktiv. Deaktivieren Sie ihn zuerst."
+
+msgid "is on"
+msgstr "ist eingeschaltet"
+
+msgid "is syncing"
+msgstr "wird synchronisiert"
+
+msgid "Power"
+msgstr "Strom"
+
+msgid "Restart"
+msgstr "Neustart"
+
+msgid "Mode"
+msgstr "Modus"
+
+msgid "Input"
+msgstr "Eingang"
+
+msgid "Invalid IP address."
+msgstr "Ungültige IP-Adresse."
+
+msgid "\"Empty value ignored."
+msgstr "„Leerer Wert wird ignoriert."
+
+msgid "Already enabled"
+msgstr "Bereits aktiviert"
+
+msgid "Add new device"
+msgstr "Neues Gerät hinzufügen"
+
+msgid "IP address"
+msgstr "IP-Adresse"
+
+msgid "Add"
+msgstr "Hinzufügen"
+
+msgid "Delete"
+msgstr "Löschen"
+
+msgid "General settings"
+msgstr "Allgemeine Einstellungen"
+
+msgid "If the device is not available, the status icon is hidden."
+msgstr ""
+"Wenn das Gerät nicht verfügbar ist, wird das Statussymbol ausgeblendet."
+
+msgid "Status icon position"
+msgstr "Position des Statussymbols"
+
+msgid "center"
+msgstr "mittig"
+
+msgid "right"
+msgstr "rechts"
+
+msgid "left"
+msgstr "links"
+
+msgid "Only previous state of color and brightness is supported."
+msgstr "Nur der vorherige Zustand von Farbe und Helligkeit wird unterstützt."
+
+msgid "Advanced settings"
+msgstr "Erweiterte Einstellungen"
+
+msgid "Connection timeout"
+msgstr "Zeitüberschreitung der Verbindung"
+
+msgid "All settings"
+msgstr "Alle Einstellungen"
+
+msgid "Icon pack"
+msgstr "Icon Pack"
+
+msgid "none"
+msgstr "keine"
+
+msgid "bright"
+msgstr "hell"
+
+msgid "dark"
+msgstr "dunkel"
+
+msgid "Force English language"
+msgstr "Englische Sprache erzwingen"
+
+msgid "Requires relogin."
+msgstr "Erfordert Neuanmeldung."
+
+msgid "Log debug messages"
+msgstr "Debug-Meldungen protokollieren"
+
+msgid "Use with caution. It may overwhelm the log."
+msgstr "Seien Sie vorsichtig. Es kann das Protokoll überfordern."
+
+msgid "Desktop Sync"
+msgstr "Desktop-Synchronisierung"
+
+msgid "Add by enabling in Philips Hue Bridge section."
+msgstr "Hinzufügen durch Aktivieren im Abschnitt Philips Hue Bridge."
+
+msgid "Hide unavailable device"
+msgstr "Nicht verfügbares Gerät ausblenden"
+
+msgid "Nanoleaf devices"
+msgstr "Nanoleaf-Geräte"
+
+msgid "Miscellaneous"
+msgstr "Verschiedenes"
+
+msgid "Discover devices"
+msgstr "Geräte entdecken"
+
+msgid "It requires 'avahi-browse' installed."
+msgstr "Es erfordert die Installation von 'avahi-browse'."
+
+msgid "About Smart Home"
+msgstr "Über Smart Home"
+
+msgid "Device name"
+msgstr "Name des Geräts"
+
+msgid "Room name"
+msgstr "Name des Zimmers"
+
+msgid "Turn on lights on login"
+msgstr "Licht einschalten bei der Anmeldung"
+
+msgid "Philips Hue Bridge"
+msgstr "Philips Hue Bridge"
+
+msgid "Show zones first"
+msgstr "Zonen zuerst anzeigen"
+
+msgid "Show scenes"
+msgstr "Szenen anzeigen"
+
+msgid "Enable Desktop Sync features"
+msgstr "Desktop-Synchronisierungsfunktionen aktivieren"
+
+msgid "Philips Hue Desktop Sync"
+msgstr "Philips Hue Desktop Sync"
+
+msgid ""
+"This application makes use of fast changing light effects conditions alone, "
+"or in combination with certain content on the screen it may trigger "
+"previously undetected epileptic symptoms or seizures in persons who have no "
+"history of prior seizures or epilepsy."
+msgstr ""
+"Diese Anwendung nutzt schnell wechselnde Lichteffekte, die allein oder in "
+"Kombination mit bestimmten Bildschirminhalten bisher unerkannte "
+"epileptische Symptome oder Anfälle bei Personen auslösen können, bei denen "
+"keine Anfälle oder Epilepsie bekannt sind."
