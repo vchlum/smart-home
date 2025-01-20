@@ -56,6 +56,9 @@ export const Plugin =  GObject.registerClass({
     }
 
     settingRead() {
+        if (!this._pluginSettings[this.id]) {
+            return; //device is being removed
+        }
 
         if (this._pluginSettings[this.id]['connection-timeout'] !== undefined) {
             this._connectionTimeout = Number(this._pluginSettings[this.id]['connection-timeout']);

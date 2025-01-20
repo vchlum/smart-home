@@ -86,7 +86,7 @@ export const SmartHomeNanoleaf = GObject.registerClass({
                     Utils.SETTINGS_NANOLEAF
                 ).deep_unpack();
 
-                if (this._pluginSettings[this._id]['on-login']) {
+                if (this._pluginSettings[this._id] && this._pluginSettings[this._id]['on-login']) {
                     this._onLoginSettings = JSON.parse(this._pluginSettings[this._id]['on-login']);
                 }
 

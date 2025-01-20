@@ -151,6 +151,10 @@ export const Plugin =  GObject.registerClass({
     }
 
     settingRead() {
+        if (!this._pluginSettings[this.id]) {
+            return; //device is being removed
+        }
+
         if (this._pluginSettings[this.id]['zones-first'] !== undefined) {
             this._zonesFirst =  this._pluginSettings[this.id]['zones-first'] === 'true';
         }
