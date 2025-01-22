@@ -53,6 +53,8 @@ export const SmartHomeAddDevice = GObject.registerClass({
     InternalChildren: [
         "addDevicePage",
         "ipAddress",
+        "port",
+        "accessToken",
 
     ],
     Signals: {
@@ -70,6 +72,15 @@ export const SmartHomeAddDevice = GObject.registerClass({
         }
     }
 
+    showPortDefault(port) {
+        this._port.visible = true;
+        this._port.text = port.toString();
+    }
+
+    showToken() {
+        this._accessToken.visible = true;
+    }
+
     _addActivated(){
         const re = new RegExp('^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$');
         if (! re.test(this._ipAddress.text)) {
@@ -80,6 +91,8 @@ export const SmartHomeAddDevice = GObject.registerClass({
         }
 
         this.ip = this._ipAddress.text;
+        this.port = this._port.text;
+        this.accessToken = this._accessToken.text;
         this.emit('ipAdded');
     }
 

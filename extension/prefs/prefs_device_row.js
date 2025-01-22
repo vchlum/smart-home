@@ -77,6 +77,7 @@ export const SmartHomeDeviceRow = GObject.registerClass({
         super._init();
         this.pluginName = pluginName;
         this.ip = deviceSettings['ip'];
+        this.port = deviceSettings['port'];
         this.title = deviceSettings['name'];
         this.subtitle = deviceSettings['ip'];
         this._addDialog = addDialog;
@@ -91,7 +92,7 @@ export const SmartHomeDeviceRow = GObject.registerClass({
     }
 
     _runAddDialog() {
-        this._addDialog.call(this._contextDialog, this.ip);
+        this._addDialog.call(this._contextDialog, this.ip, this.port);
     }
 
 });

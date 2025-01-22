@@ -38,6 +38,22 @@
                           </child>
 
                           <child>
+                            <object class="AdwEntryRow" id="port">
+                              <property name="title" translatable="yes">Port</property>
+                              <property name="use_underline">True</property>
+                              <property name="visible">False</property>
+                            </object>
+                          </child>
+
+                          <child>
+                            <object class="AdwEntryRow" id="accessToken">
+                              <property name="title" translatable="yes">Token</property>
+                              <property name="use_underline">True</property>
+                              <property name="visible">False</property>
+                            </object>
+                          </child>
+
+                          <child>
                             <object class="AdwActionRow" id="addButton">
                               <property name="title" translatable="yes">Add</property>
                               <property name="activatable">True</property>

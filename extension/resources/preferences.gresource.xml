@@ -6,6 +6,7 @@
 		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_add_device.ui</file>
 		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_device_row.ui</file>
 		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_device_light.ui</file>
+		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_home-assistant.ui</file>
 		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_philipshue-bridge.ui</file>
 		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_philipshue-desktopsync.ui</file>
 		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_philipshue-syncbox.ui</file>

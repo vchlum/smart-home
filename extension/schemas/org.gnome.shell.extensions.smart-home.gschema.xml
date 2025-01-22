@@ -46,6 +46,10 @@
       <default>{}</default>
       <summary>Dirigera</summary>
     </key>
+    <key name="home-assistant" type="a{sa{ss}}">
+      <default>{}</default>
+      <summary>Home Assistant</summary>
+    </key>
     <key name="menu-selection" type="a{sa{ss}}">
       <default>{}</default>
       <summary>Current selection in menu.</summary>

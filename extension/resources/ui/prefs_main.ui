@@ -81,6 +81,40 @@
                   <property name="unit">sp</property>
                   <property name="child">
                     <object class="AdwPreferencesGroup">
+                      <property name="title">Home Assitant</property>
+
+                      <child>
+                        <object class="AdwExpanderRow" id="philipsHomeAssistantRows">
+                          <property name="title">Home Assistant</property>
+                          
+                          <child type="suffix">
+                            <object class="GtkButton">
+                              <property name="valign">center</property>
+                              <property name="icon_name">list-add-symbolic</property>
+                              <property name="tooltip-text" translatable="yes">Add</property>
+                              <property name="action-name">add-device-home-assistant.run</property>
+                              <style>
+                                <class name="flat"/>
+                              </style>
+                            </object>
+                          </child>
+
+                        </object>
+                      </child>
+
+                    </object>
+                  </property>
+
+                </object>
+              </child>
+
+              <child>
+                <object class="AdwClamp">
+                  <property name="maximum-size">700</property>
+                  <property name="tightening-threshold">700</property>
+                  <property name="unit">sp</property>
+                  <property name="child">
+                    <object class="AdwPreferencesGroup">
                       <property name="title">Philips Hue</property>
 
                       <child>

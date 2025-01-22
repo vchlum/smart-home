@@ -41,6 +41,7 @@ import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Ex
 import * as Utils from '../utils.js';
 import * as SmartHomeAddDevice from './prefs_add_device.js';
 
+import * as HomeAssistantApi from '../plugins/home-assistant/api.js';
 import * as PhilipsHueBridgeApi from '../plugins/philipshue-bridge/api.js';
 import * as PhilipsHueSyncboxApi from '../plugins/philipshue-syncbox/api.js';
 import * as NanoleafApi from '../plugins/nanoleaf/api.js';
@@ -53,6 +54,7 @@ export const PreferencesMain = GObject.registerClass({
         "comboIconPack",
         "switchForceEnglish",
         "switchDebug",
+        "philipsHomeAssistantRows",
         "philipsHueBridgeRows",
         "philipsHueDesktopSyncRows",
         "philipsHueSyncboxRows",
@@ -64,6 +66,10 @@ export const PreferencesMain = GObject.registerClass({
 }, class PreferencesMain extends Adw.NavigationPage {
     static _classInit(klass) {
         super._classInit(klass);
+
+        klass.install_action('add-device-home-assistant.run', null, (widget, actionName, parameter) => {
+            widget.addDialogHomeAssistant();
+        });
 
         klass.install_action('add-device-philipshue-bridge.run', null, (widget, actionName, parameter) => {
             widget.addDialogPhilipsHueBridge();
@@ -218,6 +224,7 @@ export const PreferencesMain = GObject.registerClass({
 
         try {
             const { SmartHomeDeviceRow } = await import('./prefs_device_row.js');
+            const { SmartHomeHomeAssistant } = await import('./prefs_home-assistant.js');
             const { SmartHomePhilipsHueBridge } = await import('./prefs_philipshue-bridge.js');
             const { SmartHomePhilipsHueDesktopSync } = await import('./prefs_philipshue-desktopsync.js');
             const { SmartHomePhilipsHueSyncbox } = await import('./prefs_philipshue-syncbox.js');
@@ -236,6 +243,11 @@ export const PreferencesMain = GObject.registerClass({
             let deviceRow = new SmartHomeDeviceRow(pluginName, pluginID, id, deviceSettings, addDialog, this);
 
             switch (pluginName) {
+                case Utils.SETTINGS_HOMEASSISTANT:
+                    rowsObject = this._philipsHomeAssistantRows;
+                    devicePage = new SmartHomeHomeAssistant(pluginID, id, this._settings);
+                    break;
+
                 case Utils.SETTINGS_PHILIPSHUEBRIDGE:
                     rowsObject = this._philipsHueBridgeRows;
                     devicePage = new SmartHomePhilipsHueBridge(pluginID, id, this._settings);
@@ -321,6 +333,10 @@ export const PreferencesMain = GObject.registerClass({
             let deviceRow = new SmartHomeDeviceRow(pluginName, pluginID, id, deviceSettings, addDialog, this);
 
             switch (pluginName) {
+                case Utils.SETTINGS_HOMEASSISTANT:
+                    rowsObject = this._philipsHomeAssistantRows;
+                    break;
+
                 case Utils.SETTINGS_PHILIPSHUEBRIDGE:
                     rowsObject = this._philipsHueBridgeRows;
                     break;
@@ -381,6 +397,9 @@ export const PreferencesMain = GObject.registerClass({
         let addDialog = null;
         if (! hasAccess) {
             switch(pluginName) {
+                case Utils.SETTINGS_HOMEASSISTANT:
+                    addDialog = this.addDialogHomeAssistant;
+                    break;
                 case Utils.SETTINGS_PHILIPSHUEBRIDGE:
                     addDialog = this.addDialogPhilipsHueBridge;
                     break;
@@ -408,6 +427,11 @@ export const PreferencesMain = GObject.registerClass({
         }
 
         switch(pluginName) {
+            case Utils.SETTINGS_HOMEASSISTANT:
+                if (deviceSettings['accessToken'] !== undefined && deviceSettings['accessToken'].length > 0) {
+                    hasAccess = true;
+                }
+                break;
             case Utils.SETTINGS_PHILIPSHUEBRIDGE:
                 if (deviceSettings['username'] !== undefined && deviceSettings['username'].length > 0) {
                     hasAccess = true;
@@ -445,6 +469,23 @@ export const PreferencesMain = GObject.registerClass({
             }
         }
         return false;
+    }
+
+    addDialogHomeAssistant(ipAddress = null, port = 8123) {
+        let add = new SmartHomeAddDevice.SmartHomeAddDevice(
+            "Home Assistant",
+            "Please, insert Home Assistant IP address and an access token.",
+            ipAddress
+        );
+        add.connect(
+            'ipAdded',
+            this._addDialogHomeAssistantCallback.bind(this)
+        );
+
+        add.showPortDefault(port);
+        add.showToken();
+
+        add.present(this);
     }
 
     addDialogPhilipsHueBridge(ipAddress = null) {
@@ -502,6 +543,51 @@ export const PreferencesMain = GObject.registerClass({
 
         add.present(this);
     }
+
+    _addDialogHomeAssistantCallback(object) {
+        if (this.checkIpExists(Utils.SETTINGS_HOMEASSISTANT, object.ip)) {
+            return;
+        }
+
+        let bridge = new HomeAssistantApi.HomeAssistantBridge({
+            ip: object.ip,
+            port: object.port,
+            token: object.accessToken
+        });
+
+        bridge.connect(
+            'config',
+            () => {
+                let name = bridge.data['location_name'].replace(/\s+/g,"_");
+
+                this._settingsLoaded[Utils.SETTINGS_HOMEASSISTANT][object.ip] = {
+                    'ip': object.ip,
+                    'port': object.port,
+                    'accessToken': object.accessToken,
+                    'name': name
+                }
+
+                let toast = Adw.Toast.new("Connected");
+                toast.set_timeout(3);
+                this.get_root().add_toast(toast);
+
+                this.writeSettings();
+            }
+        );
+
+        bridge.connect(
+            'connection-problem',
+            () => {
+                let toast = Adw.Toast.new("Failed to connect to the device.");
+                toast.set_timeout(3);
+                this.get_root().add_toast(toast);
+            }
+        )
+
+        bridge.getConfig();
+
+        object.close();
+    };
 
     _addDialogPhilipsHueBridgeCallback(object) {
         if (this.checkIpExists(Utils.SETTINGS_PHILIPSHUEBRIDGE, object.ip)) {
@@ -762,6 +848,13 @@ export const PreferencesMain = GObject.registerClass({
 
     discoverAll() {
         try {
+            let discoveryHomeAssistant = new HomeAssistantApi.DiscoveryHomeAssistant();
+            discoveryHomeAssistant.connect(
+                'discoverFinished',
+                this._discoveryHomeAssistantCallback.bind(this)
+            );
+            discoveryHomeAssistant.discover();
+
             let discoveryPhilipsHueBridges = new PhilipsHueBridgeApi.DiscoveryPhilipsHueBridges();
             discoveryPhilipsHueBridges.connect(
                 'discoverFinished',
@@ -795,9 +888,38 @@ export const PreferencesMain = GObject.registerClass({
         }
     }
 
+    async _discoveryHomeAssistantCallback(object) {
+        for (let ha in object.discovered) {
+            let pluginName = Utils.SETTINGS_HOMEASSISTANT;
+
+            let id = ha;
+            let ip = ha;
+
+            let found = false;
+            for (let i in this._rows) {
+                if (this._rows[i].ip === ip && this._rows[i].pluginName === pluginName) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) { continue; }
+
+            await this.createDeviceTmpUI(
+                id,
+                pluginName,
+                {
+                    'ip': ip,
+                    'port': Number(object.discovered[ha]['port']),
+                    'name': object.discovered[ha]['hostname']
+                }
+            );
+        }
+    }
+
     async _discoveryPhilipsHueBridgesCallback(object) {
         for (let bridge of object.discoveredBridges) {
             let pluginName = Utils.SETTINGS_PHILIPSHUEBRIDGE;
+
             let id = bridge['bridgeid'];
             let ip = bridge['internalipaddress'];
 

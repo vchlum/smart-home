@@ -47,6 +47,7 @@ export const SETTINGS_PHILIPSHUEDESKTOPSYNC = "philipshue-desktopsync";
 export const SETTINGS_PHILIPSHUESYNCBOX = "philipshue-syncbox";
 export const SETTINGS_NANOLEAF = "nanoleaf";
 export const SETTINGS_IKEADIRIGERA = "ikea-dirigera";
+export const SETTINGS_HOMEASSISTANT = "home-assistant";
 export const SETTINGS_PLUGIN_TYPE = "a{sa{ss}}";
 
 export const PLUGIN_LIST = [
@@ -55,6 +56,7 @@ export const PLUGIN_LIST = [
     SETTINGS_PHILIPSHUESYNCBOX,
     SETTINGS_NANOLEAF,
     SETTINGS_IKEADIRIGERA,
+    SETTINGS_HOMEASSISTANT,
 ];
 
 export const PLUGIN_ALL_IN_ONE = [
@@ -62,6 +64,7 @@ export const PLUGIN_ALL_IN_ONE = [
 ]
 
 export const ALL_DEFAULT_HIDE_UNAVAILABLE = false;
+export const HOMEASSISTANT_DEFAULT_TIMEOUT = 3;
 export const PHILIPSHUEBRIDGE_DEFAULT_TIMEOUT = 2;
 export const PHILIPSHUEBRIDGE_DEFAULT_ZONESFIRST = true;
 export const PHILIPSHUEBRIDGE_DEFAULT_SHOWSCENES = true;
