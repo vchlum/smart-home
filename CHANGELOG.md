@@ -1,3 +1,6 @@
+## Version 4
+ * Home Assistant support (lights and covers)
+ * German translation
 ## Version 3
  * fix timers
 ## Version 2
