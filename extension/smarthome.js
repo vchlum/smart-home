@@ -187,6 +187,12 @@ export const SmartHome = GObject.registerClass({
                 if (Object.keys(pluginSettings).length === 0) {
                     continue;
                 }
+
+                if (Object.keys(pluginSettings).length === 1 &&
+                    Object.keys(pluginSettings).includes('_general_')) {
+                    continue;
+                }
+
                 pluginID = `${pluginName}_${pluginName}`;
                 shouldBe.push(pluginID);
                 if (Object.keys(this.instances).includes(pluginID)) {
