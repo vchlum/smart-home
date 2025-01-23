@@ -542,6 +542,9 @@ export const Plugin =  GObject.registerClass({
                         if (! this._checkDeviceDataObtained(id))  {
                             return;
                         }
+
+                        this._devices[id].keepEventStreamRequest();
+
                         this._deviceDataObtained(id);
                     }
                 );

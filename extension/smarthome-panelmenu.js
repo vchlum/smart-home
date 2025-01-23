@@ -324,7 +324,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
                 let hideUnavailable = this._pluginSettings[id]['hide-unavailable'];
                 if (hideUnavailable !== undefined) {
-                    this._hideUnavailable = Boolean(hideUnavailable);
+                    this._hideUnavailable = hideUnavailable === 'true' ? true : false;
                 }
             }
         }

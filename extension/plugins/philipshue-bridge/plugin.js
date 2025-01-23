@@ -234,6 +234,8 @@ export const Plugin =  GObject.registerClass({
                     }
                 }
 
+                this._bridge.keepEventStreamRequest();
+
                 this.dataReady();
             }
         );
