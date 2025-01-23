@@ -61,6 +61,10 @@ export const Plugin =  GObject.registerClass({
                 this._bridge.setConnectionTimeout(this._connectionTimeout);
             }
         }
+
+        if (this._pluginSettings[this.id]['on-login']) {
+            this._onLoginSettings = JSON.parse(this._pluginSettings[this.id]['on-login']);
+        }
     }
 
     preparePlugin() {
@@ -123,6 +127,8 @@ export const Plugin =  GObject.registerClass({
             }
         );
         this._appendSignal(signal, this._bridge);
+
+        this._runOnStart();
 
         Utils.logDebug(`Home Assistant ${this.id} ready.`);
     }
@@ -520,6 +526,56 @@ export const Plugin =  GObject.registerClass({
     }
 
     sceneGroup = this.sceneSingle
+
+    _runOnStartDevice(id, device) {
+        return new Promise((resolve, reject) => {
+            let data;
+            switch (device['type']) {
+                case 'light':
+                    data = {'entity_id': id};
+                    if (device['brightness']) {
+                        data['brightness'] =  device['brightness'];
+                    }
+
+                    if (device['color']) {
+                        data['rgb_color'] =  [
+                            device['color']['red'],
+                            device['color']['green'],
+                            device['color']['blue']
+                        ];
+                    }
+
+                    this._bridge.setServiceOn(
+                        'light',
+                        data
+                    );
+
+                    break;
+
+                case 'scene':
+                    this.sceneSingle(id);
+                    break;
+
+                default:
+                    resolve();
+                    return;
+            }
+            this._onStartTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 300, () => {
+                resolve();
+                this._onStartTimer = null;
+                return GLib.SOURCE_REMOVE;
+            });
+        });
+    }
+
+    async _runOnStart() {
+        for (let id in this._onLoginSettings) {
+            let device = this._onLoginSettings[id];
+            if (device['switch']) {
+                await this._runOnStartDevice(id, device);
+            }
+        }
+    }
 
     /**
      * Remove timers created by GLib.timeout_add

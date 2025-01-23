@@ -39,6 +39,8 @@ import GObject from 'gi://GObject';
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import * as Utils from '../utils.js';
 
+import * as SmartHomeDeviceLight from './prefs_device_light.js';
+import * as HomeAssistantApi from '../plugins/home-assistant/api.js';
 
 /**
  * Preference page - HomeAssistant
@@ -56,6 +58,7 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
         'statusPage',
         'hideUnavailable',
         'comboIndicatorPosition',
+        'devicesOnLogin',
         'spinConnectionTimeout',
     ],
 }, class SmartHomeHomeAssistant extends Adw.NavigationPage {
@@ -65,10 +68,15 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
         this._id = id;
         this._settings = settings;
         this.tag = pluginID;
+        this._onLoginSettings = {};
 
         this._pluginSettings = this._settings.get_value(
             Utils.SETTINGS_HOMEASSISTANT
         ).deep_unpack();
+
+        if (this._pluginSettings[this._id]['on-login']) {
+            this._onLoginSettings = JSON.parse(this._pluginSettings[this._id]['on-login']);
+        }
 
         this._settingsignal = this._settings.connect(
             'changed',
@@ -77,9 +85,26 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
                     Utils.SETTINGS_HOMEASSISTANT
                 ).deep_unpack();
 
+                if (this._pluginSettings[this._id]['on-login']) {
+                    this._onLoginSettings = JSON.parse(this._pluginSettings[this._id]['on-login']);
+                }
+
                 this.updateUI();
             }
         );
+
+        let bridge = new HomeAssistantApi.HomeAssistantBridge({
+            ip: this._pluginSettings[this._id]['ip'],
+            port: this._pluginSettings[this._id]['port'],
+            token: this._pluginSettings[this._id]['accessToken']
+        });
+
+        bridge.connect(
+            'states',
+            this._parseBridgeData.bind(this)
+        );
+
+        bridge.getStates();
 
         this.updateUI();
     }
@@ -134,6 +159,93 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
     _connectionTimeoutChanged(object) {
         this._pluginSettings[this._id]['connection-timeout'] = String(object.value);
         this._writeDevicesSettings();
+    }
+
+    _parseBridgeData(bridge) {
+        let lights = [];
+        let scenes = [];
+
+        const sortFce = (a, b) => {
+            if (a.title < b.title) {
+                return -1;
+            }
+
+            if (a.title > b.title) {
+                return 1;
+            }
+
+            return 0;
+        }
+
+        for (let data of bridge.data) {
+            if (data['entity_id'].startsWith('light.')) {
+                lights.push(this._createLightOnLogin(
+                    'light',
+                    data
+                ));
+            }
+
+            if (data['entity_id'].startsWith('scene.')) {
+                scenes.push(this._createLightOnLogin(
+                    'scene',
+                    data
+                ));
+            }
+        }
+
+        lights.sort(sortFce);
+        scenes.sort(sortFce);
+
+        for (let light of lights) {
+            this._devicesOnLogin.add_row(light);
+        }
+
+        for (let scene of scenes) {
+            this._devicesOnLogin.add_row(scene);
+        }
+    }
+
+    _createLightOnLogin(type, data) {
+        let dimming = undefined;
+        let color = undefined;
+        if (data['entity_id'].startsWith("light.")) {
+            let tmp = [];
+            for (let i of data['attributes']['supported_color_modes']) {
+                if (i !== 'color_temp') {
+                    tmp.push(i);
+                }
+            }
+            if (! tmp.includes('onoff')) {
+                dimming = true;
+                if (tmp.length >= 1) {
+                    color = true;
+                }
+            }
+        }
+
+        let device = new SmartHomeDeviceLight.SmartHomeDeviceLight(
+            type,
+            data['entity_id'],
+            `${data['attributes']['friendly_name']}`,
+            dimming,
+            color
+        );
+
+        device.setUI(
+            this._onLoginSettings[data['entity_id']]
+        );
+
+        device.connect(
+            'state-changed',
+            (object) => {
+                this._onLoginSettings[object.id] = object.state;
+
+                this._pluginSettings[this._id]['on-login'] = JSON.stringify(this._onLoginSettings);
+                this._writeDevicesSettings();
+            }
+        );
+
+        return device;
     }
 
     clear() {
