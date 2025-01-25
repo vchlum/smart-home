@@ -195,11 +195,22 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
                 break;
 
             case RequestType.CODE_CHALLENGE:
+                if (this.data["error"] && this.data["error"].length > 0) {
+                    this.emit('authorization-failed');
+                    break;
+                }
+
                 this.emit('code-challenge');
                 break;
 
-            case  RequestType.AUTHORIZE:
+            case RequestType.AUTHORIZE:
                 this.stopAuthorization();
+
+                if (this.data["error"] && this.data["error"].length > 0) {
+                    this.emit('authorization-failed');
+                    break;
+                }
+
                 this.token = this.data['access_token'];
                 this.emit('authorization-succeed');
 
@@ -247,6 +258,7 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
             null,
             (session, res) => {
                 switch (msg.get_status()) {
+                    case Soup.Status.CONFLICT:
                     case Soup.Status.OK:
                         try {
                             const bytes = session.send_and_read_finish(res);
@@ -424,7 +436,8 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
             return;
         }
 
-        if (this._authorizeCounter > 15) {
+        if (this._authorizeCounter > 55) {
+            this.data = {"error": "timeout reached"}
             this.emit('authorization-failed');
             return;
         }

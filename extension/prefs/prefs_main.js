@@ -830,7 +830,7 @@ export const PreferencesMain = GObject.registerClass({
         );
 
         const failed = () => {
-            let toast = Adw.Toast.new(_("Failed to connect to the device."));
+            let toast = Adw.Toast.new(`${_("Failed to connect to the device.")} ${bridge.data["error"]}`);
             toast.set_timeout(3);
             this.get_root().add_toast(toast);
             alert.close();
