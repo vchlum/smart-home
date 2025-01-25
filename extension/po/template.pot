@@ -212,3 +212,74 @@ msgstr ""
 
 msgid "Disabled"
 msgstr ""
+
+msgid "Remove device?"
+msgstr ""
+
+msgid "This can not be undone. Settings related to the device will be lost."
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Remove"
+msgstr ""
+
+msgid "IP address already registered."
+msgstr ""
+
+msgid "Please, insert Home Assistant IP address and an access token."
+msgstr ""
+
+msgid "Press the button on the bridge and click 'Add'."
+msgstr ""
+
+msgid "Insert IP and press 'Add'."
+msgstr ""
+
+msgid ""
+"On the Nanoleaf controller, hold the on-off button for 5-7 seconds until the LED starts flashing. "
+"Alternatively, allow the API pairing in the app. Depends on your light. While the LED is flashing, press the 'Add' button."
+msgstr ""
+
+msgid "Failed to connect to the device."
+msgstr ""
+
+msgid "Connected"
+msgstr ""
+
+msgid "While this dialog is shown, hold the button on HDMI sync box until the led blinks green (~3 seconds) and release."
+msgstr ""
+
+msgid "Connected"
+msgstr ""
+
+msgid "Press the button on the bridge."
+msgstr ""
+
+msgid "Version"
+msgstr ""
+
+msgid "HDMI input"
+msgstr ""
+
+msgid "Synchronization"
+msgstr ""
+
+msgid "Intense"
+msgstr ""
+
+msgid "High"
+msgstr ""
+
+msgid "Moderate"
+msgstr ""
+
+msgid "Subtle"
+msgstr ""
+
+msgid "Movie"
+msgstr ""
+
+msgid "Game"
+msgstr ""

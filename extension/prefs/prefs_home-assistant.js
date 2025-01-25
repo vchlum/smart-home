@@ -208,7 +208,7 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
     _createLightOnLogin(type, data) {
         let dimming = undefined;
         let color = undefined;
-        if (data['entity_id'].startsWith("light.")) {
+        if (data['entity_id'].startsWith('light.')) {
             let tmp = [];
             for (let i of data['attributes']['supported_color_modes']) {
                 if (i !== 'color_temp') {

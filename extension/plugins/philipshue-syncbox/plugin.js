@@ -132,21 +132,21 @@ export const Plugin =  GObject.registerClass({
         };
 
         this.data['groups']['syncbox-mode'] = {
-            'name': this._('Mode'),
+            'name': this._("Mode"),
             'section': 'static',
             'capabilities': ['text', 'icon'],
             'icon': "HueIcons/tabbarAutomation.svg"
         };
 
         this.data['groups']['syncbox-intensity'] = {
-            'name': this._('Intensity'),
+            'name': this._("Intensity"),
             'section': 'static',
             'capabilities': ['text', 'icon'],
             'icon': "HueSyncbox/intensity-high.svg",
         };
 
         this.data['groups']['syncbox-input'] = {
-            'name': this._('HDMI input'),
+            'name': this._("HDMI input"),
             'icon': "HueSyncbox/hdmi.svg",
             'section': 'static',
             'capabilities': ['text']
@@ -154,7 +154,7 @@ export const Plugin =  GObject.registerClass({
 
 
         this.data['groups']['syncbox-entertainment-areas'] = {
-            'name': this._('Entertainment areas'),
+            'name': this._("Entertainment areas"),
             'section': 'static',
             'icon': "HueIcons/otherWatchingMovie.svg",
             'capabilities': ['text']
@@ -180,7 +180,7 @@ export const Plugin =  GObject.registerClass({
 
             this.data['devices']['syncbox-active'] = {
                 'type': 'device',
-                'name': this._('Syncing'),
+                'name': this._("Synchronization"),
                 'section': 'static',
                 'capabilities': ['switch'],
                 'groups': ['syncbox-control'],
@@ -226,7 +226,7 @@ export const Plugin =  GObject.registerClass({
             this.data['groups']['syncbox-mode']['name'] = this._("Mode");
             this.data['groups']['syncbox-mode']['icon'] = "HueIcons/tabbarAutomation.svg";
 
-            for (let [mode, name] of [['video', 'Video'], ['game', 'Game'], ['music', 'Music']]) {
+            for (let [mode, name] of [['video', "Movie"], ['game', "Game"], ['music', "Music"]]) {
                 if (data['execution'][mode] !== undefined) {
                     selected = data['execution']['lastSyncMode'] === mode;
                     active = selected && data['execution']['syncActive'];
@@ -255,7 +255,12 @@ export const Plugin =  GObject.registerClass({
                 'moderate': "HueSyncbox/intensity-moderate.svg",
                 'subtle': "HueSyncbox/intensity-subtle.svg"
             };
-            for (let [intensity, name] of [['intense', 'Intense'], ['high', 'High'], ['moderate', 'Moderate'], ['subtle', 'Subtle']]) {
+            for (let [intensity, name] of [
+                    ['intense', "Intense"],
+                    ['high', "High"],
+                    ['moderate', "Moderate"],
+                    ['subtle', "Subtle"]
+                ]) {
                 let lastSyncMode = data['execution']['lastSyncMode'];
                 selected = data['execution'][lastSyncMode]['intensity'] === intensity;
                 active = selected && data['execution']['syncActive'];

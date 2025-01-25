@@ -218,3 +218,73 @@ msgstr ""
 
 msgid "Disabled"
 msgstr "Zakázáno"
+
+msgid "Remove device?"
+msgstr "Odebrat zařízení?"
+
+msgid "This can not be undone. Settings related to the device will be lost."
+msgstr "Toto nelze vrátit zpět. Nastavení související se zařízením budou ztracena."
+
+msgid "Cancel"
+msgstr "Zrušit"
+
+msgid "Remove"
+msgstr "Odebrat"
+
+msgid "IP address already registered."
+msgstr "IP adresa je již zaregistrována."
+
+msgid "Please, insert Home Assistant IP address and an access token."
+msgstr "Vložte prosím IP adresu Home Assistanta a přístupový token."
+
+msgid "Press the button on the bridge and click 'Add'."
+msgstr "Stiskněte tlačítko na mostu a klikněte 'Přidat'."
+
+msgid "Insert IP and press 'Add'."
+msgstr "Vložte IP adresu a stiskněte 'Přidat'"
+
+msgid ""
+"On the Nanoleaf controller, hold the on-off button for 5-7 seconds until the LED starts flashing. "
+"Alternatively, allow the API pairing in the app. Depends on your light. While the LED is flashing, press the 'Add' button."
+msgstr ""
+"Držte tlačítko na ovládacím prvku zařízení Nanoleaf na 5-7 vteřin dokud nezačne LED blikat. "
+"Případně povolte API párovní v aplikaci. Záleží na vašem zařízení. Když LED bliká, stiskněte tlačítko 'Přidat'."
+
+msgid "Failed to connect to the device."
+msgstr "Připojení k zažízení se nezdařilo."
+
+msgid "Connected"
+msgstr "Připojeno"
+
+msgid "While this dialog is shown, hold the button on HDMI sync box until the led blinks green (~3 seconds) and release."
+msgstr "Dokud je zobrazeno toto okno, držte tlačítko na zařízení HDMI sync box dokud LED nezačne blikat (~3 sekundy) a uvolněte jej."
+
+msgid "Press the button on the bridge."
+msgstr "Stiskněte tlačítko na mostu."
+
+msgid "Version"
+msgstr "Verze"
+
+msgid "HDMI input"
+msgstr "HDMI vstup"
+
+msgid "Synchronization"
+msgstr "Synchronizace"
+
+msgid "Intense"
+msgstr "Intenzivní"
+
+msgid "High"
+msgstr "Vysoká"
+
+msgid "Moderate"
+msgstr "Mirná"
+
+msgid "Subtle"
+msgstr "Jemná"
+
+msgid "Movie"
+msgstr "Film"
+
+msgid "Game"
+msgstr "Hra"

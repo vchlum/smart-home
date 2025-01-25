@@ -283,11 +283,11 @@ export const PreferencesMain = GObject.registerClass({
                 'trashMe',
                 (object) => {
                     let alert = new Adw.AlertDialog({
-                        heading: "Remove device?", 
-                        body: "This can not be undone. Settings related to the device will be lost."
+                        heading: _("Remove device?"),
+                        body: _("This can not be undone. Settings related to the device will be lost.")
                     });
-                    alert.add_response('cancel', _('_Cancel'));
-                    alert.add_response('remove', _('_Remove'));
+                    alert.add_response('cancel', _("Cancel"));
+                    alert.add_response('remove', _("Remove"));
 
                     alert.set_response_appearance(
                         'remove',
@@ -462,7 +462,7 @@ export const PreferencesMain = GObject.registerClass({
     checkIpExists(pluginName, ip) {
         for (let i in this._rows) {
             if (this._rows[i].ip === ip && this._rows[i].pluginName === pluginName && Object.keys(this._pages).includes(i)) {
-                let toast = Adw.Toast.new("IP address already registered.");
+                let toast = Adw.Toast.new(_("IP address already registered."));
                 toast.set_timeout(3);
                 this.get_root().add_toast(toast);
                 return true;
@@ -474,7 +474,7 @@ export const PreferencesMain = GObject.registerClass({
     addDialogHomeAssistant(ipAddress = null, port = 8123) {
         let add = new SmartHomeAddDevice.SmartHomeAddDevice(
             "Home Assistant",
-            "Please, insert Home Assistant IP address and an access token.",
+            _("Please, insert Home Assistant IP address and an access token."),
             ipAddress
         );
         add.connect(
@@ -491,7 +491,7 @@ export const PreferencesMain = GObject.registerClass({
     addDialogPhilipsHueBridge(ipAddress = null) {
         let add = new SmartHomeAddDevice.SmartHomeAddDevice(
             "Philips Hue bridge",
-            "Press the button on the bridge and click 'Add'.",
+            _("Press the button on the bridge and click 'Add'."),
             ipAddress
         );
         add.connect(
@@ -505,7 +505,7 @@ export const PreferencesMain = GObject.registerClass({
     addDialogPhilipsHueSyncbox(ipAddress = null) {
         let add = new SmartHomeAddDevice.SmartHomeAddDevice(
             "Philips Hue syncbox",
-            "Insert IP and press 'Add'.",
+            _("Insert IP and press 'Add'."),
             ipAddress
         );
         add.connect(
@@ -519,7 +519,7 @@ export const PreferencesMain = GObject.registerClass({
     addDialogNanoleaf(ipAddress = null) {
         let add = new SmartHomeAddDevice.SmartHomeAddDevice(
             "Nanoleaf",
-            "On the Nanoleaf controller, hold the on-off button for 5-7 seconds until the LED starts flashing. Alternatively, allow the API pairing in the app. Depends on your light. While the LED is flashing, press the 'Add' button.",
+            _("On the Nanoleaf controller, hold the on-off button for 5-7 seconds until the LED starts flashing. Alternatively, allow the API pairing in the app. Depends on your light. While the LED is flashing, press the 'Add' button."),
             ipAddress
         );
         add.connect(
@@ -533,7 +533,7 @@ export const PreferencesMain = GObject.registerClass({
     addDialogIkeaDirigera(ipAddress = null) {
         let add = new SmartHomeAddDevice.SmartHomeAddDevice(
             "Ikea Dirigera",
-            "Insert IP and press 'Add'.",
+            _("Insert IP and press 'Add'."),
             ipAddress
         );
         add.connect(
@@ -578,7 +578,7 @@ export const PreferencesMain = GObject.registerClass({
         bridge.connect(
             'connection-problem',
             () => {
-                let toast = Adw.Toast.new("Failed to connect to the device.");
+                let toast = Adw.Toast.new(_("Failed to connect to the device."));
                 toast.set_timeout(3);
                 this.get_root().add_toast(toast);
             }
@@ -632,7 +632,7 @@ export const PreferencesMain = GObject.registerClass({
                     'name': name
                 }
 
-                let toast = Adw.Toast.new("Connected");
+                let toast = Adw.Toast.new(_("Connected"));
                 toast.set_timeout(3);
                 this.get_root().add_toast(toast);
 
@@ -643,7 +643,7 @@ export const PreferencesMain = GObject.registerClass({
         bridge.connect(
             'connection-problem',
             () => {
-                let toast = Adw.Toast.new("Failed to connect to the device.");
+                let toast = Adw.Toast.new(_("Failed to connect to the device."));
                 toast.set_timeout(3);
                 this.get_root().add_toast(toast);
             }
@@ -663,7 +663,7 @@ export const PreferencesMain = GObject.registerClass({
 
         let alert = new Adw.AlertDialog();
         alert.heading = "Philips Hue syncbox";
-        alert.body = "While this dialog is shown, hold the button on HDMI sync box until the led blinks green (~3 seconds) and release.";
+        alert.body = _("While this dialog is shown, hold the button on HDMI sync box until the led blinks green (~3 seconds) and release.");
 
         let syncbox = new PhilipsHueSyncboxApi.PhilipsHueSyncBox ({
             ip: object.ip,
@@ -697,7 +697,7 @@ export const PreferencesMain = GObject.registerClass({
                     'name': name
                 }
 
-                let toast = Adw.Toast.new("Connected");
+                let toast = Adw.Toast.new(_("Connected"));
                 toast.set_timeout(3);
                 this.get_root().add_toast(toast);
 
@@ -751,7 +751,7 @@ export const PreferencesMain = GObject.registerClass({
                     'group': "undefined"
                 }
 
-                let toast = Adw.Toast.new("Connected");
+                let toast = Adw.Toast.new(_("Connected"));
                 toast.set_timeout(3);
                 this.get_root().add_toast(toast);
 
@@ -762,7 +762,7 @@ export const PreferencesMain = GObject.registerClass({
         device.connect(
             'connection-problem',
             () => {
-                let toast = Adw.Toast.new("Failed to connect to the device.");
+                let toast = Adw.Toast.new(_("Failed to connect to the device."));
                 toast.set_timeout(3);
                 this.get_root().add_toast(toast);
             }
@@ -780,7 +780,7 @@ export const PreferencesMain = GObject.registerClass({
 
         let alert = new Adw.AlertDialog();
         alert.heading = "Ikea Dirigera";
-        alert.body = "Press the button on the bridge.";
+        alert.body = _("Press the button on the bridge.");
 
         let bridge = new IkeaDirigeraApi.IkeaDirigeraBridge({
             ip: object.ip,
@@ -821,7 +821,7 @@ export const PreferencesMain = GObject.registerClass({
                     'name': name
                 }
 
-                let toast = Adw.Toast.new("Connected");
+                let toast = Adw.Toast.new(_("Connected"));
                 toast.set_timeout(3);
                 this.get_root().add_toast(toast);
 
@@ -830,7 +830,7 @@ export const PreferencesMain = GObject.registerClass({
         );
 
         const failed = () => {
-            let toast = Adw.Toast.new("Failed to connect to the device.");
+            let toast = Adw.Toast.new(_("Failed to connect to the device."));
             toast.set_timeout(3);
             this.get_root().add_toast(toast);
             alert.close();
@@ -1015,7 +1015,7 @@ export const PreferencesMain = GObject.registerClass({
             developer_name: "Václav Chlumský",
             copyright: "© 2025 Václav Chlumský",
             license_type: Gtk.License.MIT_X11,
-            version: `Version: ${this._metadata.version}`,
+            version: `${_("Version")}: ${this._metadata.version}`,
             website: "https://github.com/vchlum/smart-home",
             issue_url: "https://github.com/vchlum/smart-home/issues",
             developers: ["Václav Chlumský <chlumskyvaclav@gmail.com>"],
@@ -1024,7 +1024,7 @@ export const PreferencesMain = GObject.registerClass({
             artists: [""]*/
         });
         /*
-        about.add_credit_section("Contributors", [""]);*/
+        about.add_credit_section(_("Contributors"), [""]);*/
         about.present(this);
     }
  });
