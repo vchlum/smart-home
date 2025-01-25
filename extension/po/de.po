@@ -215,3 +215,6 @@ msgstr ""
 "Kombination mit bestimmten Bildschirminhalten bisher unerkannte "
 "epileptische Symptome oder Anfälle bei Personen auslösen können, bei denen "
 "keine Anfälle oder Epilepsie bekannt sind."
+
+msgid "Disabled"
+msgstr "Deaktiviert"

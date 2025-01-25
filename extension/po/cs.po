@@ -215,3 +215,6 @@ msgstr ""
 "nebo v kombinaci s obsahem obrazovky. Může tak spustit dříve neobjevené "
 "symptomy epilepsie nebo může vyvolat záchvaty u osob, které již epilepsii "
 "zažili."
+
+msgid "Disabled"
+msgstr "Zakázáno"

@@ -53,6 +53,7 @@ export const Plugin =  GObject.registerClass({
 
         this._brightness = 0.5;
         this._intensity = 0.5;
+        this._firstTime = true;
     }
 
     settingRead() {
@@ -67,6 +68,10 @@ export const Plugin =  GObject.registerClass({
                 this._bridge.setConnectionTimeout(this._connectionTimeout);
             }
         }
+
+        if (this._pluginSettings[this.id]['on-login']) {
+            this._onLoginSettings = JSON.parse(this._pluginSettings[this.id]['on-login']);
+        }
     }
 
     preparePlugin() {
@@ -77,6 +82,10 @@ export const Plugin =  GObject.registerClass({
         this._userName = this._pluginSettings[this.id]['username'];
         this._clientKey = this._pluginSettings[this.id]['clientkey'];
         this._bridgeName = this._pluginSettings[this.id]['name'];
+
+        if (this._miscellanousStorage[this.pluginID] === undefined) {
+            this._miscellanousStorage[this.pluginID] = {}
+        }
 
         this._bridge = new BridgeApi.PhilipsHueBridge({
             ip: this._ip,
@@ -103,8 +112,13 @@ export const Plugin =  GObject.registerClass({
                         this.data['devices'][id] = item;
                     }
                 }
-                
+
                 this.dataReady();
+
+                if (this._firstTime) {
+                    this._runOnStart();
+                    this._firstTime = false;
+                }
             }
         );
         this._appendSignal(signal, this._bridge);
@@ -405,6 +419,7 @@ export const Plugin =  GObject.registerClass({
             this.streamer.setParameters(this._brightness, this._intensity);
 
             let timerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
+                this._timers = Utils.removeFromArray(this._timers, timerId);
                 this._bridge.enableStream(this._currentAreaId);
                 return GLib.SOURCE_REMOVE;
             });
@@ -473,9 +488,6 @@ export const Plugin =  GObject.registerClass({
 
     brightnessSingle(id, value) {
         this._brightness = value;
-        if (this._miscellanousStorage[this.pluginID] === undefined) {
-            this._miscellanousStorage[this.pluginID] = {}
-        }
         this._miscellanousStorage[this.pluginID]["brightness"] = String(this._brightness);
         this.writeSettingsMiscellaneous();
         if (this.streamer) {
@@ -490,9 +502,6 @@ export const Plugin =  GObject.registerClass({
 
     positionSingle(id, value) {
         this._intensity = value;
-        if (this._miscellanousStorage[this.pluginID] === undefined) {
-            this._miscellanousStorage[this.pluginID] = {}
-        }
         this._miscellanousStorage[this.pluginID]["intensity"] = String(this._intensity);
         this.writeSettingsMiscellaneous();
         if (this.streamer) {
@@ -507,9 +516,6 @@ export const Plugin =  GObject.registerClass({
 
     sceneSingle(id, ids) {
         this._requestedAreaId = id;
-        if (this._miscellanousStorage[this.pluginID] === undefined) {
-            this._miscellanousStorage[this.pluginID] = {}
-        }
         this._miscellanousStorage[this.pluginID]["streamingID"] = String(this._requestedAreaId);
         this.writeSettingsMiscellaneous();
 
@@ -519,6 +525,31 @@ export const Plugin =  GObject.registerClass({
     }
 
     sceneGroup = this.sceneSingle;
+
+    _runOnStart() {
+        if (!this._onLoginSettings) {
+            return;
+        }
+
+        this._requestedAreaId = this._onLoginSettings['id'];
+        if (this._requestedAreaId &&
+            this._onLoginSettings['autostart-mode']) {
+
+            let timerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 400, () => {
+                this._timers = Utils.removeFromArray(this._timers, timerId);
+
+                this._miscellanousStorage[this.pluginID]["streamingID"] = String(this._requestedAreaId);
+                this.writeSettingsMiscellaneous();
+
+                this.changeStream(
+                    this._onLoginSettings['autostart-mode']
+                );
+                this.requestData();
+                return GLib.SOURCE_REMOVE;
+            });
+            this._timers.push(timerId);
+        }
+    }
 
     /**
      * Remove timers created by GLib.timeout_add

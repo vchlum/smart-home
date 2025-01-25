@@ -36,6 +36,7 @@
 import Adw from 'gi://Adw';
 import GObject from 'gi://GObject';
 import Gdk from 'gi://Gdk';
+import Gtk from 'gi://Gtk';
 
 /**
  * Row for device, e.g. lights on login.
@@ -98,6 +99,18 @@ export const SmartHomeDeviceLight = GObject.registerClass({
             color.alpha = 1.0;
             this._deviceColor.rgba = color;
         }
+    }
+
+    switchToCheckButton(group = undefined) {
+        this._deviceSwitch.visible = false;
+
+        let deviceRadioButton = new Gtk.CheckButton();
+        if (group) {
+            deviceRadioButton.group = group
+        }
+        this.add_suffix(deviceRadioButton);
+
+        return deviceRadioButton;
     }
 
     _deviceBrightnessChanged(object) {

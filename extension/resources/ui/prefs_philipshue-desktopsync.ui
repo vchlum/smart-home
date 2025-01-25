@@ -63,6 +63,29 @@
                           </object>
                         </child>
 
+                        <child>
+                          <object class="AdwExpanderRow" id="devicesOnLogin">
+                            <property name="title" translatable="yes">Turn on lights on login</property>
+                            <child type="suffix">
+                              <object class="GtkDropDown" id="comboSyncMode">
+                                <property name="margin-top">10</property>
+                                <property name="margin-bottom">10</property>
+                                <property name="model">
+                                  <object class="GtkStringList">
+                                    <items>
+                                      <item translatable="yes" comments="disabled">Disabled</item>
+                                      <item translatable="yes" comments="sync-music">Music</item>
+                                      <item translatable="yes" comments="sync-cursor">Track cursor</item>
+                                    </items>
+                                  </object>
+                                </property>
+                                <signal name="notify::selected-item" handler="_autoStartModeSelected" swapped="no"/>
+                              </object>
+                            </child>
+
+                          </object>
+                        </child>
+
                          <child>
                           <object class="AdwExpanderRow">
                             <property name="title" translatable="yes">Advanced settings</property>

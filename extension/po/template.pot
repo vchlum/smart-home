@@ -209,3 +209,6 @@ msgid ""
 "previously undetected epileptic symptoms or seizures in persons who have no "
 "history of prior seizures or epilepsy."
 msgstr ""
+
+msgid "Disabled"
+msgstr ""
