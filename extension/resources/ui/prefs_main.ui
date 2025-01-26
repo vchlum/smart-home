@@ -81,7 +81,7 @@
                   <property name="unit">sp</property>
                   <property name="child">
                     <object class="AdwPreferencesGroup">
-                      <property name="title">Home Assitant</property>
+                      <property name="title">Home Assistant</property>
 
                       <child>
                         <object class="AdwExpanderRow" id="philipsHomeAssistantRows">
