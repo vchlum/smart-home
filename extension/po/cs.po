@@ -288,3 +288,6 @@ msgstr "Film"
 
 msgid "Game"
 msgstr "Hra"
+
+msgid "The synchronization setting is now available in the section Philips Hue/Desktop Sync."
+msgstr "Nastavení synchronizace je nyní dostupné v sekci Philips Hue/Synchronizace plochy."

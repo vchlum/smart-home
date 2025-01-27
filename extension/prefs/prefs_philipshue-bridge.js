@@ -200,7 +200,11 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
                 Utils.SETTINGS_PLUGIN_TYPE,
                 syncSettings
             )
-        ); 
+        );
+
+        let toast = Adw.Toast.new(_("The synchronization setting is now available in the section Philips Hue/Desktop Sync."));
+        toast.set_timeout(5);
+        this.get_root().add_toast(toast);
     }
 
     _zonesFirstSwitched(object) {

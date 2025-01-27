@@ -283,3 +283,6 @@ msgstr ""
 
 msgid "Game"
 msgstr ""
+
+msgid "The synchronization setting is now available in the section Philips Hue/Desktop Sync."
+msgstr ""
