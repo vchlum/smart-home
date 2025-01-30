@@ -286,3 +286,18 @@ msgstr ""
 
 msgid "The synchronization setting is now available in the section Philips Hue/Desktop Sync."
 msgstr ""
+
+msgid "Insert IP address, user name, and password (if not set, leave empty) then press 'Add'."
+msgstr ""
+
+msgid "Username (use 'admin' for Gen 2+)"
+msgstr ""
+
+msgid "Password (leave empty if not set)"
+msgstr ""
+
+msgid "Username"
+msgstr ""
+
+msgid "Password"
+msgstr ""

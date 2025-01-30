@@ -46,6 +46,7 @@ import * as PhilipsHueBridgeApi from '../plugins/philipshue-bridge/api.js';
 import * as PhilipsHueSyncboxApi from '../plugins/philipshue-syncbox/api.js';
 import * as NanoleafApi from '../plugins/nanoleaf/api.js';
 import * as IkeaDirigeraApi from '../plugins/ikea-dirigera/api.js';
+import * as ShellyApi from '../plugins/shelly/api.js';
 
 export const PreferencesMain = GObject.registerClass({
     GTypeName: 'SmartHomeMain',
@@ -60,8 +61,11 @@ export const PreferencesMain = GObject.registerClass({
         "philipsHueSyncboxRows",
         "hideUnavailableNanoleaf",
         "comboIndicatorPositionNanoleaf",
+        "hideUnavailableShelly",
+        "comboIndicatorPositionShelly",
         "nanoleafRows",
         "ikeaDirigeraRows",
+        "shellyRows",
     ],
 }, class PreferencesMain extends Adw.NavigationPage {
     static _classInit(klass) {
@@ -85,6 +89,10 @@ export const PreferencesMain = GObject.registerClass({
 
         klass.install_action('add-device-ikea-dirigera.run', null, (widget, actionName, parameter) => {
             widget.addDialogIkeaDirigera();
+        });
+
+        klass.install_action('add-device-shelly.run', null, (widget, actionName, parameter) => {
+            widget.addDialogShelly();
         });
 
         klass.install_action('discover.run', null, (widget, actionName, parameter) => {
@@ -154,6 +162,20 @@ export const PreferencesMain = GObject.registerClass({
         }
         this._hideUnavailableNanoleaf.active = nanoleafhideUnavailable;
         this._comboIndicatorPositionNanoleaf.selected = nanoleafIndicatorPosition;
+
+        let shellySettings = this._settingsLoaded[Utils.SETTINGS_SHELLY];
+        let shellyhideUnavailable = Utils.ALL_DEFAULT_HIDE_UNAVAILABLE;
+        let shellyIndicatorPosition = 1;
+        if (shellySettings['_general_']) {
+            if (shellySettings['_general_']['hide-unavailable'] !== undefined) {
+                shellyhideUnavailable = shellySettings['_general_']['hide-unavailable'] === 'true';
+            }
+            if (shellySettings['_general_']['indicator-position'] !== undefined) {
+                shellyIndicatorPosition = Number(shellySettings['_general_']['indicator-position']);
+            }
+        }
+        this._hideUnavailableShelly.active = shellyhideUnavailable;
+        this._comboIndicatorPositionShelly.selected = shellyIndicatorPosition;
     }
 
     _iconPackSelected(object) {
@@ -210,6 +232,46 @@ export const PreferencesMain = GObject.registerClass({
         );
     }
 
+    _hideUnavailableShellySwitched(object) {
+        let pluginSettings = this._settings.get_value(
+            Utils.SETTINGS_SHELLY
+        ).deep_unpack();
+
+        if (! pluginSettings['_general_']) {
+            pluginSettings['_general_'] = {};
+        }
+
+        pluginSettings['_general_']['hide-unavailable'] = String(object.active);
+
+        this._settings.set_value(
+            Utils.SETTINGS_SHELLY,
+            new GLib.Variant(
+                Utils.SETTINGS_PLUGIN_TYPE,
+                pluginSettings
+            )
+        );
+    }
+
+    _indicatorPositionShellySelected(object) {
+        let pluginSettings = this._settings.get_value(
+            Utils.SETTINGS_SHELLY
+        ).deep_unpack();
+
+        if (! pluginSettings['_general_']) {
+            pluginSettings['_general_'] = {};
+        }
+
+        pluginSettings['_general_']['indicator-position'] = String(object.selected);
+
+        this._settings.set_value(
+            Utils.SETTINGS_SHELLY,
+            new GLib.Variant(
+                Utils.SETTINGS_PLUGIN_TYPE,
+                pluginSettings
+            )
+        );
+    }
+
     _debugSwitched(object) {
         this._settings.set_boolean(
             Utils.SETTINGS_DEBUG,
@@ -230,6 +292,7 @@ export const PreferencesMain = GObject.registerClass({
             const { SmartHomePhilipsHueSyncbox } = await import('./prefs_philipshue-syncbox.js');
             const { SmartHomeNanoleaf } = await import('./prefs_nanoleaf.js');
             const { SmartHomeIkeaDirigera } = await import('./prefs_ikea-dirigera.js');
+            const { SmartHomeShelly } = await import('./prefs_shelly.js');
 
             GObject.type_ensure(SmartHomeDeviceRow);
             GObject.type_ensure(SmartHomePhilipsHueBridge);
@@ -237,6 +300,7 @@ export const PreferencesMain = GObject.registerClass({
             GObject.type_ensure(SmartHomePhilipsHueSyncbox);
             GObject.type_ensure(SmartHomeNanoleaf);
             GObject.type_ensure(SmartHomeIkeaDirigera);
+            GObject.type_ensure(SmartHomeShelly);
 
             let deviceSettings = this._settingsLoaded[pluginName][id];
             let addDialog = this._checkForAddDialog(pluginName, deviceSettings);
@@ -272,6 +336,12 @@ export const PreferencesMain = GObject.registerClass({
                     rowsObject = this._ikeaDirigeraRows;
                     devicePage = new SmartHomeIkeaDirigera(pluginID, id, this._settings);
                     break;
+
+                case Utils.SETTINGS_SHELLY:
+                    rowsObject = this._shellyRows;
+                    devicePage = new SmartHomeShelly(pluginID, id, this._settings);
+                    break;
+
                 default:
                     return;
             }
@@ -356,6 +426,11 @@ export const PreferencesMain = GObject.registerClass({
                 case Utils.SETTINGS_IKEADIRIGERA:
                     rowsObject = this._ikeaDirigeraRows;
                     break;
+
+                case Utils.SETTINGS_SHELLY:
+                    rowsObject = this._shellyRows;
+                    break;
+
                 default:
                     return;
             }
@@ -412,6 +487,9 @@ export const PreferencesMain = GObject.registerClass({
                 case Utils.SETTINGS_IKEADIRIGERA:
                     addDialog = this.addDialogIkeaDirigera;
                     break;
+                case Utils.SETTINGS_SHELLY:
+                    addDialog = this.addDialogShelly;
+                    break;
                 default:
                     break;
             }
@@ -452,10 +530,15 @@ export const PreferencesMain = GObject.registerClass({
                     hasAccess = true;
                 }
                 break;
+            case Utils.SETTINGS_SHELLY:
+                if (deviceSettings['access'] !== undefined && deviceSettings['access'] === 'true') {
+                    hasAccess = true;
+                }
+                break;
             default:
                 break;
         }
-        
+
         return hasAccess;
     }
 
@@ -541,6 +624,25 @@ export const PreferencesMain = GObject.registerClass({
             this._addDialogIkeaDirigeraCallback.bind(this)
         );
 
+        add.present(this);
+    }
+
+    addDialogShelly(ipAddress = null) {
+        let add = new SmartHomeAddDevice.SmartHomeAddDevice(
+            "Shelly",
+            _("Insert IP address, user name, and password (if not set, leave empty) then press 'Add'."),
+            ipAddress
+        );
+        add.connect(
+            'ipAdded',
+            this._addDialogShellyCallback.bind(this)
+        );
+
+        add.showUserAndPass(
+            "admin",
+            _("Username (use 'admin' for Gen 2+)"),
+            _("Password (leave empty if not set)")
+        );
         add.present(this);
     }
 
@@ -846,6 +948,72 @@ export const PreferencesMain = GObject.registerClass({
         object.close();
     }
 
+    _addDialogShellyCallback(object) {
+        if (this.checkIpExists(Utils.SETTINGS_SHELLY, object.ip)) {
+            return;
+        }
+
+        let device = new ShellyApi.ShellyDevice({
+            id: object.ip,
+            ip: object.ip,
+            username: object.username ? object.username : "",
+            password: object.password ? object.password : "",
+            gen: 0
+        });
+
+        device.connect(
+            'shelly',
+            (object) => {
+                let id = object.data["id"] ? object.data["id"] : null;
+                if (!id && object.data["type"] && object.data["mac"]) {
+                    id = `${object.data["type"]}_${object.data["mac"]}`
+                }
+                if (!id) {
+                    id = object.ip;
+                }
+
+                let name = object.data["name"];
+                if (!name) {
+                    name = id;
+                }
+
+                let gen = 1;
+                if (object.data["gen"]) {
+                    gen = object.data["gen"];
+                }
+
+                this._settingsLoaded[Utils.SETTINGS_SHELLY][id] = {
+                    'ip': object.ip,
+                    'name': name,
+                    'username': object.username,
+                    'password': object.password,
+                    'gen': gen.toString(),
+                    'group': "undefined",
+                    'access': 'true'
+                }
+
+                let toast = Adw.Toast.new(_("Connected"));
+                toast.set_timeout(3);
+                this.get_root().add_toast(toast);
+
+                this.writeSettings();
+            }
+        );
+
+        device.connect(
+            'connection-problem',
+            () => {
+                let toast = Adw.Toast.new(_("Failed to connect to the device."));
+                toast.set_timeout(3);
+                this.get_root().add_toast(toast);
+            }
+        )
+
+        device.getShelly();
+
+        object.close();
+    }
+
     discoverAll() {
         try {
             let discoveryHomeAssistant = new HomeAssistantApi.DiscoveryHomeAssistant();
@@ -882,6 +1050,13 @@ export const PreferencesMain = GObject.registerClass({
                 this._discoverIkeaDirigeraBridgesCallback.bind(this)
             )
             discoverIkeaDirigeraBridges.discover();
+
+            let discoverShelly = new ShellyApi.DiscoveryShelly();
+            discoverShelly.connect(
+                'discoverFinished',
+                this._discoverShellyCallback.bind(this)
+            )
+            discoverShelly.discover();
 
         } catch (e) {
             Utils.logError(`${e}\n${e.stack}`);
@@ -1005,6 +1180,29 @@ export const PreferencesMain = GObject.registerClass({
                 id,
                 pluginName,
                 { 'ip': ip, 'name': discovered[ip]['hostname'] }
+            );
+        }
+    }
+
+    async _discoverShellyCallback(object) {
+        let discovered = object.discoveredDevices;
+        for (let ip in discovered) {
+            let pluginName = Utils.SETTINGS_SHELLY;
+            let id = discovered[ip]['hostname'];
+
+            let found = false;
+            for (let i in this._rows) {
+                if (this._rows[i].ip === ip && this._rows[i].pluginName === pluginName) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) { continue; }
+
+            await this.createDeviceTmpUI(
+                id,
+                pluginName,
+                { 'ip': ip, 'name': discovered[ip]['hostname'], 'access': 'false' }
             );
         }
     }

@@ -48,6 +48,7 @@ export const SETTINGS_PHILIPSHUESYNCBOX = "philipshue-syncbox";
 export const SETTINGS_NANOLEAF = "nanoleaf";
 export const SETTINGS_IKEADIRIGERA = "ikea-dirigera";
 export const SETTINGS_HOMEASSISTANT = "home-assistant";
+export const SETTINGS_SHELLY = "shelly";
 export const SETTINGS_PLUGIN_TYPE = "a{sa{ss}}";
 
 export const PLUGIN_LIST = [
@@ -57,10 +58,12 @@ export const PLUGIN_LIST = [
     SETTINGS_NANOLEAF,
     SETTINGS_IKEADIRIGERA,
     SETTINGS_HOMEASSISTANT,
+    SETTINGS_SHELLY,
 ];
 
 export const PLUGIN_ALL_IN_ONE = [
     SETTINGS_NANOLEAF,
+    SETTINGS_SHELLY,
 ]
 
 export const ALL_DEFAULT_HIDE_UNAVAILABLE = false;
@@ -72,6 +75,7 @@ export const IKEADIRIGERA_DEFAULT_LIGHTLEVEL_OUTLETS = false;
 export const PHILIPSHUESYNCBOX_DEFAULT_TIMEOUT = 5;
 export const NANOLEAF_DEFAULT_TIMEOUT = 8;
 export const IKEADIRIGERA_DEFAULT_TIMEOUT = 3;
+export const SHELLY_DEFAULT_TIMEOUT = 5;
 
 let _debug = false;
 

@@ -335,7 +335,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
 
         if (this.settingRead) {
-            this.settingRead();
+            this.settingRead(needsRebuild);
         }
 
         return needsRebuild;

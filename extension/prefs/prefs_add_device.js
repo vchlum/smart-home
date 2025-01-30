@@ -53,6 +53,8 @@ export const SmartHomeAddDevice = GObject.registerClass({
     InternalChildren: [
         "addDevicePage",
         "ipAddress",
+        "username",
+        "password",
         "port",
         "accessToken",
 
@@ -81,6 +83,21 @@ export const SmartHomeAddDevice = GObject.registerClass({
         this._accessToken.visible = true;
     }
 
+    showUserAndPass(defaultUser = "", usernameTitle = null, passwordTitle = null) {
+        this._username.visible = true;
+        this._password.visible = true;
+
+        if (usernameTitle) {
+            this._username.title = usernameTitle;
+        }
+
+        if (passwordTitle) {
+            this._password.title = passwordTitle;
+        }
+
+        this._username.text = defaultUser;
+    }
+
     _addActivated(){
         const re = new RegExp('^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$');
         if (! re.test(this._ipAddress.text)) {
@@ -92,6 +109,8 @@ export const SmartHomeAddDevice = GObject.registerClass({
 
         this.ip = this._ipAddress.text;
         this.port = this._port.text;
+        this.username = this._username.text;
+        this.password = this._password.text;
         this.accessToken = this._accessToken.text;
         this.emit('ipAdded');
     }

@@ -291,3 +291,18 @@ msgstr "Hra"
 
 msgid "The synchronization setting is now available in the section Philips Hue/Desktop Sync."
 msgstr "Nastavení synchronizace je nyní dostupné v sekci Philips Hue/Synchronizace plochy."
+
+msgid "Insert IP address, user name, and password (if not set, leave empty) then press 'Add'."
+msgstr "Vložte IP adresu, uživatelské jméno a heslo (není-li nastaveno, nechte prázné) a stiskněte 'Přidat'."
+
+msgid "Username (use 'admin' for Gen 2+)"
+msgstr "Uživatelské jméno ('admin' pro Gen 2+)"
+
+msgid "Password (leave empty if not set)"
+msgstr "Heslo (není-li nastaveno, nechte prázné)"
+
+msgid "Username"
+msgstr "Uživatelské jméno"
+
+msgid "Password"
+msgstr "Heslo"

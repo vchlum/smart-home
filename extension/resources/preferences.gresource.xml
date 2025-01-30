@@ -11,6 +11,7 @@
 		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_philipshue-desktopsync.ui</file>
 		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_philipshue-syncbox.ui</file>
 		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_ikea-dirigera.ui</file>
-		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_nanoleaf.ui</file>		
+		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_nanoleaf.ui</file>
+		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_shelly.ui</file>
 	</gresource>
 </gresources>

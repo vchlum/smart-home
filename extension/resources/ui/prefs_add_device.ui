@@ -38,6 +38,22 @@
                           </child>
 
                           <child>
+                            <object class="AdwEntryRow" id="username">
+                              <property name="title" translatable="yes">Username</property>
+                              <property name="use_underline">True</property>
+                              <property name="visible">False</property>
+                            </object>
+                          </child>
+
+                          <child>
+                            <object class="AdwEntryRow" id="password">
+                              <property name="title" translatable="yes">Password</property>
+                              <property name="use_underline">True</property>
+                              <property name="visible">False</property>
+                            </object>
+                          </child>
+
+                          <child>
                             <object class="AdwEntryRow" id="port">
                               <property name="title" translatable="yes">Port</property>
                               <property name="use_underline">True</property>

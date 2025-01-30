@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <interface domain="smart-home">
+    <template class="SmartHomeShelly" parent="AdwNavigationPage">
+    <property name="title">Shelly</property>
+    <property name="tag"></property>
+    <property name="child">
+      <object class="AdwToolbarView">
+        <child type="top">
+          <object class="AdwHeaderBar">
+            <property name="show-end-title-buttons">false</property>
+          </object>
+        </child>
+        <property name="content">
+          <object class="AdwStatusPage" id="statusPage">
+            <property name="title" translatable="yes"></property>
+            <property name="description" translatable="yes"></property>
+
+              <property name="child">
+              <object class="GtkBox">
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">18</property>
+
+                <child>
+                  <object class="AdwClamp">
+                    <property name="maximum-size">700</property>
+                    <property name="tightening-threshold">700</property>
+                    <property name="unit">sp</property>
+                    <property name="child">
+                      <object class="AdwPreferencesGroup">
+                        <property name="title" translatable="yes">Settings</property>
+
+                        <child>
+                          <object class="AdwEntryRow" id="nameEntry">
+                            <property name="title" translatable="yes">Device name</property>
+                            <property name="show-apply-button">True</property>
+                            <property name="use_underline">True</property>
+                            <signal name="apply" handler="_nameChanged"/>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="AdwEntryRow" id="roomEntry">
+                            <property name="title" translatable="yes">Room name</property>
+                            <property name="show-apply-button">True</property>
+                            <property name="use_underline">True</property>
+                            <signal name="apply" handler="_roomChanged"/>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="AdwEntryRow" id="username">
+                            <property name="title" translatable="yes">Username (use 'admin' for Gen 2+)</property>
+                            <property name="show-apply-button">True</property>
+                            <property name="use_underline">True</property>
+                            <signal name="apply" handler="_usernameChanged"/>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="AdwEntryRow" id="password">
+                            <property name="title" translatable="yes">Password (leave empty if not set)</property>
+                            <property name="show-apply-button">True</property>
+                            <property name="use_underline">True</property>
+                            <signal name="apply" handler="_passwordChanged"/>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="AdwExpanderRow">
+                            <property name="title" translatable="yes">Advanced settings</property>
+
+                            <child>
+                              <object class="AdwSpinRow" id="spinConnectionTimeout">
+                                <property name="title" translatable="yes">Connection timeout</property>
+                                <property name="adjustment">
+                                  <object class="GtkAdjustment">
+                                    <property name="lower">1</property>
+                                    <property name="upper">20</property>
+                                    <property name="value">5</property>
+                                    <property name="page-increment">3</property>
+                                    <property name="step-increment">1</property>
+                                    <signal name="value-changed" handler="_connectionTimeoutChanged" swapped="no"/>
+                                  </object>
+                                </property>
+                              </object>
+                            </child>
+
+                          </object>
+                        </child>
+
+                      </object>
+                    </property>
+                  </object>
+                </child>
+
+              </object>
+            </property>
+          </object>
+        </property>
+      </object>
+    </property>
+  </template>
+</interface>

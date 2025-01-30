@@ -272,6 +272,70 @@
                   <property name="unit">sp</property>
                   <property name="child">
                     <object class="AdwPreferencesGroup">
+                      <property name="title">Shelly</property>
+
+                      <child>
+                        <object class="AdwExpanderRow">
+                          <property name="title" translatable="yes">General settings</property>
+
+                          <child>
+                            <object class="AdwSwitchRow" id="hideUnavailableShelly">
+                              <property name="title" translatable="yes">Hide unavailable device</property>
+                              <property name="subtitle" translatable="yes">If the device is not available, the status icon is hidden.</property>
+                              <signal name="notify::active" handler="_hideUnavailableShellySwitched" swapped="no"/>
+                            </object>
+                          </child>
+
+                          <child>
+                            <object class="AdwComboRow" id="comboIndicatorPositionShelly">
+                              <property name="title" translatable="yes">Status icon position</property>
+                              <property name="model">
+                                <object class="GtkStringList">
+                                  <items>
+                                  <item translatable="yes" comments="none">center</item>
+                                    <item translatable="yes" comments="bright">right</item>
+                                    <item translatable="yes" comments="dark">left</item>
+                                  </items>
+                                </object>
+                              </property>
+                              <signal name="notify::selected-item" handler="_indicatorPositionShellySelected" swapped="no"/>
+                            </object>
+                          </child>
+
+                        </object>
+                      </child>
+
+                      <child>
+                        <object class="AdwExpanderRow" id="shellyRows">
+                          <property name="title">Gen 1-3</property>
+
+                          <child type="suffix">
+                            <object class="GtkButton">
+                              <property name="valign">center</property>
+                              <property name="icon_name">list-add-symbolic</property>
+                              <property name="tooltip-text" translatable="yes">Add</property>
+                              <property name="action-name">add-device-shelly.run</property>
+                              <style>
+                                <class name="flat"/>
+                              </style>
+                            </object>
+                          </child>
+
+                        </object>
+                      </child>
+                    </object>
+                  </property>
+
+                </object>
+              </child>
+
+              <child>
+                <object class="AdwClamp">
+                  <property name="maximum-size">700</property>
+                  <property name="tightening-threshold">700</property>
+                  <property name="unit">sp</property>
+                  <property name="child">
+                    <object class="AdwPreferencesGroup">
                       <property name="title" translatable="yes">Miscellaneous</property>
 
                       <child>

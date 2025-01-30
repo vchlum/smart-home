@@ -50,6 +50,10 @@
       <default>{}</default>
       <summary>Home Assistant</summary>
     </key>
+    <key name="shelly" type="a{sa{ss}}">
+      <default>{}</default>
+      <summary>Home Assistant</summary>
+    </key>
     <key name="menu-selection" type="a{sa{ss}}">
       <default>{}</default>
       <summary>Current selection in menu.</summary>
