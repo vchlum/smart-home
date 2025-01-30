@@ -71,11 +71,11 @@ export const Plugin =  GObject.registerClass({
             if (!this._pluginSettings[id]) {
                 return; //device is being removed
             }
+        }
 
-            if (needsRebuild) {
-                this.clearInstance();
-                this.preparePlugin();
-            }
+        if (needsRebuild) {
+            this.clearInstance();
+            this.preparePlugin();
         }
     }
 

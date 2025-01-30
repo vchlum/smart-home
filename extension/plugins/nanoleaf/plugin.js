@@ -57,7 +57,7 @@ export const Plugin =  GObject.registerClass({
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
     }
 
-    settingRead() {
+    settingRead(needsRebuild) {
         this._connectionTimeout = {};
         for (let id in this._pluginSettings) {
             if (id === '_general_') {
@@ -76,6 +76,11 @@ export const Plugin =  GObject.registerClass({
             if (this._pluginSettings[id]['on-login']) {
                 this._onLoginSettings[id] = JSON.parse(this._pluginSettings[id]['on-login']);
             }
+        }
+
+        if (needsRebuild) {
+            this.clearInstance();
+            this.preparePlugin();
         }
     }
 
