@@ -647,7 +647,7 @@ export const Plugin =  GObject.registerClass({
 
         if (this._devices[mainId].gen < 2) {
             if (types.includes('light')) {
-                data = `light/${subId}?turn=on&red=${value['r']}&green=${value['g']}&blue=${value['b']}`;
+                data = `light/${subId}?turn=on&red=${value['r']}&green=${value['g']}&blue=${value['b']}&mode=color`;
             }
 
             if (data) {
@@ -710,7 +710,7 @@ export const Plugin =  GObject.registerClass({
 
         if (this._devices[mainId].gen < 2) {
             if (types.includes('light')) {
-                data = `light/${subId}?turn=on&temp=${temp}`;
+                data = `light/${subId}?turn=on&temp=${temp}&mode=white`;
             }
 
             if (data) {
