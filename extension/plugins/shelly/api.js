@@ -224,7 +224,7 @@ export const ShellyDevice =  GObject.registerClass({
                 `Basic ${GLib.base64_encode(credentials)}`
             );
         } else {
-            if (data && this._auth) {
+            if (data && this._auth && method === 'POST') {
                 data['auth'] = this._auth;
             }
         }

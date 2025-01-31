@@ -40,7 +40,6 @@ import GObject from 'gi://GObject';
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import * as Utils from '../utils.js';
 
-import * as SmartHomeDeviceLight from './prefs_device_light.js';
 import * as ShellyApi from '../plugins/shelly/api.js';
 
 /**

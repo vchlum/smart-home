@@ -39,7 +39,7 @@ import * as SmartHomePanelMenu from '../../smarthome-panelmenu.js';
 import * as Api from './api.js';
 
 /**
- * Shelly class for controlling Shelly devices.
+ * Smart Home class for controlling Shelly devices.
  *
  * @class Plugin
  * @constructor
@@ -345,17 +345,19 @@ export const Plugin =  GObject.registerClass({
                     devices[subId]['capabilities'].push('switch');
                     devices[subId]['switch'] = d['output'];
                     if (d['output']) {
-                        devices[subId]['color_mode'] = 'temperature';
+                        devices[subId]['color_mode'] = 'color';
                     }
                 }
 
                 if (d['rgb'] !== undefined) {
+                    devices[subId]['capabilities'].push('color');
                     devices[subId]['capabilities'].push('color_temperature');
-                    devices[subId]['color_temperature']  = {
+                    devices[subId]['color']  = {
                         'red': d['rgb'][0],
                         'green': d['rgb'][1],
                         'blue': d['rgb'][2]
                     }
+                    devices[subId]['color_temperature'] = devices[subId]['color'];
                 }
 
                 devices[subId]['shelly_type'].push('rgbw');
@@ -377,9 +379,6 @@ export const Plugin =  GObject.registerClass({
                     devices[subId]['capabilities'].push('position');
                     devices[subId]['capabilities'].push('up/down');
                     devices[subId]['position'] = d['current_pos'];
-                    if (d['output']) {
-                        devices[subId]['color_mode'] = 'temperature';
-                    }
                 }
 
                 devices[subId]['shelly_type'].push('cover');
@@ -528,7 +527,7 @@ export const Plugin =  GObject.registerClass({
     switchSingle(id, value) {
         let data;
         let types = this.data['devices'][id]['shelly_type'];
-        let mainId = id.split(':')[0]; 
+        let mainId = id.split('::')[0];
         let subId = Number(id.split('::')[1]);
 
         if (this._devices[mainId].gen < 2) {
@@ -581,7 +580,7 @@ export const Plugin =  GObject.registerClass({
         let data = null;
         let brightness = Math.round(value * 100);
         let types = this.data['devices'][id]['shelly_type'];
-        let mainId = id.split(':')[0]; 
+        let mainId = id.split('::')[0];
         let subId = Number(id.split('::')[1]);
 
         if (this._devices[mainId].gen < 2) {
@@ -643,7 +642,7 @@ export const Plugin =  GObject.registerClass({
     colorSingle(id, value) {
         let data = null;
         let types = this.data['devices'][id]['shelly_type'];
-        let mainId = id.split(':')[0]; 
+        let mainId = id.split('::')[0];
         let subId = Number(id.split('::')[1]);
 
         if (this._devices[mainId].gen < 2) {
@@ -706,7 +705,7 @@ export const Plugin =  GObject.registerClass({
 
         let data = null;
         let types = this.data['devices'][id]['shelly_type'];
-        let mainId = id.split(':')[0]; 
+        let mainId = id.split('::')[0];
         let subId = Number(id.split('::')[1]);
 
         if (this._devices[mainId].gen < 2) {
@@ -760,7 +759,7 @@ export const Plugin =  GObject.registerClass({
     positionSingle(id, value) {
         let data = null;
         let types = this.data['devices'][id]['shelly_type'];
-        let mainId = id.split(':')[0]; 
+        let mainId = id.split('::')[0];
         let subId = Number(id.split('::')[1]);
         value = Math.round(value * 100);
 
@@ -800,7 +799,7 @@ export const Plugin =  GObject.registerClass({
     upSingle(id) {
         let data = null;
         let types = this.data['devices'][id]['shelly_type'];
-        let mainId = id.split(':')[0]; 
+        let mainId = id.split('::')[0];
         let subId = Number(id.split('::')[1]);
 
         if (this._devices[mainId].gen < 2) {
@@ -838,7 +837,7 @@ export const Plugin =  GObject.registerClass({
     downSingle(id) {
         let data = null;
         let types = this.data['devices'][id]['shelly_type'];
-        let mainId = id.split(':')[0]; 
+        let mainId = id.split('::')[0];
         let subId = Number(id.split('::')[1]);
 
         if (this._devices[mainId].gen < 2) {
