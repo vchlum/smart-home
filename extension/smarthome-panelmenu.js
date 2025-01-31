@@ -819,6 +819,17 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 }
             }
 
+            object = this._itemRefresher[uuid]['subtext'];
+            if (object !== undefined) {
+                let text = this._getItemSubNameChange(ids, itemType);
+                if (text){
+                    object.visible = true;
+                    object.text = this._getItemSubNameChange(ids, itemType);
+                } else  {
+                    object.visible = false;
+                }
+            }
+
             object = this._itemRefresher[uuid]['icon'];
             if (object !== undefined) {
                 this._updateItemIcon(object, ids, itemType);
@@ -948,11 +959,18 @@ export const SmartHomePanelMenu = GObject.registerClass({
     createItemBox(vertical) {
         let label = new St.Label();
         label.set_x_expand(true);
+
+        let subLabel = new St.Label();
+        subLabel.set_x_expand(true);
+        subLabel.set_style("font-size: 12px;");
+        subLabel.visible = false;
+
         let itemBox = new St.BoxLayout();
         itemBox.set_x_expand(true);
         itemBox.vertical = vertical;
         itemBox.add_child(label);
-        return [itemBox, label];
+        itemBox.add_child(subLabel);
+        return [itemBox, label, subLabel];
     }
 
     /**
@@ -1216,6 +1234,43 @@ export const SmartHomePanelMenu = GObject.registerClass({
             case SmartHomeItemType.CONTROL:
             case SmartHomeItemType.SCENE:
                 text =  this.data['devices'][id]['name'];
+                break;
+
+            default:
+                break;
+        }
+
+        return text;
+    }
+
+    /**
+     * If sublabel is changable on item (device/group)
+     * this is how to get new value.
+     * 
+     * @method _getItemSubNameChange
+     * @param {Array} ids (only first is used)
+     * @param {Enum} itemType 
+     * @private
+     * @return {String}
+     */
+    _getItemSubNameChange(ids, itemType) {
+        let id = ids[0];
+        let text = null;
+
+        switch (itemType) {
+            case SmartHomeItemType.GROUP_ANY:
+            case SmartHomeItemType.GROUP_ALL:
+                break;
+
+            case SmartHomeItemType.GROUP:
+                text =  this.data['groups'][id]['subname'];
+                break;
+
+            case SmartHomeItemType.SINGLE:
+            case SmartHomeItemType.DEVICE:
+            case SmartHomeItemType.CONTROL:
+            case SmartHomeItemType.SCENE:
+                text =  this.data['devices'][id]['subname'];
                 break;
 
             default:
@@ -1720,6 +1775,10 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
         if (capabilities.includes('text')) {
             this._itemRefresher[uuid]['text'] = itemBox.get_children()[0]; // the label
+        }
+
+        if (capabilities.includes('subtext')) {
+            this._itemRefresher[uuid]['subtext'] = itemBox.get_children()[1]; // the sublabel; hidden by default
         }
 
         if (capabilities.includes('icon') && iconBox) {

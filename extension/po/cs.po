@@ -306,3 +306,6 @@ msgstr "Uživatelské jméno"
 
 msgid "Password"
 msgstr "Heslo"
+
+msgid "Show power consumption"
+msgstr "Zobrazit spotřebu"

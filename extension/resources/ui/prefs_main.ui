@@ -287,6 +287,13 @@
                           </child>
 
                           <child>
+                            <object class="AdwSwitchRow" id="showPowerConsumptionShelly">
+                              <property name="title" translatable="yes">Show power consumption</property>
+                              <signal name="notify::active" handler="_showPowerConsumptionShellySwitched" swapped="no"/>
+                            </object>
+                          </child>
+
+                          <child>
                             <object class="AdwComboRow" id="comboIndicatorPositionShelly">
                               <property name="title" translatable="yes">Status icon position</property>
                               <property name="model">

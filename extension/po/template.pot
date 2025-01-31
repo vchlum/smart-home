@@ -301,3 +301,6 @@ msgstr ""
 
 msgid "Password"
 msgstr ""
+
+msgid "Show power consumption"
+msgstr ""

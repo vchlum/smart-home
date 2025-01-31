@@ -62,6 +62,7 @@ export const PreferencesMain = GObject.registerClass({
         "hideUnavailableNanoleaf",
         "comboIndicatorPositionNanoleaf",
         "hideUnavailableShelly",
+        "showPowerConsumptionShelly",
         "comboIndicatorPositionShelly",
         "nanoleafRows",
         "ikeaDirigeraRows",
@@ -165,16 +166,21 @@ export const PreferencesMain = GObject.registerClass({
 
         let shellySettings = this._settingsLoaded[Utils.SETTINGS_SHELLY];
         let shellyhideUnavailable = Utils.ALL_DEFAULT_HIDE_UNAVAILABLE;
+        let shellyShowPowerConsumption = false;
         let shellyIndicatorPosition = 1;
         if (shellySettings['_general_']) {
             if (shellySettings['_general_']['hide-unavailable'] !== undefined) {
                 shellyhideUnavailable = shellySettings['_general_']['hide-unavailable'] === 'true';
+            }
+            if (shellySettings['_general_']['show-power-consumption'] !== undefined) {
+                shellyShowPowerConsumption = shellySettings['_general_']['show-power-consumption'] === 'true';
             }
             if (shellySettings['_general_']['indicator-position'] !== undefined) {
                 shellyIndicatorPosition = Number(shellySettings['_general_']['indicator-position']);
             }
         }
         this._hideUnavailableShelly.active = shellyhideUnavailable;
+        this._showPowerConsumptionShelly.active = shellyShowPowerConsumption;
         this._comboIndicatorPositionShelly.selected = shellyIndicatorPosition;
     }
 
@@ -242,6 +248,26 @@ export const PreferencesMain = GObject.registerClass({
         }
 
         pluginSettings['_general_']['hide-unavailable'] = String(object.active);
+
+        this._settings.set_value(
+            Utils.SETTINGS_SHELLY,
+            new GLib.Variant(
+                Utils.SETTINGS_PLUGIN_TYPE,
+                pluginSettings
+            )
+        );
+    }
+
+    _showPowerConsumptionShellySwitched(object) {
+        let pluginSettings = this._settings.get_value(
+            Utils.SETTINGS_SHELLY
+        ).deep_unpack();
+
+        if (! pluginSettings['_general_']) {
+            pluginSettings['_general_'] = {};
+        }
+
+        pluginSettings['_general_']['show-power-consumption'] = String(object.active);
 
         this._settings.set_value(
             Utils.SETTINGS_SHELLY,

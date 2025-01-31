@@ -53,6 +53,7 @@ export const Plugin =  GObject.registerClass({
         this.id = id;
         this._devices = {};
         this._connectionTimeout = {};
+        this._showPowerConsupmtion = false;
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
     }
 
@@ -60,6 +61,11 @@ export const Plugin =  GObject.registerClass({
         this._connectionTimeout = {};
         for (let id in this._pluginSettings) {
             if (id === '_general_') {
+                this._showPowerConsupmtion = false;
+                if (this._pluginSettings[id]['show-power-consumption'] === 'true') {
+                    this._showPowerConsupmtion = true;
+                }
+
                 continue;
             }
 
@@ -110,7 +116,7 @@ export const Plugin =  GObject.registerClass({
             'type': 'device',
             'name': name,
             'section': 'common',
-            'capabilities': [],
+            'capabilities': this._showPowerConsupmtion ? ['subtext'] : [],
             'groups': [],
             'shelly_type': []
         };
@@ -126,6 +132,10 @@ export const Plugin =  GObject.registerClass({
 
         let device = this._createShellyDevice(name);
         device['shelly_type'].push('light');
+
+        if (data['meters'] && data['meters'][subId]) {
+            device['subname'] = `${data['meters'][subId]['power']}W`;
+        }
 
         if (data['lights'][subId]['ison'] !== undefined) {
             device['capabilities'].push('switch');
@@ -180,6 +190,10 @@ export const Plugin =  GObject.registerClass({
         let device = this._createShellyDevice(name);
         device['shelly_type'].push('relay');
 
+        if (data['meters'] && data['meters'][subId]) {
+            device['subname'] = `${data['meters'][subId]['power']}W`;
+        }
+
         if (data['relays'][subId]['ison'] !== undefined) {
             device['capabilities'].push('switch');
             device['switch'] = data['relays'][subId]['ison'];
@@ -196,6 +210,10 @@ export const Plugin =  GObject.registerClass({
 
         let device = this._createShellyDevice(name);
         device['shelly_type'].push('roller');
+
+        if (data['meters'] && data['meters'][subId]) {
+            device['subname'] = `${data['meters'][subId]['power']}W`;
+        }
 
         if (data['rollers'][subId]['current_pos'] !== undefined) {
             device['capabilities'] = ['position', 'up/down'];
@@ -269,6 +287,10 @@ export const Plugin =  GObject.registerClass({
                     devices[subId]['switch'] = d['output'];
                 }
 
+                if (d['apower'] !== undefined) {
+                    devices[subId]['subname'] = `${d['apower']}W`;
+                }
+
                 devices[subId]['shelly_type'].push('switch');
             }
 
@@ -292,6 +314,10 @@ export const Plugin =  GObject.registerClass({
                 if (d['brightness'] !== undefined) {
                     devices[subId]['capabilities'].push('brightness');
                     devices[subId]['brightness'] = d['brightness'] / 100;
+                }
+
+                if (d['apower'] !== undefined) {
+                    devices[subId]['subname'] = `${d['apower']}W`;
                 }
 
                 devices[subId]['shelly_type'].push('light');
@@ -324,6 +350,10 @@ export const Plugin =  GObject.registerClass({
                         'green': d['rgb'][1],
                         'blue': d['rgb'][2]
                     }
+                }
+
+                if (d['apower'] !== undefined) {
+                    devices[subId]['subname'] = `${d['apower']}W`;
                 }
 
                 devices[subId]['shelly_type'].push('rgb');
@@ -360,6 +390,10 @@ export const Plugin =  GObject.registerClass({
                     devices[subId]['color_temperature'] = devices[subId]['color'];
                 }
 
+                if (d['apower'] !== undefined) {
+                    devices[subId]['subname'] = `${d['apower']}W`;
+                }
+
                 devices[subId]['shelly_type'].push('rgbw');
             }
 
@@ -379,6 +413,10 @@ export const Plugin =  GObject.registerClass({
                     devices[subId]['capabilities'].push('position');
                     devices[subId]['capabilities'].push('up/down');
                     devices[subId]['position'] = d['current_pos'];
+                }
+
+                if (d['apower'] !== undefined) {
+                    devices[subId]['subname'] = `${d['apower']}W`;
                 }
 
                 devices[subId]['shelly_type'].push('cover');
