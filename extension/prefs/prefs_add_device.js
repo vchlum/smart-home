@@ -72,6 +72,12 @@ export const SmartHomeAddDevice = GObject.registerClass({
         if (this.ip) {
             this._ipAddress.text = this.ip;
         }
+        this._allowUrl = false;
+    }
+
+    allowUrl(title) {
+        this._ipAddress.title = title;
+        this._allowUrl = true;
     }
 
     showPortDefault(port) {
@@ -100,7 +106,7 @@ export const SmartHomeAddDevice = GObject.registerClass({
 
     _addActivated(){
         const re = new RegExp('^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$');
-        if (! re.test(this._ipAddress.text)) {
+        if ((! this._allowUrl) && (! re.test(this._ipAddress.text))) {
             let toast = Adw.Toast.new(_("Invalid IP address."));
             toast.set_timeout(3);
             this.get_root().add_toast(toast);

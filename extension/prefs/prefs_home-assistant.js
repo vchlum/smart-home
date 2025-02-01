@@ -85,6 +85,10 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
                     Utils.SETTINGS_HOMEASSISTANT
                 ).deep_unpack();
 
+                if (! this._pluginSettings[this.id]) {
+                    return; //device is being removed
+                }
+
                 if (this._pluginSettings[this._id]['on-login']) {
                     this._onLoginSettings = JSON.parse(this._pluginSettings[this._id]['on-login']);
                 }

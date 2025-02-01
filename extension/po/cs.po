@@ -251,7 +251,7 @@ msgstr ""
 "Případně povolte API párovní v aplikaci. Záleží na vašem zařízení. Když LED bliká, stiskněte tlačítko 'Přidat'."
 
 msgid "Failed to connect to the device."
-msgstr "Připojení k zažízení se nezdařilo."
+msgstr "Připojení k zařízení se nezdařilo."
 
 msgid "Connected"
 msgstr "Připojeno"
@@ -309,3 +309,9 @@ msgstr "Heslo"
 
 msgid "Show power consumption"
 msgstr "Zobrazit spotřebu"
+
+msgid "IP address or URL (e.g.: 'http://ha')"
+msgstr "IP adresa nebo URL (např.: 'http://ha')"
+
+msgid "Invalid URL."
+msgstr "Neplatná URL."

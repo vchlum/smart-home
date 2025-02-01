@@ -304,3 +304,9 @@ msgstr ""
 
 msgid "Show power consumption"
 msgstr ""
+
+msgid "IP address or URL (e.g.: 'http://ha')"
+msgstr ""
+
+msgid "Invalid URL."
+msgstr ""

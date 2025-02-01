@@ -591,6 +591,7 @@ export const PreferencesMain = GObject.registerClass({
             this._addDialogHomeAssistantCallback.bind(this)
         );
 
+        add.allowUrl(_("IP address or URL (e.g.: 'http://ha')"));
         add.showPortDefault(port);
         add.showToken();
 
@@ -675,6 +676,24 @@ export const PreferencesMain = GObject.registerClass({
     _addDialogHomeAssistantCallback(object) {
         if (this.checkIpExists(Utils.SETTINGS_HOMEASSISTANT, object.ip)) {
             return;
+        }
+
+        const rIp = new RegExp('^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$');
+        if (! rIp.test(object.ip)) {
+            object.ip = object.ip.toLowerCase();
+            const rUrl = new RegExp('^(https?://[^:/]+):?([0-9]*).*$');
+            const res = object.ip.match(rUrl);
+            if (res && res[0] && res[1]) {
+                object.ip = res[1];
+                if (res[2]) {
+                    object.port = res[2];
+                }
+            } else {
+                let toast = Adw.Toast.new(_("Invalid URL."));
+                toast.set_timeout(3);
+                this.get_root().add_toast(toast);
+                return;
+            }
         }
 
         let bridge = new HomeAssistantApi.HomeAssistantBridge({

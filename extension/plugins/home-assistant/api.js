@@ -120,10 +120,23 @@ export const HomeAssistantBridge =  GObject.registerClass({
         this.authWebSocket();
     }
 
+    _adjustUrlAndWs() {
+        this._url = `${this._ip}:${this._port ? this._port : 8123}/api`;
+        this._ws = `${this._ip}:${this._port ? this._port : 8123}/api/websocket`;
+
+        if (! this._ip.startsWith('http')) {
+            this._url = `http://${this._url}`;
+            this._ws = `ws://${this._ws}`;
+        }
+
+        if (this._ws.startsWith('http')) {
+            this._ws = this._ws.replace(/(^http)/gi, 'ws');
+        }
+    }
+
     set ip(value) {
-        this._ip = value;
-        this._url = `http://${this._ip}:${this._port ? this._port : 8123}/api`;
-        this._urlWss = `ws://${this._ip}:${this._port ? this._port : 8123}/api/websocket`;
+        this._ip = value; // value can contain http(s)
+        this._adjustUrlAndWs();
     }
 
     get ip() {
@@ -132,8 +145,7 @@ export const HomeAssistantBridge =  GObject.registerClass({
 
     set port(value) {
         this._port = value;
-        this._url = `http://${this._ip}:${this._port}/api`;
-        this._urlWss = `ws://${this._ip}:${this._port}/api/websocket`;
+        this._adjustUrlAndWs();
     }
 
     get port() {
@@ -264,7 +276,7 @@ export const HomeAssistantBridge =  GObject.registerClass({
     }
 
     authWebSocket() {
-        if (this._sessionWss) {
+        if (this._wsSession) {
             return;
         }
 
@@ -272,17 +284,17 @@ export const HomeAssistantBridge =  GObject.registerClass({
             return;
         }
 
-        this._sessionWss = Soup.Session.new();
+        this._wsSession = Soup.Session.new();
         let msg = new Soup.Message({
             method: 'GET',
-            uri: GLib.Uri.parse(this._urlWss, GLib.UriFlags.NONE)
+            uri: GLib.Uri.parse(this._ws, GLib.UriFlags.NONE)
         });
 
-        msg = Soup.Message.new("GET", this._urlWss),
+        msg = Soup.Message.new("GET", this._ws),
 
         msg.request_headers.append("ssl", "False");
 
-        this._sessionWss.websocket_connect_async(
+        this._wsSession.websocket_connect_async(
             msg,
             null,
             null,
@@ -294,27 +306,27 @@ export const HomeAssistantBridge =  GObject.registerClass({
 
     _authWebSocketCallback(session, res) {
         try {
-            this._wssConnection = session.websocket_connect_finish(res);
+            this._wsConnection = session.websocket_connect_finish(res);
         } catch {
-            this._sessionWss = undefined;
+            this._wsSession = undefined;
             return;
         }
 
-        if (!this._wssConnection) {
+        if (!this._wsConnection) {
             return;
         }
 
-        this._wssConnection.connect(
+        this._wsConnection.connect(
             'closed',
             () => {}
         );
 
-        this._wssConnection.connect(
+        this._wsConnection.connect(
             'error',
             () => {}
         );
 
-        this._wssConnection.connect(
+        this._wsConnection.connect(
             'message',
             (connection, type, data) => {
                 let decoder = new TextDecoder();
@@ -350,11 +362,11 @@ export const HomeAssistantBridge =  GObject.registerClass({
     }
 
     wssRequest(data) {
-        if (this._wssConnection === undefined) {
+        if (this._wsConnection === undefined) {
             return;
         }
 
-        this._wssConnection.send_text(
+        this._wsConnection.send_text(
             JSON.stringify(data)
         );
     }
