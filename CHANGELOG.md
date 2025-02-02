@@ -1,3 +1,7 @@
+## Version 6
+ * Home Assistant support
+ * Shelly devices support
+ * bug fixes
 ## Version 5
  * Home Assistant support to turn on lights on login
  * Desktop sync support to turn on lights on login
