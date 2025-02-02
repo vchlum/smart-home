@@ -145,7 +145,7 @@ export const Avahi = GObject.registerClass({
      * 
      * @method discover
      */
-    discover() {
+    async discover() {
         if(this._pid) {
             return;
         }

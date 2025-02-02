@@ -674,10 +674,6 @@ export const PreferencesMain = GObject.registerClass({
     }
 
     _addDialogHomeAssistantCallback(object) {
-        if (this.checkIpExists(Utils.SETTINGS_HOMEASSISTANT, object.ip)) {
-            return;
-        }
-
         const rIp = new RegExp('^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$');
         if (! rIp.test(object.ip)) {
             object.ip = object.ip.toLowerCase();
@@ -694,6 +690,10 @@ export const PreferencesMain = GObject.registerClass({
                 this.get_root().add_toast(toast);
                 return;
             }
+        }
+
+        if (this.checkIpExists(Utils.SETTINGS_HOMEASSISTANT, object.ip)) {
+            return;
         }
 
         let bridge = new HomeAssistantApi.HomeAssistantBridge({
