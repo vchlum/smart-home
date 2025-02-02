@@ -1607,7 +1607,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let themeContext = St.ThemeContext.get_for_stage(global.stage);
         let slider = new Slider.Slider(0);
         slider.set_width(180 * themeContext.scaleFactor);
-        slider.set_height(25);
+        slider.set_height(25 * themeContext.scaleFactor);
         slider.set_x_align(Clutter.ActorAlign.START);
         slider.set_x_expand(false);
         slider.value = value;

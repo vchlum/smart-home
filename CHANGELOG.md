@@ -1,5 +1,5 @@
 ## Version 6
- * Home Assistant support
+ * Home Assistant URL support
  * Shelly devices support
  * bug fixes
 ## Version 5

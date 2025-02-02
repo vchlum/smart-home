@@ -44,7 +44,7 @@ export default class SmartHome extends ExtensionPreferences {
         const resource = Gio.Resource.load(GLib.build_filenamev([this.path, 'preferences.gresource']));
         Gio.resources_register(resource);
 
-        window.set_default_size(1024, 768);
+        window.set_default_size(1000, 800);
 
         const dummyPage = new Adw.PreferencesPage();
         window.add(dummyPage);
