@@ -363,6 +363,10 @@ export const Plugin =  GObject.registerClass({
     clearInstance() {
         Utils.logDebug(`Philips Hue desktop sync ${this.id} clearing.`);
 
+        if (this._onStartTimer) {
+            GLib.Source.remove(this._onStartTimer);
+        };
+
         if (this.streamer) {
             this.streamer.disconnectStream();
             this.streamer.disconnectSignals();
@@ -535,8 +539,8 @@ export const Plugin =  GObject.registerClass({
         if (this._requestedAreaId &&
             this._onLoginSettings['autostart-mode']) {
 
-            let timerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 400, () => {
-                this._timers = Utils.removeFromArray(this._timers, timerId);
+            this._onStartTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 400, () => {
+                this._onStartTimer = null;
 
                 this._miscellanousStorage[this.pluginID]["streamingID"] = String(this._requestedAreaId);
                 this.writeSettingsMiscellaneous();
@@ -547,7 +551,6 @@ export const Plugin =  GObject.registerClass({
                 this.requestData();
                 return GLib.SOURCE_REMOVE;
             });
-            this._timers.push(timerId);
         }
     }
 
