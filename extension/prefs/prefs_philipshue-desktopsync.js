@@ -139,11 +139,14 @@ export const SmartHomePhilipsHueDesktopSync = GObject.registerClass({
         let autoStartMode = 0;
         if (this._onLoginSettings['autostart-mode'] !== undefined) {
             switch(this._onLoginSettings['autostart-mode']) {
-                case 'sync-music':
+                case 'sync-screen':
                     autoStartMode = 1;
                     break;
-                case 'sync-cursor':
+                case 'sync-music':
                     autoStartMode = 2;
+                    break;
+                case 'sync-cursor':
+                    autoStartMode = 3;
                     break;
                 default:
                     autoStartMode = 0;
@@ -182,9 +185,12 @@ export const SmartHomePhilipsHueDesktopSync = GObject.registerClass({
     _autoStartModeSelected(object) {
         switch (object.selected) {
             case 1:
-                this._onLoginSettings['autostart-mode'] = 'sync-music';
+                this._onLoginSettings['autostart-mode'] = 'sync-screen';
                 break;
             case 2:
+                this._onLoginSettings['autostart-mode'] = 'sync-music';
+                break;
+            case 3:
                 this._onLoginSettings['autostart-mode'] = 'sync-cursor';
                 break;
             default:

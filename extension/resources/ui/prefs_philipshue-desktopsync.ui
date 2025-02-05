@@ -74,6 +74,7 @@
                                   <object class="GtkStringList">
                                     <items>
                                       <item translatable="yes" comments="disabled">Disabled</item>
+                                      <item translatable="yes" comments="sync-screen">Screen</item>
                                       <item translatable="yes" comments="sync-music">Music</item>
                                       <item translatable="yes" comments="sync-cursor">Track cursor</item>
                                     </items>

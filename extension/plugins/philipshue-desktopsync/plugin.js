@@ -41,6 +41,7 @@ import * as SmartHomePanelMenu from '../../smarthome-panelmenu.js';
 import * as BridgeApi from '../philipshue-bridge/api.js';
 import * as TrackCursor from './track-cursor.js';
 import * as SyncMusic from './sync-music.js';
+import * as SyncScreen from './sync-screen.js';
 
 export const Plugin =  GObject.registerClass({
     GTypeName: "PhilipsHueDesktopSync",
@@ -185,7 +186,7 @@ export const Plugin =  GObject.registerClass({
             'icon': "HueIcons/otherWatchingMovie.svg",
             'capabilities': ['text']
         };
-/*
+
         this.data['devices']['sync-screen'] = {
             'type': 'device',
             'name': this._("Screen"),
@@ -195,7 +196,7 @@ export const Plugin =  GObject.registerClass({
             'switch': false,
             'icon': "HueIcons/otherWatchingMovie.svg"
         }
-*/
+
         this.data['devices']['sync-music'] = {
             'type': 'device',
             'name': this._("Music"),
@@ -307,7 +308,7 @@ export const Plugin =  GObject.registerClass({
             this.data['devices']['brightness']['icon'] = "HueIcons/presetsDimmerDimdown.svg";
         }
     
-        //this.data['devices']['sync-screen']['switch'] = false;
+        this.data['devices']['sync-screen']['switch'] = false;
         this.data['devices']['sync-music']['switch']  = false;
         this.data['devices']['sync-cursor']['switch']  = false;
 
@@ -394,6 +395,13 @@ export const Plugin =  GObject.registerClass({
 
         switch (this._featureId) {
             case 'sync-screen':
+                this.streamer = new SyncScreen.SyncSceen(
+                    this._ip,
+                    this._userName,
+                    this._clientKey,
+                    this._currentAreaId,
+                    this._entertainments[this._currentAreaId]['channels']
+                );
                 break;
             case 'sync-music':
                 this.streamer = new SyncMusic.SyncMusic(
