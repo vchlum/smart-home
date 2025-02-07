@@ -71,12 +71,12 @@
                                 <property name="margin-top">10</property>
                                 <property name="margin-bottom">10</property>
                                 <property name="model">
-                                  <object class="GtkStringList">
+                                  <object class="GtkStringList" id="syncList">
                                     <items>
                                       <item translatable="yes" comments="disabled">Disabled</item>
-                                      <item translatable="yes" comments="sync-screen">Screen</item>
-                                      <item translatable="yes" comments="sync-music">Music</item>
                                       <item translatable="yes" comments="sync-cursor">Track cursor</item>
+                                      <item translatable="yes" comments="sync-music">Music</item>
+                                      <item translatable="yes" comments="sync-screen">Screen</item>
                                     </items>
                                   </object>
                                 </property>

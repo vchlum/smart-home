@@ -35,32 +35,66 @@
 
 import GObject from 'gi://GObject';
 import GLib from 'gi://GLib';
-import * as Utils from '../../utils.js';
-import * as Streamer from './streamer.js';
-
 import Shell from 'gi://Shell';
 import Gio from 'gi://Gio';
+import * as Utils from '../../utils.js';
+import * as Streamer from './streamer.js';
 
 export const SyncSceen =  GObject.registerClass({
     GTypeName: "SmartHomeSyncScreenStreamer",
 }, class SyncSceen extends Streamer.Streamer {
-    _init(ip, userName, clientKey, id, channels) {
+    _init(ip, userName, clientKey, id, channels, displayIndex) {
         super._init(ip, userName, clientKey);
         this.name = 'sync-screen';
         this._timers = [];
         this._id = id;
         this._channels = channels;
         this.streamingFunction = this.initSyncSceen;
-        this.streamingFunctionStop = this.stopSyncScreen;
-        this._initialized = false;
+        this._displayIndex = displayIndex;
     }
 
-    setParameters(brightness, intensity) {
-        super.setParameters(brightness, intensity);
+    _getScreenGeometry(displayIndex) {
+        let res = [0, 0, -1, -1];
+        let maxScale = 0;
+        let maxWidth = 0;
+        let maxHeight = 0;
+        let display = global.display;
+        let nMonitors = display.get_n_monitors();
+        for (let i = 0; i < nMonitors; i++) {
+            let scale = display.get_monitor_scale(i);
 
-        if (this._gstreamer) {
-            this._gstreamer.setInterval((this.intensity - 40) / 255);
+            if (scale > maxScale) {
+                maxScale = scale;
+            }
         }
+
+        for (let i = 0; i < nMonitors; i++) {
+            let rect = global.display.get_monitor_geometry(i);
+            let x = rect.x * maxScale;
+            let y = rect.y * maxScale;
+            let width = rect.width * maxScale;
+            let height = rect.height * maxScale;
+
+            if (maxWidth < x + width) {
+                maxWidth = x + width;
+            }
+
+            if (maxHeight < y + height) {
+                maxHeight = y + height;
+            }
+
+            if (displayIndex === i) {
+                res = [x, y , width, height];
+            }
+        }
+
+        if (displayIndex === undefined || displayIndex === null) {
+            res = [0, 0 , maxWidth, maxHeight];
+        }
+
+        Utils.logDebug(`Sync desktop, used geometry: ${displayIndex} ${res}`);
+
+        return res;
     }
 
     initSyncSceen() {
@@ -70,14 +104,12 @@ export const SyncSceen =  GObject.registerClass({
 
         this._shooter = new Shell.Screenshot();
 
-        let [realWidth, realHeight] = this.getRealWidthAndHeight();
-        this._width = realWidth;
-        this._height = realHeight;
+        [this._x, this._y, this._width, this._height] = this._getScreenGeometry(this._displayIndex);
 
         this.syncScreen();
     }
 
-    _getPositionfromChannel(channel) {
+    _getPositionFromChannel(channel) {
         let relX = channel['position']['x'] * 2;
         let relY = channel['position']['z'] * -2;
 
@@ -128,7 +160,7 @@ export const SyncSceen =  GObject.registerClass({
 
     }
 
-    getAvagarePixelRGB(pixels, rowstride, n_channels) {
+    _getAvagarePixelRGB(pixels, rowstride, n_channels) {
         let count = 0;
         let color = [0, 0, 0];
         let width = rowstride/n_channels;
@@ -159,10 +191,10 @@ export const SyncSceen =  GObject.registerClass({
         return color;
     }
 
-    async getPixelsRectangleColor(channel, stream, texture, scale, cursor, x, y, w, h) {
+    async _getPixelsRectangleColor(stream, texture, scale, cursor, x, y, w, h) {
         const pixbuf = await Shell.Screenshot.composite_to_stream(
             texture,
-            x, y, w, h,
+            this._x + x, this._y + y, w, h,
             scale,
             cursor.texture, cursor.x, cursor.y, cursor.scale,
             stream
@@ -172,50 +204,7 @@ export const SyncSceen =  GObject.registerClass({
         const n_channels = pixbuf.get_n_channels();
         const pixels = pixbuf.get_pixels();
 
-        return this.getAvagarePixelRGB(pixels, rowstride, n_channels);
-    }
-
-    getRealWidthAndHeight() {
-        let width = 0, height = 0;
-        let tmpWidth = 0, tmpHeight = 0;
-
-        let display = global.display;
-        let nMonitors = display.get_n_monitors();
-        let monitors = [];
-
-        for (let i = 0; i < nMonitors; i++) {
-            monitors.push(i);
-        }
-
-        let i = 0;
-        while (monitors.length > 0) {
-            let index = monitors[i];
-            let rect = global.display.get_monitor_geometry(index);
-            let scale = display.get_monitor_scale(index);
-
-            if (rect.x === tmpWidth) {
-                width += Math.round(rect.width * scale);
-                tmpWidth =+ rect.width;
-
-                monitors = Utils.removeFromArray(monitors, index);
-            }
-                
-                
-            if (rect.y === tmpHeight) {
-                height += Math.round(rect.height * scale);
-                tmpHeight += rect.height;
-
-                monitors = Utils.removeFromArray(monitors, index);
-            }
-
-            i++;
-
-            if (i >= monitors.length) {
-                i = 0;
-            }
-        }
-
-        return [width, height];
+        return this._getAvagarePixelRGB(pixels, rowstride, n_channels);
     }
 
     async syncScreen() {
@@ -231,18 +220,22 @@ export const SyncSceen =  GObject.registerClass({
         const [content] = await this._shooter.screenshot_stage_to_content();
         const texture = content.get_texture();
         const cursor = {texture: null, x: 0, y: 0, scale: 1};
-
         for (let i in this._channels) {
             let c = this._channels[i]['channel_id'];
             
-            let [reqX, reqY, percentWidth, percentHeight] = this._getPositionfromChannel(this._channels[i]);
+            let [reqX, reqY, percentWidth, percentHeight] = this._getPositionFromChannel(this._channels[i]);
             let [x, y, w, h] = this._getSquareFromXY(reqX, reqY, percentWidth, percentHeight); // result: 0, 0, -1, -1 for full screen
 
             const scale = 1;
-            let color = await this.getPixelsRectangleColor(i, stream, texture, scale, cursor, x, y, w, h);
+            let color = await this._getPixelsRectangleColor(stream, texture, scale, cursor, x, y, w, h);
 
             msg = msg.concat(
-                this.createLightMsg(c, color[0], color[1], color[2])
+                this.createLightMsg(
+                    c,
+                    Math.round(color[0] * this.brightness),
+                    Math.round(color[1] * this.brightness),
+                    Math.round(color[2] * this.brightness)
+                )
             );
         }
 
@@ -257,7 +250,18 @@ export const SyncSceen =  GObject.registerClass({
         this._timers.push(timerId);
     }
 
-    stopSyncScreen() {
+    /**
+     * Remove timers created by GLib.timeout_add
+     * 
+     * @method clearTimers
+     */
+    clearTimers() {
+        for (let t of this._timers) {
+            if (t) {
+                GLib.Source.remove(t);
+            }
+        }
 
+        this._timers = [];
     }
 });

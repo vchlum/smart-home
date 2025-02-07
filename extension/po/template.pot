@@ -310,3 +310,6 @@ msgstr ""
 
 msgid "Invalid URL."
 msgstr ""
+
+msgid "Display"
+msgstr ""

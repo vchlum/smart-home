@@ -48,7 +48,6 @@ export const SyncMusic =  GObject.registerClass({
         this._channels = channels;
         this.streamingFunction = this.initSyncMusic;
         this.streamingFunctionStop = this.stopSyncMusic;
-        this._initialized = false;
     }
 
     setParameters(brightness, intensity) {

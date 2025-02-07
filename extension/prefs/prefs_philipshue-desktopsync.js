@@ -35,6 +35,7 @@
 
 import Adw from 'gi://Adw';
 import GLib from 'gi://GLib';
+import Gdk from 'gi://Gdk';
 import GObject from 'gi://GObject';
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import * as Utils from '../utils.js';
@@ -61,6 +62,7 @@ export const SmartHomePhilipsHueDesktopSync = GObject.registerClass({
         'comboIndicatorPosition',
         'devicesOnLogin',
         'comboSyncMode',
+        'syncList',
         'spinConnectionTimeout',
     ],
 }, class SmartHomePhilipsHueDesktopSync extends Adw.NavigationPage {
@@ -111,9 +113,24 @@ export const SmartHomePhilipsHueDesktopSync = GObject.registerClass({
             this._parseBridgeData.bind(this)
         );
 
+        this.appendDisplays();
+
         bridge.getAll();
 
         this.updateUI();
+    }
+
+    appendDisplays() {
+        let monitors = Gdk.Display.get_default().get_monitors();
+        if (monitors.get_n_items() > 1) {
+            let i = 0;
+            for (const m of monitors) {
+                const { x, y, width, height } = m.get_geometry();
+                const scale = m.get_scale()
+                this._syncList.append(`${_("Display")} ${i}: ${width * scale}x${height * scale}`);
+                i++;
+            }
+        }
     }
 
     updateUI() {
@@ -138,15 +155,23 @@ export const SmartHomePhilipsHueDesktopSync = GObject.registerClass({
 
         let autoStartMode = 0;
         if (this._onLoginSettings['autostart-mode'] !== undefined) {
-            switch(this._onLoginSettings['autostart-mode']) {
-                case 'sync-screen':
+            let syncMode = this._onLoginSettings['autostart-mode'].split(':');
+            switch(syncMode[0]) {
+                case 'sync-cursor':
                     autoStartMode = 1;
                     break;
                 case 'sync-music':
                     autoStartMode = 2;
                     break;
-                case 'sync-cursor':
+                case 'sync-screen':
                     autoStartMode = 3;
+                    if (syncMode[1] !== undefined) {
+                        autoStartMode = autoStartMode + Number(syncMode[1]) + 1;
+
+                        if (autoStartMode > this._syncList.get_n_items()) {
+                            autoStartMode = 3;
+                        }
+                    }
                     break;
                 default:
                     autoStartMode = 0;
@@ -184,17 +209,25 @@ export const SmartHomePhilipsHueDesktopSync = GObject.registerClass({
 
     _autoStartModeSelected(object) {
         switch (object.selected) {
+            case 0:
+                this._onLoginSettings = {};
+                break;
             case 1:
-                this._onLoginSettings['autostart-mode'] = 'sync-screen';
+                this._onLoginSettings['autostart-mode'] = 'sync-cursor';
                 break;
             case 2:
                 this._onLoginSettings['autostart-mode'] = 'sync-music';
                 break;
             case 3:
-                this._onLoginSettings['autostart-mode'] = 'sync-cursor';
+                this._onLoginSettings['autostart-mode'] = 'sync-screen';
                 break;
             default:
-                this._onLoginSettings = {};
+                if (object.selected > 3) {
+                    let display = object.selected - 3 - 1;
+                    this._onLoginSettings['autostart-mode'] = `sync-screen:${display}`;
+                } else {
+                    this._onLoginSettings = {};
+                }
                 break;
         }
         this._pluginSettings[this._id]['on-login'] = JSON.stringify(this._onLoginSettings);

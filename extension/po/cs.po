@@ -315,3 +315,6 @@ msgstr "IP adresa nebo URL (např.: 'http://ha')"
 
 msgid "Invalid URL."
 msgstr "Neplatná URL."
+
+msgid "Display"
+msgstr "Displej"

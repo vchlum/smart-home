@@ -34,7 +34,6 @@
  */
 
 import GObject from 'gi://GObject';
-import GLib from 'gi://GLib';
 import * as DTLSClient from './dtlsclient.js';
 
 export const Streamer =  GObject.registerClass({

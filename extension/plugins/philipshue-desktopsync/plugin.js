@@ -55,6 +55,7 @@ export const Plugin =  GObject.registerClass({
         this._brightness = 0.5;
         this._intensity = 0.5;
         this._firstTime = true;
+        this._displays = [];
     }
 
     settingRead() {
@@ -197,6 +198,30 @@ export const Plugin =  GObject.registerClass({
             'icon': "HueIcons/otherWatchingMovie.svg"
         }
 
+        this._displays = [];
+        let n_monitors = global.display.get_n_monitors();
+        if (n_monitors > 1) {
+            for (let i = 0; i < n_monitors; i++) {
+                let geometry = global.display.get_monitor_geometry(i);
+                let scale = global.display.get_monitor_scale(i);
+
+                let id = `sync-screen:${i}`;
+                this._displays.push(id);
+                let width = Math.round(geometry.width * scale);
+                let height = Math.round(geometry.height * scale);
+
+                this.data['devices'][id] = {
+                    'type': 'device',
+                    'name': `${this._("Display")} ${i}: ${width}x${height}`,
+                    'section': 'static',
+                    'capabilities': ['switch'],
+                    'groups': ['syncdesktop-mode'],
+                    'switch': false,
+                    'icon': "HueIcons/otherWatchingMovie.svg"
+                }
+            }
+        }
+
         this.data['devices']['sync-music'] = {
             'type': 'device',
             'name': this._("Music"),
@@ -239,6 +264,7 @@ export const Plugin =  GObject.registerClass({
     }
 
     _updateData(data) {
+        let id;
         this._someStreamAcive = false;
         let activeEntertainmentName = this._("Entertainment areas");
 
@@ -276,7 +302,11 @@ export const Plugin =  GObject.registerClass({
         if (this.streamer) {
             switch(this.streamer['name']) {
                 case 'sync-screen':
-                    this.data['groups']['syncdesktop-mode']['name'] = this._('Screen');
+                    if (this._streamParameter !== undefined && this._streamParameter !== null) {
+                        this.data['groups']['syncdesktop-mode']['name'] = `${this._('Display')}: ${this._streamParameter}`;
+                    } else {
+                        this.data['groups']['syncdesktop-mode']['name'] = this._('Screen');
+                    }
                     this.data['groups']['syncdesktop-mode']['icon'] = "HueIcons/otherWatchingMovie.svg";
                     break;
                 case 'sync-music':
@@ -312,8 +342,17 @@ export const Plugin =  GObject.registerClass({
         this.data['devices']['sync-music']['switch']  = false;
         this.data['devices']['sync-cursor']['switch']  = false;
 
+        for (let id of this._displays) {
+            this.data['devices'][id]['switch'] = false;
+        }
+
         if (this.streamer) {
-            this.data['devices'][this.streamer['name']]['switch'] = true;
+            if (this._streamParameter !== undefined && this._streamParameter !== null) {
+                id = `${this.streamer['name']}:${this._streamParameter}`;
+            }   else {
+                id = this.streamer['name'];
+            }
+            this.data['devices'][id]['switch'] = true;
         }
     }
 
@@ -400,7 +439,8 @@ export const Plugin =  GObject.registerClass({
                     this._userName,
                     this._clientKey,
                     this._currentAreaId,
-                    this._entertainments[this._currentAreaId]['channels']
+                    this._entertainments[this._currentAreaId]['channels'],
+                    this._streamParameter
                 );
                 break;
             case 'sync-music':
@@ -409,7 +449,8 @@ export const Plugin =  GObject.registerClass({
                     this._userName,
                     this._clientKey,
                     this._currentAreaId,
-                    this._entertainments[this._currentAreaId]['channels']
+                    this._entertainments[this._currentAreaId]['channels'],
+                    this._streamParameter
                 );
                 break;
             case 'sync-cursor':
@@ -418,7 +459,8 @@ export const Plugin =  GObject.registerClass({
                     this._userName,
                     this._clientKey,
                     this._currentAreaId,
-                    this._entertainments[this._currentAreaId]['channels']
+                    this._entertainments[this._currentAreaId]['channels'],
+                    this._streamParameter
                 );
                 break;
             default:
@@ -466,6 +508,13 @@ export const Plugin =  GObject.registerClass({
     }
 
     switchSingle(id, value) {
+        let param = id.split(':');
+        this._streamParameter = null;
+        if (param[1]) {
+            id = param[0];
+            this._streamParameter = Number(param[1]);
+        }
+
         if (! value) {
             switch (id) {
                 case 'sync-screen':
@@ -547,14 +596,24 @@ export const Plugin =  GObject.registerClass({
         if (this._requestedAreaId &&
             this._onLoginSettings['autostart-mode']) {
 
-            this._onStartTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 400, () => {
+            this._onStartTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, () => {
                 this._onStartTimer = null;
 
                 this._miscellanousStorage[this.pluginID]["streamingID"] = String(this._requestedAreaId);
                 this.writeSettingsMiscellaneous();
 
+                let param = this._onLoginSettings['autostart-mode'].split(':');
+                this._streamParameter = null;
+                if (param[1]) {
+                    this._streamParameter = Number(param[1]);
+
+                    if (! this._displays.includes(this._onLoginSettings['autostart-mode'])) {
+                        this._streamParameter = null;
+                    }
+                }
+
                 this.changeStream(
-                    this._onLoginSettings['autostart-mode']
+                    param[0]
                 );
                 this.requestData();
                 return GLib.SOURCE_REMOVE;
