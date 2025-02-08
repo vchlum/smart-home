@@ -11,7 +11,8 @@
     },
     "shell-version": [
       "46",
-      "47"
+      "47",
+      "48"
     ],
     "gettext-domain": "smart-home",
     "url": "https://github.com/vchlum/smart-home"
