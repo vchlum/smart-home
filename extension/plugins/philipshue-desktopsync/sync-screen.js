@@ -70,10 +70,10 @@ export const SyncSceen =  GObject.registerClass({
 
         for (let i = 0; i < nMonitors; i++) {
             let rect = global.display.get_monitor_geometry(i);
-            let x = rect.x * maxScale;
-            let y = rect.y * maxScale;
-            let width = rect.width * maxScale;
-            let height = rect.height * maxScale;
+            let x = Math.floor(rect.x * maxScale);
+            let y = Math.floor(rect.y * maxScale);
+            let width = Math.floor(rect.width * maxScale);
+            let height = Math.floor(rect.height * maxScale);
 
             if (maxWidth < x + width) {
                 maxWidth = x + width;
@@ -92,7 +92,7 @@ export const SyncSceen =  GObject.registerClass({
             res = [0, 0 , maxWidth, maxHeight];
         }
 
-        Utils.logDebug(`Sync desktop, used geometry: ${displayIndex} ${res}`);
+        Utils.logDebug(`Sync desktop, used geometry on display ${displayIndex}: ${res}, full screen resolution: ${maxWidth}x${maxHeight}`);
 
         return res;
     }
@@ -105,8 +105,9 @@ export const SyncSceen =  GObject.registerClass({
         this._shooter = new Shell.Screenshot();
 
         [this._x, this._y, this._width, this._height] = this._getScreenGeometry(this._displayIndex);
+        [this._origX, this._origY, this._origWidth, this._origHeight] = [this._x, this._y, this._width, this._height];
 
-        this.syncScreen();
+        this.syncScreen(0);
     }
 
     _getPositionFromChannel(channel) {
@@ -207,7 +208,92 @@ export const SyncSceen =  GObject.registerClass({
         return this._getAvagarePixelRGB(pixels, rowstride, n_channels);
     }
 
-    async syncScreen() {
+    async _blackColorTopBottom(stream, texture, scale, cursor, x, y, w, h) {
+        let color;
+        let topBlack = 0;
+        let bottomBlack = 0;
+        let tmpY;
+
+        const pixbuf = await Shell.Screenshot.composite_to_stream(
+            texture,
+            x, y, w, h,
+            scale,
+            cursor.texture, cursor.x, cursor.y, cursor.scale,
+            stream
+        );
+
+        const rowstride = pixbuf.get_rowstride();
+        const n_channels = pixbuf.get_n_channels();
+        const pixels = pixbuf.get_pixels();
+
+        tmpY = 0;
+        color = [0, 0, 0];
+        while ((color[0] === 0 && color[1] === 0 && color[2] === 0) && (tmpY < Math.round(h / 2) - 1)) {
+            const pixelIndex = (tmpY * rowstride) + 0;
+
+            color[0] = pixels[pixelIndex];
+            color[1] = pixels[pixelIndex + 1];
+            color[2] = pixels[pixelIndex + 2];
+
+            tmpY ++;
+        }
+        topBlack = tmpY - 1;
+
+        tmpY = h - 1;
+        color = [0, 0, 0];
+        while ((color[0] === 0 && color[1] === 0 && color[2] === 0) && (tmpY > Math.round(h / 2) + 1)) {
+            const pixelIndex = (tmpY * rowstride) + 0;
+
+            color[0] = pixels[pixelIndex];
+            color[1] = pixels[pixelIndex + 1];
+            color[2] = pixels[pixelIndex + 2];
+
+            tmpY --;
+        }
+        bottomBlack = h - tmpY - 1 - 1; // also -1 for starting at 0
+
+        return [topBlack, bottomBlack];
+    }
+
+    async _detectBlackBorders(stream, texture, scale, cursor, x, y, w, h) {
+        let wThird = Math.round(w/3);
+        let hThird = Math.round(h/3);
+
+        let verticalBorder = -1;
+
+        for (let i = 1; i < 3; i++) {
+            let [t, b] = await this._blackColorTopBottom(
+                stream,
+                texture,
+                scale,
+                cursor,
+                x + wThird * i,
+                0,
+                1,
+                h
+            );
+
+            // let's have 5 pixel tolerance
+            if (verticalBorder === -1) {
+                if (Math.abs(t - b) < 5) {
+                    verticalBorder = Math.round((t + b) / 2);
+                } else {
+                    break;
+                }
+            } else if (Math.abs(verticalBorder - t) >= 5 || Math.abs(verticalBorder - b) >= 5) {
+                verticalBorder = -2;
+            }
+        }
+
+        let newHeight = this._origHeight - verticalBorder * 2;
+        // new height must be greater then 30% of the orignal height
+        if (verticalBorder > -1 && newHeight > this._origHeight * 0.3) {
+            this._y = this._origY + verticalBorder;
+            this._height = newHeight;
+        }
+    }
+
+    async syncScreen(counter) {
         if (!this._streaming) {
             return;
         }
@@ -220,13 +306,26 @@ export const SyncSceen =  GObject.registerClass({
         const [content] = await this._shooter.screenshot_stage_to_content();
         const texture = content.get_texture();
         const cursor = {texture: null, x: 0, y: 0, scale: 1};
+        const scale = 1;
+
+        counter ++;
+        if (counter > 8) {
+            counter = 0;
+            await this._detectBlackBorders(
+                stream,
+                texture,
+                scale,
+                cursor,
+                this._origX, this._origY, this._origWidth, this._origHeight
+            );
+        }
+
         for (let i in this._channels) {
             let c = this._channels[i]['channel_id'];
             
             let [reqX, reqY, percentWidth, percentHeight] = this._getPositionFromChannel(this._channels[i]);
             let [x, y, w, h] = this._getSquareFromXY(reqX, reqY, percentWidth, percentHeight); // result: 0, 0, -1, -1 for full screen
 
-            const scale = 1;
             let color = await this._getPixelsRectangleColor(stream, texture, scale, cursor, x, y, w, h);
 
             msg = msg.concat(
@@ -244,7 +343,7 @@ export const SyncSceen =  GObject.registerClass({
         this.dtls.sendEncrypted(msg);
 
         let timerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this.intensity, () => {
-            this.syncScreen();
+            this.syncScreen(counter);
             this._timers = Utils.removeFromArray(this._timers, timerId);
         });
         this._timers.push(timerId);
