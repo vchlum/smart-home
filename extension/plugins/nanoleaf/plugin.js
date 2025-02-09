@@ -116,6 +116,10 @@ export const Plugin =  GObject.registerClass({
     }
 
     getEffectColor(name, data) {
+        if (! data['animations']) {
+            return [null, null, null];
+        }
+
         for (let effect of data['animations']) {
             if (effect['animName'] !== name) {
                 continue;

@@ -265,7 +265,9 @@ export const Plugin =  GObject.registerClass({
 
         if (data['type'] === 'event') {
             this._parseEvent(data);
-            this.dataReady();
+            if (this._areas && this._states) {
+                this.dataReady();
+            }
         }
     }
 

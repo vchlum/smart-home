@@ -70,8 +70,8 @@ export const SyncSceen =  GObject.registerClass({
 
         for (let i = 0; i < nMonitors; i++) {
             let rect = global.display.get_monitor_geometry(i);
-            let x = Math.floor(rect.x * maxScale);
-            let y = Math.floor(rect.y * maxScale);
+            let x = Math.ceil(rect.x * maxScale);
+            let y = Math.ceil(rect.y * maxScale);
             let width = Math.floor(rect.width * maxScale);
             let height = Math.floor(rect.height * maxScale);
 
@@ -268,7 +268,7 @@ export const SyncSceen =  GObject.registerClass({
                 scale,
                 cursor,
                 x + wThird * i,
-                0,
+                y,
                 1,
                 h
             );

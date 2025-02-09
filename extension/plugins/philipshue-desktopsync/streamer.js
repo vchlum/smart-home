@@ -80,6 +80,7 @@ export const Streamer =  GObject.registerClass({
     }
 
     disconnectStream() {
+        this._streaming = false;
         if (this.clearTimers) {
             this.clearTimers();
         }
