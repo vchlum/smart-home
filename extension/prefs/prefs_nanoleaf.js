@@ -189,11 +189,11 @@ export const SmartHomeNanoleaf = GObject.registerClass({
     _createOnLoging(object) {
         let effects = [];
 
-        if (! object.data['animations']) {
+        if (! object.allEffectsData['animations']) {
             return;
         }
 
-        for (let e of object.data['animations']) {
+        for (let e of object.allEffectsData['animations']) {
             effects.push(e['animName']);
         }
 

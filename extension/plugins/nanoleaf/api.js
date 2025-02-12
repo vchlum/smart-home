@@ -230,6 +230,7 @@ export const NanoLightsDevice =  GObject.registerClass({
     }
 
     _parseResponse(method, url, requestType, data) {
+        let parsed;
         Utils.logDebug(`Device ${method} responded OK to url: ${url}`);
 
          try {
@@ -237,27 +238,26 @@ export const NanoLightsDevice =  GObject.registerClass({
 
             switch (requestType) {
                 case RequestType.CURRENT_EFFECT:
-                    this.data = data;
+                    parsed = data;
                     break;
 
                 default:
-                    this.data = JSON.parse(data);
+                    parsed = JSON.parse(data);
                     break;
             }
-
         } catch {
             Utils.logError(`Device ${method} responded, failed to parse JSON`);
-            this.data = [];
+            parsed = [];
         }
 
         switch (requestType) {
             case RequestType.AUTHORIZATION:
-                this.token = this.data['auth_token'];
+                this.token = parsed['auth_token'];
                 this.emit('authorized');
                 break;
 
             case RequestType.SELF_CHECK:
-                this.id =  this.data['serialNo'];
+                this.id =  parsed['serialNo'];
                 this._connected = true;
                 this.emit('self-check');
                 break;
@@ -267,26 +267,32 @@ export const NanoLightsDevice =  GObject.registerClass({
                 break;
 
             case RequestType.ALL_DATA:
+                this.allData = parsed;
                 this.emit('all-data');
                 break;
 
             case RequestType.STATE:
+                this.stateData = parsed;
                 this.emit('state');
                 break;
 
             case RequestType.ALL_EFFECTS:
+                this.allEffectsData = parsed;
                 this.emit('all-effects');
                 break;
 
             case RequestType.CURRENT_EFFECT:
+                this.currentEffectData = parsed;
                 this.emit('current-effect');
                 break;
 
             case RequestType.EVENT_STATE:
+                this.eventStateData = parsed;
                 this.emit('event-state');
                 break;
 
             case RequestType.EVENT_EFFECTS:
+                this.eventEffectData = parsed;
                 this.emit('event-effects');
                 break;
 
@@ -298,7 +304,7 @@ export const NanoLightsDevice =  GObject.registerClass({
         }
     }
 
-    _request(method, url, requestType, data, counter = 0) {
+    _request(method, url, requestType, data) {
         Utils.logDebug(`Nanoleaf device ${method} request, url: ${url} data: ${JSON.stringify(data)}`);
 
         let msg = Message.new(method, url);
@@ -338,10 +344,6 @@ export const NanoLightsDevice =  GObject.registerClass({
                         break;
 
                     case Soup.Status.NONE:
-                        /* try again - beta fw of HSL causes this return code sometaimes */
-                        if (counter < 3) {
-                            this._request(method, url, requestType, data, ++counter);
-                        }
                         break;
 
                     default:
@@ -684,7 +686,6 @@ export const NanoLightsDevice =  GObject.registerClass({
      * @param {Object} request nano type
      */
      _connectionProblem(requestType) {
-        this.data = [];
         if (! this._connected) {
             return;
         }

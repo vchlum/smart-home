@@ -35,6 +35,7 @@
 
 import GObject from 'gi://GObject';
 import * as Utils from '../../utils.js';
+import * as Semaphore from '../../semaphore.js';
 import * as SmartHomePanelMenu from '../../smarthome-panelmenu.js';
 import * as Api from './api.js';
 
@@ -52,8 +53,10 @@ export const Plugin =  GObject.registerClass({
     _init(id, pluginName, metadata, mainDir, settings, openPref) {
         this.id = id;
         this._devices = {};
+        this._devicesSignals = {};
         this._connectionTimeout = {};
         this._showPowerConsupmtion = false;
+        this._semaphore = new Semaphore.Semaphore(1);
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
     }
 
@@ -80,12 +83,13 @@ export const Plugin =  GObject.registerClass({
         }
 
         if (needsRebuild) {
-            this.clearInstance();
             this.preparePlugin();
         }
     }
 
     preparePlugin() {
+        this.clearInstance();
+
         this._devices = {};
         this._deviceInMenu = {};
 
@@ -97,15 +101,23 @@ export const Plugin =  GObject.registerClass({
         this.data = {'config': {}, 'devices': {}, 'groups': {}};
         this.data['config'] = {'_all_': {'name': this._("All rooms")}};
 
-        this._updateDevices();
+        this._semaphore.callFunction(this._updateDevices.bind(this));
 
         Utils.logDebug(`Shelly ready.`);
+    }
+
+    clearDeviceSignals(id) {
+        while (this._devicesSignals[id].length > 0) {
+            let signal = this._devicesSignals[id].pop();
+            this._devices[id].disconnect(signal);
+        }
     }
 
     clearInstance() {
         Utils.logDebug(`Shelly clearing.`);
 
         for (let id in this._devices) {
+            this.clearDeviceSignals(id);
             this._devices[id].clear();
             this._devices[id] = null;
         }
@@ -473,7 +485,7 @@ export const Plugin =  GObject.registerClass({
         }
     }
 
-    _updateDevices() {
+    async _updateDevices() {
         let signal;
 
         for (let id in this._pluginSettings) {
@@ -483,6 +495,7 @@ export const Plugin =  GObject.registerClass({
 
             if (this._devices[id] === undefined) {
                 this._initialized[id] = false;
+                this._devicesSignals[id] = [];
 
                 this._devices[id] = new Api.ShellyDevice({
                     id: id,
@@ -507,7 +520,7 @@ export const Plugin =  GObject.registerClass({
                         this._deviceDataObtained(id);
                     }
                 );
-                this._appendSignal(signal, this._devices[id]);
+                this._devicesSignals[id].push(signal);
 
                 signal = this._devices[id].connect(
                     'change-occurred',
@@ -515,7 +528,7 @@ export const Plugin =  GObject.registerClass({
                         this._devices[id].getStatus();
                     }
                 );
-                this._appendSignal(signal, this._devices[id]);
+                this._devicesSignals[id].push(signal);
 
                 signal = this._devices[id].connect(
                     'connection-problem',
@@ -533,7 +546,7 @@ export const Plugin =  GObject.registerClass({
                         }
                     }
                 );
-                this._appendSignal(signal, this._devices[id]);
+                this._devicesSignals[id].push(signal);
             }
 
             this._devices[id].getStatus();
@@ -541,7 +554,7 @@ export const Plugin =  GObject.registerClass({
     }
 
     requestData() {
-        this._updateDevices();
+        this._semaphore.callFunction(this._updateDevices.bind(this));
     }
 
     getOnDevices(ids) {

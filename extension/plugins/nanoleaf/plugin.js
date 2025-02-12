@@ -35,6 +35,7 @@
 
 import GObject from 'gi://GObject';
 import * as Utils from '../../utils.js';
+import * as Semaphore from '../../semaphore.js';
 import * as SmartHomePanelMenu from '../../smarthome-panelmenu.js';
 import * as Api from './api.js';
 
@@ -52,8 +53,11 @@ export const Plugin =  GObject.registerClass({
     _init(id, pluginName, metadata, mainDir, settings, openPref) {
         this.id = id;
         this._devices = {};
+        this._devicesSignals = {};
         this._connectionTimeout = {};
         this._onLoginSettings = {};
+        this._firstTime = true;
+        this._semaphore = new Semaphore.Semaphore(1);
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
     }
 
@@ -79,12 +83,13 @@ export const Plugin =  GObject.registerClass({
         }
 
         if (needsRebuild) {
-            this.clearInstance();
-            this.preparePlugin();
+            this.preparePlugin(true);
         }
     }
 
-    preparePlugin() {
+    preparePlugin(settingsRead = false) {
+        this.clearInstance();
+
         this._devices = {};
         this._deviceInMenu = {};
 
@@ -99,17 +104,26 @@ export const Plugin =  GObject.registerClass({
         this.data = {'config': {}, 'devices': {}, 'groups': {}};
         this.data['config'] = {'_all_': {'name': this._("All rooms")}};
 
-        this._updateDevices();
-
-        this._runOnStart();
+        this._semaphore.callFunction(this._updateDevices.bind(this));
+        if (!settingsRead) {
+            this._semaphore.callFunction(this._runOnStart.bind(this));
+        }
 
         Utils.logDebug(`Nanoleaf ready.`);
+    }
+
+    clearDeviceSignals(id) {
+        while (this._devicesSignals[id].length > 0) {
+            let signal = this._devicesSignals[id].pop();
+            this._devices[id].disconnect(signal);
+        }
     }
 
     clearInstance() {
         Utils.logDebug(`Nanoleaf clearing.`);
 
         for (let id in this._devices) {
+            this.clearDeviceSignals(id);
             this._devices[id].clear();
             this._devices[id] = null;
         }
@@ -394,7 +408,7 @@ export const Plugin =  GObject.registerClass({
             return;
         }
 
-        let data = this._devices[id].data;
+        let data = this._devices[id].eventStateData;
         if ((! data) || (! data['events'])) {
             return;
         }
@@ -480,7 +494,7 @@ export const Plugin =  GObject.registerClass({
             return;
         }
 
-        let data = this._devices[id].data;
+        let data = this._devices[id].eventEffectData;
         if ((! data) || (! data['events'])) {
             return;
         }
@@ -505,7 +519,7 @@ export const Plugin =  GObject.registerClass({
         this.dataReady();
     }
 
-    _updateDevices() {
+    async _updateDevices() {
         let signal;
 
         for (let id in this._pluginSettings) {
@@ -515,6 +529,7 @@ export const Plugin =  GObject.registerClass({
 
             if (this._devices[id] === undefined) {
                 this._initialized[id] = false;
+                this._devicesSignals[id] = [];
 
                 this._devices[id] = new Api.NanoLightsDevice({
                     id: id,
@@ -529,10 +544,10 @@ export const Plugin =  GObject.registerClass({
                 signal = this._devices[id].connect(
                     'all-data',
                     () => {
-                        this._dataDevice[id] = this._devices[id].data;
+                        this._dataDevice[id] = this._devices[id].allData;
 
-                        if (this._devices[id].data['effects'] && this._devices[id].data['effects']['select']) {
-                            this._currentEffect[id] = this._devices[id].data['effects']['select'];
+                        if (this._devices[id].allData['effects'] && this._devices[id].allData['effects']['select']) {
+                            this._currentEffect[id] = this._devices[id].allData['effects']['select'];
                         }
 
                         if (! this._checkDeviceDataObtained(id))  {
@@ -541,12 +556,12 @@ export const Plugin =  GObject.registerClass({
                         this._deviceDataObtained(id);
                     }
                 );
-                this._appendSignal(signal, this._devices[id]);
+                this._devicesSignals[id].push(signal);
 
                 signal = this._devices[id].connect(
                     'state',
                     () => {
-                        this._dataState[id] = this._devices[id].data;
+                        this._dataState[id] = this._devices[id].stateData;
 
                         if (! this._checkDeviceDataObtained(id))  {
                             return;
@@ -557,12 +572,12 @@ export const Plugin =  GObject.registerClass({
                         this._deviceDataObtained(id);
                     }
                 );
-                this._appendSignal(signal, this._devices[id]);
+                this._devicesSignals[id].push(signal);
 
                 signal = this._devices[id].connect(
                     'all-effects',
                     () => {
-                        this._dataEffects[id] = this._devices[id].data;
+                        this._dataEffects[id] = this._devices[id].allEffectsData;
 
                         if (! this._checkDeviceDataObtained(id))  {
                             return;
@@ -570,12 +585,12 @@ export const Plugin =  GObject.registerClass({
                         this._deviceDataObtained(id);
                     }
                 );
-                this._appendSignal(signal, this._devices[id]);
+                this._devicesSignals[id].push(signal);
 
                 signal = this._devices[id].connect(
                     'current-effect',
                     () => {
-                        this._currentEffect[id] = this._devices[id].data.replace(/"/g,'');
+                        this._currentEffect[id] = this._devices[id].currentEffectData.replace(/"/g,'');
 
                         if (! this._checkDeviceDataObtained(id))  {
                             return;
@@ -583,7 +598,7 @@ export const Plugin =  GObject.registerClass({
                         this._deviceDataObtained(id);
                     }
                 );
-                this._appendSignal(signal, this._devices[id]);
+                this._devicesSignals[id].push(signal);
 
                 signal = this._devices[id].connect(
                     'change-occurred',
@@ -591,19 +606,19 @@ export const Plugin =  GObject.registerClass({
                         this._devices[id].keepEventStreamRequest();
                     }
                 );
-                this._appendSignal(signal, this._devices[id]);
+                this._devicesSignals[id].push(signal);
 
                 signal = this._devices[id].connect(
                     'event-state',
                     this._handleEventState.bind(this, id)
                 );
-                this._appendSignal(signal, this._devices[id]);
+                this._devicesSignals[id].push(signal);
 
                 signal = this._devices[id].connect(
                     'event-effects',
                     this._handleEventEffects.bind(this, id)
                 );
-                this._appendSignal(signal, this._devices[id]);
+                this._devicesSignals[id].push(signal);
 
                 signal = this._devices[id].connect(
                     'connection-problem',
@@ -621,7 +636,7 @@ export const Plugin =  GObject.registerClass({
                         }
                     }
                 );
-                this._appendSignal(signal, this._devices[id]);
+                this._devicesSignals[id].push(signal);
             }
 
             this._devices[id].keepEventStreamRequest();
@@ -633,7 +648,7 @@ export const Plugin =  GObject.registerClass({
     }
 
     requestData() {
-        this._updateDevices();
+        this._semaphore.callFunction(this._updateDevices.bind(this));
     }
 
     getOnDevices(ids) {
@@ -738,8 +753,12 @@ export const Plugin =  GObject.registerClass({
 
     sceneGroup = this.sceneSingle
 
-    _runOnStart() {
+    async _runOnStart() {
         let h, s, l;
+        if (! this._firstTime) {
+            return;
+        }
+        this._firstTime = false;
         for (let id in this._onLoginSettings) {
             for (let light in this._onLoginSettings[id]) {
                 let device = this._onLoginSettings[id][light];
