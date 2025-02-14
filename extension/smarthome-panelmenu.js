@@ -2441,7 +2441,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
                         this.requestData(SmartHomeRequest.FULL);
                     }
                 );
-                this._appendSignal(signal, subMenu, SmartHomeMenuLevel.MENU);
+                this._appendSignal(signal, subMenu.menu, SmartHomeMenuLevel.MENU);
 
                 subItems = subItems.concat(
                     this._createStaticItems(id)

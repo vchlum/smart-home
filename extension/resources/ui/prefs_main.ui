@@ -315,7 +315,7 @@
 
                       <child>
                         <object class="AdwExpanderRow" id="shellyRows">
-                          <property name="title">Gen 1-3</property>
+                          <property name="title">Gen 1-4</property>
 
                           <child type="suffix">
                             <object class="GtkButton">

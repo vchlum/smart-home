@@ -105,6 +105,7 @@ export const Plugin =  GObject.registerClass({
 
     _init(id, pluginName, metadata, mainDir, settings, openPref) {
         this.id = id;
+        this._bridgeSignals = [];
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
         this._connectionTimeout = Utils.IKEADIRIGERA_DEFAULT_TIMEOUT;
     }
@@ -146,13 +147,13 @@ export const Plugin =  GObject.registerClass({
                 this._dateReceived();
             }
         );
-        this._appendSignal(signal, this._bridge);
+        this._bridgeSignals.push(signal);
 
         signal = this._bridge.connect(
             'event-stream-data',
             this._handleEventData.bind(this)
         );
-        this._appendSignal(signal, this._bridge);
+        this._bridgeSignals.push(signal);
 
         signal = this._bridge.connect(
             'connection-problem',
@@ -160,15 +161,25 @@ export const Plugin =  GObject.registerClass({
                 this.connectionClosed();
             }
         );
-        this._appendSignal(signal, this._bridge);
+        this._bridgeSignals.push(signal);
 
+        this._bridge.keepEventStreamRequest();
         this._runOnStart();
 
         Utils.logDebug(`Ikea Dirigera ${this.id} ready.`);
     }
 
+    disconnectBridgeSignals() {
+        while (this._bridgeSignals.length > 0) {
+            let signal = this._bridgeSignals.pop();
+            this._bridge.disconnect(signal);
+        }
+    }
+
     clearInstance() {
         Utils.logDebug(`Ikea Dirigera ${this.id} clearing.`);
+
+        this.disconnectBridgeSignals();
 
         if (this._onStartTimer) {
             GLib.Source.remove(this._onStartTimer);

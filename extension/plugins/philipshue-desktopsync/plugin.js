@@ -50,6 +50,7 @@ export const Plugin =  GObject.registerClass({
     _init(id, pluginName, metadata, mainDir, settings, openPref) {
         this.id = id;
         this._connectionTimeout = Utils.PHILIPSHUEBRIDGE_DEFAULT_TIMEOUT;
+        this._bridgeSignals = [];
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
 
         this._brightness = 0.5;
@@ -123,7 +124,7 @@ export const Plugin =  GObject.registerClass({
                 }
             }
         );
-        this._appendSignal(signal, this._bridge);
+        this._bridgeSignals.push(signal);
 
         signal = this._bridge.connect(
             'stream-disabled',
@@ -140,14 +141,16 @@ export const Plugin =  GObject.registerClass({
                 this.dataReady();
             }
         );
-        this._appendSignal(signal, this._bridge);
+        this._bridgeSignals.push(signal);
 
         signal = this._bridge.connect(
             'connection-problem',
             () => {
-                this.streamer.disconnectStream();
-                this.streamer.disconnectSignals();
-                this.streamer = null;
+                if (this.streamer) {
+                    this.streamer.disconnectStream();
+                    this.streamer.disconnectSignals();
+                    this.streamer = null;
+                }
 
                 this._updateData(this._entertainmentData);
                 this.dataReady();
@@ -155,13 +158,13 @@ export const Plugin =  GObject.registerClass({
                 this.connectionClosed();
             }
         );
-        this._appendSignal(signal, this._bridge);
+        this._bridgeSignals.push(signal);
 
         signal = this._bridge.connect(
             'event-stream-data',
             this._handleEventStreamData.bind(this)
         );
-        this._appendSignal(signal, this._bridge);
+        this._bridgeSignals.push(signal);
 
         Utils.logDebug(`Philips Hue desktop sync ${this.id} ready.`);
     }
@@ -400,8 +403,17 @@ export const Plugin =  GObject.registerClass({
         return out;
     }
 
+    disconnectBridgeSignals() {
+        while (this._bridgeSignals.length > 0) {
+            let signal = this._bridgeSignals.pop();
+            this._bridge.disconnect(signal);
+        }
+    }
+
     clearInstance() {
         Utils.logDebug(`Philips Hue desktop sync ${this.id} clearing.`);
+
+        this.disconnectBridgeSignals();
 
         if (this._onStartTimer) {
             GLib.Source.remove(this._onStartTimer);

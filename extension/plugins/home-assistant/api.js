@@ -114,7 +114,7 @@ export const HomeAssistantBridge =  GObject.registerClass({
         this._connected = false;
         this._session = Soup.Session.new();
         this._session.timeout = Utils.HOMEASSISTANT_DEFAULT_TIMEOUT;
-
+        this._signalsWs = [];
         this._timers = [];
 
         this.authWebSocket();
@@ -305,6 +305,7 @@ export const HomeAssistantBridge =  GObject.registerClass({
     }
 
     _authWebSocketCallback(session, res) {
+        let signal;
         try {
             this._wsConnection = session.websocket_connect_finish(res);
         } catch {
@@ -316,17 +317,19 @@ export const HomeAssistantBridge =  GObject.registerClass({
             return;
         }
 
-        this._wsConnection.connect(
+        signal = this._wsConnection.connect(
             'closed',
-            () => {}
+            this._disconnectWs.bind(this)
         );
+        this._signalsWs.push(signal);
 
-        this._wsConnection.connect(
+        signal = this._wsConnection.connect(
             'error',
-            () => {}
+            this._disconnectWs.bind(this)
         );
+        this._signalsWs.push(signal);
 
-        this._wsConnection.connect(
+        signal = this._wsConnection.connect(
             'message',
             (connection, type, data) => {
                 let decoder = new TextDecoder();
@@ -352,6 +355,7 @@ export const HomeAssistantBridge =  GObject.registerClass({
                 }
             }
         );
+        this._signalsWs.push(signal);
 
         this.wssRequest(
             {
@@ -359,6 +363,20 @@ export const HomeAssistantBridge =  GObject.registerClass({
                 "access_token": `${this._accessToken}`
             }
         );
+    }
+
+    _disconnectWs() {
+        if (this._wsConnection) {
+            while (this._signalsWs.length > 0) {
+                let signal = this._signalsWs.pop();
+                this._wsConnection.disconnect(signal);
+            }
+            this._wsConnection = undefined;
+        }
+
+        if (this._wsSession) {
+            this._wsSession = undefined;
+        }
     }
 
     wssRequest(data) {
@@ -425,6 +443,8 @@ export const HomeAssistantBridge =  GObject.registerClass({
         if (! this._connected) {
             return;
         }
+
+        this._disconnectWs();
 
         this._connected = false;
         if (requestType !== RequestType.NO_RESPONSE_NEED) {

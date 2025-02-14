@@ -93,20 +93,6 @@ export const SmartHomeShelly = GObject.registerClass({
             gen: Number(this._pluginSettings[this._id]['gen']),
         });
 
-        device.connect(
-            'status',
-            (object) => {
-                Utils.logDebug(JSON.stringify(object.data));
-            }
-        );
-
-        device.connect(
-            'change-occurred',
-            (object) => {
-                Utils.logDebug(JSON.stringify(object.data));
-            }
-        );
-
         device.getStatus();
 
         this.updateUI();

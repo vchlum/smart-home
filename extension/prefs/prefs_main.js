@@ -887,8 +887,8 @@ export const PreferencesMain = GObject.registerClass({
         device.connect(
             'all-data',
             (object) => {
-                let id = object.data["serialNo"];
-                let name = object.data["name"];
+                let id = object.allData["serialNo"];
+                let name = object.allData["name"];
 
                 this._settingsLoaded[Utils.SETTINGS_NANOLEAF][id] = {
                     'ip': object.ip,

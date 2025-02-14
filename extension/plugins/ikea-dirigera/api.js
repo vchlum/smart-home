@@ -126,7 +126,7 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
         this._connected = false;
         this._session = Soup.Session.new();
         this._session.timeout = Utils.IKEADIRIGERA_DEFAULT_TIMEOUT;
-
+        this._signalsWs = [];
         this._timers = [];
 
         let tlsDatabase =  new TlsDatabaseBridge();
@@ -321,6 +321,13 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
             this._eventsPing = undefined;
         }
 
+        if (this._connection) {
+            while (this._signalsWs.length > 0) {
+                let signal = this._signalsWs.pop();
+                this._connection.disconnect(signal);
+            }
+        }
+
        if (this._connection && this._connection.get_state() === Soup.WebsocketState.OPEN) {
             this._connection.close(Soup.WebsocketCloseCode.NO_STATUS, null);
        }
@@ -330,6 +337,8 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
     }
 
     _enableEventStreamCallback(session, res) {
+        let signal;
+
         try {
             this._connection = session.websocket_connect_finish(res);
         } catch {
@@ -341,17 +350,19 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
             this._disableEventStream();
         }
 
-        this._connection.connect(
+        signal = this._connection.connect(
             'closed',
             this._disableEventStream.bind(this)
         );
+        this._signalsWs.push(signal);
 
-        this._connection.connect(
+        signal = this._connection.connect(
             'error',
             this._disableEventStream.bind(this)
         );
+        this._signalsWs.push(signal);
 
-        this._connection.connect(
+        signal = this._connection.connect(
             'message',
             (connection, type, data) => {
                 let decoder = new TextDecoder();
@@ -369,6 +380,7 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
                 this.emit('event-stream-data');
             }
         );
+        this._signalsWs.push(signal);
 
         this._eventsPing = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 2, () => {
             if (! this._sessionEvents) {

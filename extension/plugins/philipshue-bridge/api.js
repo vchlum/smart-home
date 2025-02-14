@@ -440,10 +440,9 @@ export const PhilipsHueBridge =  GObject.registerClass({
                             this._connectionProblem(requestType);
                         }
                         break;
-                    case Soup.Status.NONE:
-                        break;
 
                     default:
+                    case Soup.Status.NONE:
                     case Soup.Status.CANCELLED:
                         this._connectionProblem(requestType);
                         break;
@@ -469,7 +468,9 @@ export const PhilipsHueBridge =  GObject.registerClass({
             return;
         }
 
-        while (true) {
+        this._eventStreamConnected = true;
+
+        while (this._eventStreamConnected) {
             try {
                 await this._requestEventStreamData();
             } catch {
@@ -480,6 +481,8 @@ export const PhilipsHueBridge =  GObject.registerClass({
     }
 
     stopEventStreamRequest() {
+        this._eventStreamConnected = false;
+
         if (! this._sessionEventstream) {
             return;
         }
@@ -688,7 +691,10 @@ export const PhilipsHueBridge =  GObject.registerClass({
         if (! this._connected) {
             return;
         }
+
         this._connected = false;
+        this.stopEventStreamRequest();
+
         if (requestType !== RequestType.NO_RESPONSE_NEED) {
             this.emit('connection-problem');
         }

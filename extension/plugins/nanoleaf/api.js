@@ -343,10 +343,8 @@ export const NanoLightsDevice =  GObject.registerClass({
                         }
                         break;
 
-                    case Soup.Status.NONE:
-                        break;
-
                     default:
+                    case Soup.Status.NONE:
                         this._connectionProblem(requestType);
                         break;
                 }
@@ -371,7 +369,9 @@ export const NanoLightsDevice =  GObject.registerClass({
             return;
         }
 
-        while (true) {
+        this._eventStreamConnected = true;
+
+        while (this._eventStreamConnected) {
             try {
                 await this._requestEventStreamData();
             } catch {
@@ -398,6 +398,8 @@ export const NanoLightsDevice =  GObject.registerClass({
     }
 
     stopEventStreamRequest() {
+        this._eventStreamConnected = false;
+
         if (! this._sessionEventstream) {
             return;
         }
@@ -689,7 +691,10 @@ export const NanoLightsDevice =  GObject.registerClass({
         if (! this._connected) {
             return;
         }
+
         this._connected = false;
+        this.stopEventStreamRequest();
+
         if (requestType !== RequestType.NO_RESPONSE_NEED) {
             this.emit('connection-problem');
         }

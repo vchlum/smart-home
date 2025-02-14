@@ -44,6 +44,7 @@ export const Plugin =  GObject.registerClass({
 
     _init(id, pluginName, metadata, mainDir, settings, openPref) {
         this.id = id;
+        this._syncboxSignals = [];
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
         this._connectionTimeout = Utils.PHILIPSHUESYNCBOX_DEFAULT_TIMEOUT;
     }
@@ -82,7 +83,7 @@ export const Plugin =  GObject.registerClass({
                 this.dataReady();
             }
         );
-        this._appendSignal(signal, this._syncbox);
+        this._syncboxSignals.push(signal);
 
         signal = this._syncbox.connect(
             'change-occurred',
@@ -92,7 +93,7 @@ export const Plugin =  GObject.registerClass({
                 this._syncbox.getDeviceState.bind(this._syncbox)
             )
         );
-        this._appendSignal(signal, this._syncbox);
+        this._syncboxSignals.push(signal);
 
         signal = this._syncbox.connect(
             'connection-problem',
@@ -100,13 +101,22 @@ export const Plugin =  GObject.registerClass({
                 this.connectionClosed();
             }
         );
-        this._appendSignal(signal, this._syncbox);
+        this._syncboxSignals.push(signal);
 
         Utils.logDebug(`Philips Hue sync box ${this.id} ready.`);
     }
 
+    disconnectSyncboxSignals() {
+        while (this._syncboxSignals.length > 0) {
+            let signal = this._syncboxSignals.pop();
+            this._syncbox.disconnect(signal);
+        }
+    }
+
     clearInstance() {
         Utils.logDebug(`Philips Hue sync box ${this.id} clearing.`);
+
+        this.disconnectSyncboxSignals();
 
         this._syncbox.clear();
         this._syncbox = null;

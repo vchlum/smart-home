@@ -45,6 +45,7 @@ export const Plugin =  GObject.registerClass({
 
     _init(id, pluginName, metadata, mainDir, settings, openPref) {
         this.id = id;
+        this._bridgeSignals = [];
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
         this._connectionTimeout = Utils.HOMEASSISTANT_DEFAULT_TIMEOUT;
     }
@@ -93,7 +94,7 @@ export const Plugin =  GObject.registerClass({
                 }
             }
         );
-        this._appendSignal(signal, this._bridge);
+        this._bridgeSignals.push(signal);
 
         signal = this._bridge.connect(
             'areas',
@@ -106,19 +107,19 @@ export const Plugin =  GObject.registerClass({
                 }
             }
         );
-        this._appendSignal(signal, this._bridge);
+        this._bridgeSignals.push(signal);
 
         signal = this._bridge.connect(
             'ws-authenticated',
             this._handleWsData.bind(this)
         );
-        this._appendSignal(signal, this._bridge);
+        this._bridgeSignals.push(signal);
 
         signal = this._bridge.connect(
             'ws-data',
             this._handleWsData.bind(this)
         );
-        this._appendSignal(signal, this._bridge);
+        this._bridgeSignals.push(signal);
 
         signal = this._bridge.connect(
             'connection-problem',
@@ -126,15 +127,24 @@ export const Plugin =  GObject.registerClass({
                 this.connectionClosed();
             }
         );
-        this._appendSignal(signal, this._bridge);
+        this._bridgeSignals.push(signal);
 
         this._runOnStart();
 
         Utils.logDebug(`Home Assistant ${this.id} ready.`);
     }
 
+    disconnectBridgeSignals() {
+        while (this._bridgeSignals.length > 0) {
+            let signal = this._bridgeSignals.pop();
+            this._bridge.disconnect(signal);
+        }
+    }
+
     clearInstance() {
         Utils.logDebug(`Home Assistant ${this.id} clearing.`);
+
+        this.disconnectBridgeSignals();
 
         if (this._onStartTimer) {
             GLib.Source.remove(this._onStartTimer);

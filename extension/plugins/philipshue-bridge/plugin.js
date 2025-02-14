@@ -147,6 +147,7 @@ export const Plugin =  GObject.registerClass({
         this._zonesFirst = Utils.PHILIPSHUEBRIDGE_DEFAULT_ZONESFIRST;
         this._showScenes = Utils.PHILIPSHUEBRIDGE_DEFAULT_SHOWSCENES;
         this._connectionTimeout = Utils.PHILIPSHUEBRIDGE_DEFAULT_TIMEOUT;
+        this._bridgeSignals = [];
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
     }
 
@@ -239,7 +240,7 @@ export const Plugin =  GObject.registerClass({
                 this.dataReady();
             }
         );
-        this._appendSignal(signal, this._bridge);
+        this._bridgeSignals.push(signal);
 
         signal = this._bridge.connect(
             'change-occurred',
@@ -247,13 +248,13 @@ export const Plugin =  GObject.registerClass({
                 this._bridge.keepEventStreamRequest();
             }
         );
-        this._appendSignal(signal, this._bridge);
+        this._bridgeSignals.push(signal);
 
         signal = this._bridge.connect(
             'event-stream-data',
             this._handleEventStreamData.bind(this)
         );
-        this._appendSignal(signal, this._bridge);
+        this._bridgeSignals.push(signal);
 
         signal = this._bridge.connect(
             'connection-problem',
@@ -261,7 +262,7 @@ export const Plugin =  GObject.registerClass({
                 this.connectionClosed();
             }
         );
-        this._appendSignal(signal, this._bridge);
+        this._bridgeSignals.push(signal);
 
         this._bridge.keepEventStreamRequest();
 
@@ -270,8 +271,17 @@ export const Plugin =  GObject.registerClass({
         Utils.logDebug(`Philips Hue Bridge ${this.id} ready.`);
     }
 
+    disconnectBridgeSignals() {
+        while (this._bridgeSignals.length > 0) {
+            let signal = this._bridgeSignals.pop();
+            this._bridge.disconnect(signal);
+        }
+    }
+
     clearInstance() {
         Utils.logDebug(`Philips Hue Bridge ${this.id} clearing.`);
+
+        this.disconnectBridgeSignals();
 
         if (this._onStartTimer) {
             GLib.Source.remove(this._onStartTimer);

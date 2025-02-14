@@ -56,6 +56,7 @@ export const Plugin =  GObject.registerClass({
         this._devicesSignals = {};
         this._connectionTimeout = {};
         this._showPowerConsupmtion = false;
+        this._prepared = false;
         this._semaphore = new Semaphore.Semaphore(1);
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
     }
@@ -82,18 +83,15 @@ export const Plugin =  GObject.registerClass({
             }
         }
 
-        if (needsRebuild) {
-            this.preparePlugin();
+        if (needsRebuild && this._prepared) {
+            this.clearInstance(true);
+            this.preparePlugin(true);
         }
     }
 
-    preparePlugin() {
-        this.clearInstance();
-
+    preparePlugin(settingsRead = false) {
         this._devices = {};
         this._deviceInMenu = {};
-
-        this._brightnessDuration = 1
 
         this._initialized = {};
         this._dataStatus = {};
@@ -103,21 +101,27 @@ export const Plugin =  GObject.registerClass({
 
         this._semaphore.callFunction(this._updateDevices.bind(this));
 
+        this._prepared = true;
         Utils.logDebug(`Shelly ready.`);
     }
 
-    clearDeviceSignals(id) {
+    disconnectDeviceSignals(id) {
         while (this._devicesSignals[id].length > 0) {
             let signal = this._devicesSignals[id].pop();
             this._devices[id].disconnect(signal);
         }
     }
 
-    clearInstance() {
+    clearInstance(settingsRead = false) {
         Utils.logDebug(`Shelly clearing.`);
 
+        if (!settingsRead) {
+            this._semaphore.clear();
+            this._semaphore = null;
+        }
+
         for (let id in this._devices) {
-            this.clearDeviceSignals(id);
+            this.disconnectDeviceSignals(id);
             this._devices[id].clear();
             this._devices[id] = null;
         }
@@ -493,7 +497,7 @@ export const Plugin =  GObject.registerClass({
                 continue;
             }
 
-            if (this._devices[id] === undefined) {
+            if (this._devices[id] === undefined || this._devices[id] === null) {
                 this._initialized[id] = false;
                 this._devicesSignals[id] = [];
 
