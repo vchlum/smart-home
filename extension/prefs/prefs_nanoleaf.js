@@ -94,7 +94,7 @@ export const SmartHomeNanoleaf = GObject.registerClass({
             }
         );
 
-        let device = new NanoleafApi.NanoLightsDevice({
+        let device = new NanoleafApi.NanoleafDevice({
             id: this._id,
             ip: this._pluginSettings[this._id]['ip'],
             token: this._pluginSettings[this._id]['auth_token']

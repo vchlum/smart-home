@@ -873,7 +873,7 @@ export const PreferencesMain = GObject.registerClass({
             return;
         }
 
-        let device = new NanoleafApi.NanoLightsDevice({
+        let device = new NanoleafApi.NanoleafDevice({
             ip: object.ip
         });
 

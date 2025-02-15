@@ -214,7 +214,6 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let iconEffect = this._getIconBriConEffect(SmartHomeIconPack.BRIGHT);
         icon.add_effect(iconEffect);
 
-        this._icon = icon;
         box.add_child(icon);
         this.add_child(box);
 
@@ -927,10 +926,11 @@ export const SmartHomePanelMenu = GObject.registerClass({
      * @param {Object} object signal is connected
      * @param {Enum} level of the signal
      */
-    _appendSignal(signal, object, menuLevel = SmartHomeMenuLevel.NONE) {
+    _appendSignal(signal, object, menuLevel = SmartHomeMenuLevel.NONE, disconnectFce = null) {
         this._signals[signal] = {
             'object': object,
-            'menuLevel': menuLevel
+            'menuLevel': menuLevel,
+            'disconnectFce': disconnectFce
         }
     }
 
@@ -944,7 +944,12 @@ export const SmartHomePanelMenu = GObject.registerClass({
         for (let id in this._signals) {
             if (levels.includes(this._signals[id]['menuLevel']) ||
                 levels.includes(SmartHomeMenuLevel.NONE)) {
-                this._signals[id]['object'].disconnect(id);
+
+                if (this._signals[id]['disconnectFce']) {
+                    this._signals[id]['disconnectFce']();
+                } else {
+                    this._signals[id]['object'].disconnect(id);
+                }
                 delete(this._signals[id]);
             }
         }
@@ -977,7 +982,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
      * Creates all menu items section by section
      * as array of objects.
      * 
-     * @method createItemBox
+     * @method createMenu
      * @return {Array} objects with menus
      */
     createMenu() {
@@ -1516,7 +1521,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let button = new St.Button({reactive: true, can_focus: true});
         button.set_x_align(Clutter.ActorAlign.END);
         button.set_x_expand(false);
-        button.child = switcher;
+        button.set_child(switcher);
 
         this._setColorSwitch(switcher, color);
 
@@ -1568,7 +1573,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         iconPath = this.mainDir + `/media/execute.svg`
         icon = this._getIconByPath(iconPath);
 
-        button.child = icon;
+        button.set_child(icon);
 
         signal = button.connect(
             'clicked',
@@ -1684,7 +1689,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let buttonUp = new St.Button({reactive: true, can_focus: true});
         buttonUp.set_x_align(Clutter.ActorAlign.END);
         buttonUp.set_x_expand(true);
-        buttonUp.child = icon;
+        buttonUp.set_child(icon);
 
         signal = buttonUp.connect(
             'clicked',
@@ -1713,7 +1718,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let buttonDown = new St.Button({reactive: true, can_focus: true});
         buttonDown.set_x_align(Clutter.ActorAlign.END);
         buttonDown.set_x_expand(false);
-        buttonDown.child = icon;
+        buttonDown.set_child(icon);
 
         signal = buttonDown.connect(
             'clicked',
@@ -2036,6 +2041,13 @@ export const SmartHomePanelMenu = GObject.registerClass({
             );
             item.add_child(colorPickerBox.createColorBox());
             items.push(item);
+
+            this._appendSignal(
+                Utils.getUuid(),
+                colorPickerBox,
+                menuLevel,
+                colorPickerBox.disconnectSignals.bind(colorPickerBox)
+            );
         }
 
         if (hasColor) {
@@ -2309,7 +2321,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
             content = new St.Label();
             content.text = "<<";
         }
-        button.child = content;
+        button.set_child(content);
 
         this._menuObjects[type]['unselect'] = button;
         button.visible = false;

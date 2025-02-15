@@ -113,8 +113,8 @@ const Message = class Message extends Soup.Message {
     }
 };
 
-export const NanoLightsDevice =  GObject.registerClass({
-    GTypeName: 'SmartHomeNanoLightsApi',
+export const NanoleafDevice =  GObject.registerClass({
+    GTypeName: 'SmartHomeNanoleafApi',
     Properties: {
         "id": GObject.ParamSpec.string("id", "id", "id", GObject.ParamFlags.READWRITE, null),
         "ip": GObject.ParamSpec.string("ip", "ip", "ip", GObject.ParamFlags.READWRITE, null),
@@ -133,7 +133,7 @@ export const NanoLightsDevice =  GObject.registerClass({
         'event-effects': {},
         'connection-problem': {},
     }
-}, class NanoLightsDevice extends GObject.Object {
+}, class NanoleafDevice extends GObject.Object {
     _init(props={}) {
         this._baseUrl = "http://";
         this._defaultPort = "16021"

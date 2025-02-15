@@ -47,7 +47,7 @@ import * as Api from './api.js';
  * @return {Object} instance
  */
 export const Plugin =  GObject.registerClass({
-    GTypeName: 'SmartHomeNanoLights',
+    GTypeName: 'SmartHomeNanoleaf',
 }, class Plugin extends SmartHomePanelMenu.SmartHomePanelMenu {
 
     _init(id, pluginName, metadata, mainDir, settings, openPref) {
@@ -535,7 +535,7 @@ export const Plugin =  GObject.registerClass({
                 this._initialized[id] = false;
                 this._devicesSignals[id] = [];
 
-                this._devices[id] = new Api.NanoLightsDevice({
+                this._devices[id] = new Api.NanoleafDevice({
                     id: id,
                     ip: this._pluginSettings[id]['ip'],
                     token: this._pluginSettings[id]['auth_token']
