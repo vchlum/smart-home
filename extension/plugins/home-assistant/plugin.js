@@ -178,9 +178,12 @@ export const Plugin =  GObject.registerClass({
     _getDeviceGroups(id) {
         let groups = [];
         for (let groupId in this._areas) {
-            if (this._areas[groupId]['devices'].includes(id)) {
+            if (this._areas[groupId]['entities'].includes(id)) {
                 groups.push(groupId);
             }
+        }
+        if (groups.length === 0) {
+            groups.push('_all_');
         }
         return groups;
     }

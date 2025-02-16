@@ -411,9 +411,9 @@ export const HomeAssistantBridge =  GObject.registerClass({
         let data = {
             "template": '{\
             {% for area in areas() %} \
-                "{{area}}": {"name":"{{area_name(area)}}", "devices":[\
-                {% for device in area_devices(area) %}\
-                    "{{ "\\",\\"".join(device_entities(device)) }}" \
+                "{{area}}": {"name":"{{area_name(area)}}", "entities":[\
+                {% for entity in area_entities(area) %}\
+                    "{{ entity }}" \
                     {{ "," if not loop.last }}\
                 {% endfor %} ]}\
                 {{ "," if not loop.last }}\
