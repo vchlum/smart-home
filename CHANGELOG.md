@@ -1,3 +1,6 @@
+## Version 8
+ * Home Assistant: fix scenes not showing in menu
+ * improved and fixed menu clearing and signal disconnecting
 ## Version 7
  * philips hue screen/display sync support
  * Gnome 48 support
