@@ -895,6 +895,12 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._menuObjects = {};
         this._itemRefresher = {};
         this._openMenu = undefined;
+
+        this.menu._getMenuItems().forEach(item => {
+            if (item instanceof PopupMenu.PopupSubMenuMenuItem) {
+                item.menu.removeAll();
+            }
+        });
         this.menu.removeAll();
 
         if (this.clearTimers) {
