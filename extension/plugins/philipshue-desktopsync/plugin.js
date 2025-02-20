@@ -35,6 +35,7 @@
 
 import GObject from 'gi://GObject';
 import GLib from 'gi://GLib';
+import Meta from 'gi://Meta';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Utils from '../../utils.js';
 import * as SmartHomePanelMenu from '../../smarthome-panelmenu.js';
@@ -604,12 +605,33 @@ export const Plugin =  GObject.registerClass({
 
     sceneGroup = this.sceneSingle;
 
+    isExternalMonitorOn() {
+        let monitorManager = global.backend.get_monitor_manager();
+        let nMonitors = global.display.get_n_monitors();
+
+        if (! monitorManager.has_builtin_panel) {
+            return false;
+        }
+
+        if (monitorManager.get_is_builtin_display_on()) {
+            if (nMonitors > 1) {
+                return true;
+            }
+        } else {
+            if (nMonitors > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     _runOnStart() {
         if (!this._onLoginSettings) {
             return;
         }
 
-        if (this._notebookMode && global.display.get_n_monitors() < 2) {
+        if (this._notebookMode && (! this.isExternalMonitorOn())) {
             return;
         }
 

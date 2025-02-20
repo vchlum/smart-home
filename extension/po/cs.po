@@ -323,4 +323,4 @@ msgid "Notebook mode"
 msgstr "Mód notebook"
 
 msgid "Turn it on only if an external display is connected"
-msgstr "Zapnout pouze v případě, že je připojen druhý displej"
+msgstr "Zapnout pouze v případě, že je připojen externí displej"
