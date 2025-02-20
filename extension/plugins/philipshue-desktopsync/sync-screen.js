@@ -273,6 +273,12 @@ export const SyncSceen =  GObject.registerClass({
                 h
             );
 
+            // if any color near bezel, use original values
+            if (t < 3 || b < 3) {
+                verticalBorder = 0;
+                break;
+            }
+
             // let's have 5 pixel tolerance
             if (verticalBorder === -1) {
                 if (Math.abs(t - b) < 5) {
