@@ -50,6 +50,7 @@ export const Plugin =  GObject.registerClass({
     _init(id, pluginName, metadata, mainDir, settings, openPref) {
         this.id = id;
         this._connectionTimeout = Utils.PHILIPSHUEBRIDGE_DEFAULT_TIMEOUT;
+        this._notebookMode = false;
         this._bridgeSignals = [];
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
 
@@ -74,6 +75,10 @@ export const Plugin =  GObject.registerClass({
 
         if (this._pluginSettings[this.id]['on-login']) {
             this._onLoginSettings = JSON.parse(this._pluginSettings[this.id]['on-login']);
+        }
+
+        if (this._pluginSettings[this.id]['notebook-mode'] !== undefined) {
+            this._notebookMode = this._pluginSettings[this.id]['notebook-mode'] === 'true';
         }
     }
 
@@ -601,6 +606,10 @@ export const Plugin =  GObject.registerClass({
 
     _runOnStart() {
         if (!this._onLoginSettings) {
+            return;
+        }
+
+        if (this._notebookMode && global.display.get_n_monitors() < 2) {
             return;
         }
 

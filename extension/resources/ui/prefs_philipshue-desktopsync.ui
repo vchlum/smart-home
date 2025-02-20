@@ -84,6 +84,14 @@
                               </object>
                             </child>
 
+                            <child>
+                              <object class="AdwSwitchRow" id="notebookMode">
+                                <property name="title" translatable="yes">Notebook mode</property>
+                                <property name="subtitle" translatable="yes">Turn it on only if an external display is connected</property>
+                                <signal name="notify::active" handler="_notebookModeSwitched" swapped="no"/>
+                              </object>
+                            </child>
+
                           </object>
                         </child>
 

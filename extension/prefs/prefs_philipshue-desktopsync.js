@@ -63,6 +63,7 @@ export const SmartHomePhilipsHueDesktopSync = GObject.registerClass({
         'devicesOnLogin',
         'comboSyncMode',
         'syncList',
+        'notebookMode',
         'spinConnectionTimeout',
     ],
 }, class SmartHomePhilipsHueDesktopSync extends Adw.NavigationPage {
@@ -180,6 +181,12 @@ export const SmartHomePhilipsHueDesktopSync = GObject.registerClass({
         }
         this._comboSyncMode.selected = autoStartMode;
 
+        let notebookMode = false;
+        if (this._pluginSettings[this._id]['notebook-mode'] !== undefined) {
+            notebookMode = this._pluginSettings[this._id]['notebook-mode'] === 'true';
+        }
+        this._notebookMode.active = notebookMode;
+
         let connectionTimeout = Utils.PHILIPSHUEBRIDGE_DEFAULT_TIMEOUT;
         if (this._pluginSettings[this._id]['connection-timeout'] !== undefined) {
             connectionTimeout = Number(this._pluginSettings[this._id]['connection-timeout']);
@@ -231,6 +238,11 @@ export const SmartHomePhilipsHueDesktopSync = GObject.registerClass({
                 break;
         }
         this._pluginSettings[this._id]['on-login'] = JSON.stringify(this._onLoginSettings);
+        this._writeDevicesSettings();
+    }
+
+    _notebookModeSwitched(object) {
+        this._pluginSettings[this._id]['notebook-mode'] = String(object.active);
         this._writeDevicesSettings();
     }
 

@@ -313,3 +313,9 @@ msgstr ""
 
 msgid "Display"
 msgstr ""
+
+msgid "Notebook mode"
+msgstr ""
+
+msgid "Turn it on only if an external display is connected"
+msgstr ""
