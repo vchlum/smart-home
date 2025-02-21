@@ -1,8 +1,45 @@
-# smart-home
+# Smart Home
 ![screenshot](https://github.com/vchlum/smart-home/blob/main/screenshot.png)
 
 ## Gnome Shell extension
-smart-home is a Gnome Shell extension allowing to control multiple smart devices like Philips Hue bridge, Philips Hue syncbox, Ikea Dirigera, and Nanoleaf devices. The extension requires local network connection. 
+Smart Home is a Gnome Shell extension allowing to control multiple smart devices like Home Assistant, Philips Hue bridge, Philips Hue syncbox, Ikea Dirigera, Nanoleaf devices, and Shelly devices. The extension requires local network connection.
+
+The features overview:
+ * Home Assistant
+    - lights (brightness, color, temperature)
+    - plugs
+    - scenes
+    - rolling blinds/covers
+    - turn on lights on login
+ * Philips Hue Bridge
+    - lights (brightness, color, temperature)
+    - plugs
+    - scenes, effects
+    - turn on lights on login
+ * Philips Hue desktop sync
+    - synchronize screen/display with lights
+    - synchronize music with lights
+    - synchronize cursor position with lights
+    - start synchronizing on login
+ * Philips Hue Syncbox
+    - switch on/off
+    - control synchronizing
+    - select HDMI input
+ * Nanoleaf
+    - lights (brightness, color, temperature)
+    - scenes
+    - turn on lights on login
+ * Ikea Dirigera
+    - lights (brightness, color, temperature)
+    - plugs
+    - rolling blinds/covers
+    - turn on lights on login
+ * Shelly
+    - Gen 1-4
+    - lights (brightness, color, temperature)
+    - plugs
+    - rolling blinds/covers
+    - show power consumption per device
 
 ## Troubleshooting
  1. If you are experiencing any trouble with the upgrade, try to log out and log in again.
