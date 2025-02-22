@@ -83,7 +83,7 @@ msgstr "Wejście"
 msgid "Invalid IP address."
 msgstr "Niepoprawny adres IP."
 
-msgid ""Empty value ignored."
+msgid "Empty value ignored."
 msgstr "Pusta wartość zignorowana."
 
 msgid "Already enabled"
