@@ -1,0 +1,325 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-10-10 17:46+0200\n"
+"PO-Revision-Date: 2025-02-22 14:30+0100\n"
+"Last-Translator: pkly @ github\n"
+"Language-Team: \n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Refresh menu"
+msgstr "Odśwież menu"
+
+msgid "Settings"
+msgstr "Ustawienia"
+
+msgid "All groups"
+msgstr "Wszystkie grupy"
+
+msgid "No group selected"
+msgstr "Brak zaznaczonych grup"
+
+msgid "No device selected"
+msgstr "Brak zaznaczonych urządzeń"
+
+msgid "Color & Temperature"
+msgstr "Kolor & Temperatura"
+
+msgid "Scenes"
+msgstr "Sceny"
+
+msgid "All rooms"
+msgstr "Wszystkie pomieszczenia"
+
+msgid "All rooms and zones"
+msgstr "Wszystkie pomieszczenia i strefy"
+
+msgid "Screen"
+msgstr "Ekran"
+
+msgid "Music"
+msgstr "Muzyka"
+
+msgid "Track cursor"
+msgstr "Śledź kursor"
+
+msgid "Brightness"
+msgstr "Jasność"
+
+msgid "Intensity"
+msgstr "Intensywność"
+
+msgid "Entertainment areas"
+msgstr "Strefy rozrywki"
+
+msgid "Please select entertainment area first."
+msgstr "Najpierw wybierz strefę rozrywki."
+
+msgid "Some other stream is active. Disable it first."
+msgstr "Inny stream jest aktywny. Najpierw go wyłącz."
+
+msgid "is on"
+msgstr "włączony"
+
+msgid "is syncing"
+msgstr "synchronizuje się"
+
+msgid "Power"
+msgstr "Zasilanie"
+
+msgid "Restart"
+msgstr "Restart"
+
+msgid "Mode"
+msgstr "Tryb"
+
+msgid "Input"
+msgstr "Wejście"
+
+msgid "Invalid IP address."
+msgstr "Niepoprawny adres IP."
+
+msgid "Empty value ignored."
+msgstr "Pusta wartość zignorowana."
+
+msgid "Already enabled"
+msgstr "Już włączone"
+
+msgid "Add new device"
+msgstr "Dodaj nowe urządzenie"
+
+msgid "IP address"
+msgstr "Adres IP"
+
+msgid "Add"
+msgstr "Dodaj"
+
+msgid "Delete"
+msgstr "Usuń"
+
+msgid "General settings"
+msgstr "Ustawienia ogólne"
+
+msgid "If the device is not available, the status icon is hidden."
+msgstr "Jeżeli urządzenie nie jest dostępne, ikona statusu jest schowana."
+
+msgid "Status icon position"
+msgstr "Pozycja ikony statusu"
+
+msgid "center"
+msgstr "środek"
+
+msgid "right"
+msgstr "prawo"
+
+msgid "left"
+msgstr "lewo"
+
+msgid "Only previous state of color and brightness is supported."
+msgstr "Tylko poprzedni stan koloru i jasności jest wspierany."
+
+msgid "Advanced settings"
+msgstr "Zaawansowane ustawienia"
+
+msgid "Connection timeout"
+msgstr "Przekroczenie limitu czasu połączenia"
+
+msgid "All settings"
+msgstr "Wszystkie ustawienia"
+
+msgid "Icon pack"
+msgstr "Zestaw ikon"
+
+msgid "none"
+msgstr "brak"
+
+msgid "bright"
+msgstr "jasne"
+
+msgid "dark"
+msgstr "ciemne"
+
+msgid "Force English language"
+msgstr "Wymuś język angielski"
+
+msgid "Requires relogin."
+msgstr "Wymaga ponownego zalogowania."
+
+msgid "Log debug messages"
+msgstr "Zapsisuj wiadomości debug"
+
+msgid "Use with caution. It may overwhelm the log."
+msgstr "Używaj ostrożnie. Może zabić logi."
+
+msgid "Desktop Sync"
+msgstr "Synchronizacja pulpitu"
+
+msgid "Add by enabling in Philips Hue Bridge section."
+msgstr "Dodaj przez włączenie w sekcji Phillips Hue Bridge."
+
+msgid "Hide unavailable device"
+msgstr "Schowaj niedostępne urządzenie"
+
+msgid "Nanoleaf devices"
+msgstr "Urządzenia nanoleaf"
+
+msgid "Miscellaneous"
+msgstr "Pozostałe"
+
+msgid "Discover devices"
+msgstr "Wykryj urządzenia"
+
+msgid "It requires 'avahi-browse' installed."
+msgstr "Wymaga aby `avahi-browse` było zainstalowane."
+
+msgid "About Smart Home"
+msgstr "O Smart Home"
+
+msgid "Device name"
+msgstr "Nazwa urządzenia"
+
+msgid "Room name"
+msgstr "Nazwa pokoju"
+
+msgid "Turn on lights on login"
+msgstr "Włącz światła po zalogowaniu"
+
+msgid "Philips Hue Bridge"
+msgstr "Phillips Hue Bridge"
+
+msgid "Show zones first"
+msgstr "Najpierw pokazuj strefy"
+
+msgid "Show scenes"
+msgstr "Pokaż sceny"
+
+msgid "Enable Desktop Sync features"
+msgstr "Włącz feature synchronizacji pulpitu"
+
+msgid "Philips Hue Desktop Sync"
+msgstr "Phillips Hue synchronizacja pulpitu"
+
+msgid ""
+"This application makes use of fast changing light effects conditions alone, "
+"or in combination with certain content on the screen it may trigger "
+"previously undetected epileptic symptoms or seizures in persons who have no "
+"history of prior seizures or epilepsy."
+msgstr ""
+"Ta aplikacja może wywoływać szybkie zmiany oświetlenia samodzielnie, "
+"lub w połączeniu z niektórym contentem na ekranie może wywołać "
+"wcześniej niewykryte objawy padaczkowe lub drgawki w osobach które nie "
+"mają historii padaczki lub drgawek."
+
+msgid "Disabled"
+msgstr "Wyłączone"
+
+msgid "Remove device?"
+msgstr "Usunąć urządzenie?"
+
+msgid "This can not be undone. Settings related to the device will be lost."
+msgstr "To nie może być cofnięte. Ustawienia powiązane z urządzeniem będą stracone."
+
+msgid "Cancel"
+msgstr "Anuluj"
+
+msgid "Remove"
+msgstr "Usuń"
+
+msgid "IP address already registered."
+msgstr "Adres IP jest już zarejestrowany."
+
+msgid "Please, insert Home Assistant IP address and an access token."
+msgstr "Proszę, wpisz adres IP Home Assistant-a i access token."
+
+msgid "Press the button on the bridge and click 'Add'."
+msgstr "Kliknij na przycisku na bridge i kliknij 'Dodaj'."
+
+msgid "Insert IP and press 'Add'."
+msgstr "Wpisz adres IP i kliknij 'Dodaj'."
+
+msgid ""
+"On the Nanoleaf controller, hold the on-off button for 5-7 seconds until the LED starts flashing. "
+"Alternatively, allow the API pairing in the app. Depends on your light. While the LED is flashing, press the 'Add' button."
+msgstr ""
+"Na kontrolerze nanoleaf, naciśnij przycisk włącz-wyłącz na 5-7 sekund, do momentu migania LED. "
+"Lub możesz zezwolić na parowanie przez API w aplikacji. Zależy od twojego światła. "
+"Kiedy LED miga, wciśnij przycisk 'Dodaj'."
+
+msgid "Failed to connect to the device."
+msgstr "Nie udało się połączyć z urządzeniem."
+
+msgid "Connected"
+msgstr "Połączono"
+
+msgid "While this dialog is shown, hold the button on HDMI sync box until the led blinks green (~3 seconds) and release."
+msgstr "Kiedy ten dialog jest widoczny, przytrzymaj przycisk sync na HDMI aż led nie zacznie migać na zielono (~3 sekundy) i puść."
+
+msgid "Press the button on the bridge."
+msgstr "Naciśnij przycisn na bridge."
+
+msgid "Version"
+msgstr "Wersja"
+
+msgid "HDMI input"
+msgstr "Wejście HDMI"
+
+msgid "Synchronization"
+msgstr "Synchronizacja"
+
+msgid "Intense"
+msgstr "Intensywne"
+
+msgid "High"
+msgstr "Wysokie"
+
+msgid "Moderate"
+msgstr "Średnie"
+
+msgid "Subtle"
+msgstr "Delikatne"
+
+msgid "Movie"
+msgstr "Film"
+
+msgid "Game"
+msgstr "Gra"
+
+msgid "The synchronization setting is now available in the section Philips Hue/Desktop Sync."
+msgstr "Ustawienia synchronizacji są teraz dostępne w sekcji Phillips Hue/synchronizacja pulpitu."
+
+msgid "Insert IP address, user name, and password (if not set, leave empty) then press 'Add'."
+msgstr "Wpisz adres IP, nazwę użytkownika i hasło (jeżeli nie jest ustawione, zostaw puste) a następnie kliknij 'Dodaj'."
+
+msgid "Username (use 'admin' for Gen 2+)"
+msgstr "Nazwa użytkownika (użyj 'admin' dla Gen 2+)"
+
+msgid "Password (leave empty if not set)"
+msgstr "Hasło (zostaw puste jeżeli nie ustawione)"
+
+msgid "Username"
+msgstr "Nazwa użytkownika"
+
+msgid "Password"
+msgstr "Hasło"
+
+msgid "Show power consumption"
+msgstr "Pokaż zużycie energii"
+
+msgid "IP address or URL (e.g.: 'http://ha')"
+msgstr "Adres IP lub URL (np. 'http://ha')"
+
+msgid "Invalid URL."
+msgstr "Niepoprawny URL."
+
+msgid "Display"
+msgstr "Wyświetlacz"
+
+msgid "Notebook mode"
+msgstr "Tryb notebook"
+
+msgid "Turn it on only if an external display is connected"
+msgstr "Włącz tylko jeżeli jest podłączony zewnętrzny wyświetlacz"
