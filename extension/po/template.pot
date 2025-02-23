@@ -8,7 +8,7 @@ msgstr ""
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 msgid "Refresh menu"
@@ -83,7 +83,7 @@ msgstr ""
 msgid "Invalid IP address."
 msgstr ""
 
-msgid ""Empty value ignored."
+msgid "Empty value ignored."
 msgstr ""
 
 msgid "Already enabled"
@@ -249,9 +249,6 @@ msgid "Connected"
 msgstr ""
 
 msgid "While this dialog is shown, hold the button on HDMI sync box until the led blinks green (~3 seconds) and release."
-msgstr ""
-
-msgid "Connected"
 msgstr ""
 
 msgid "Press the button on the bridge."

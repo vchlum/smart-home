@@ -84,8 +84,8 @@ msgstr "Eingang"
 msgid "Invalid IP address."
 msgstr "Ungültige IP-Adresse."
 
-msgid "\"Empty value ignored."
-msgstr "„Leerer Wert wird ignoriert."
+msgid "Empty value ignored."
+msgstr "Leerer Wert wird ignoriert."
 
 msgid "Already enabled"
 msgstr "Bereits aktiviert"
