@@ -8,7 +8,7 @@ msgstr ""
 "Language-Team: \n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 msgid "Refresh menu"
@@ -257,9 +257,6 @@ msgstr "Połączono"
 
 msgid "While this dialog is shown, hold the button on HDMI sync box until the led blinks green (~3 seconds) and release."
 msgstr "Kiedy ten dialog jest widoczny, przytrzymaj przycisk sync na HDMI aż led nie zacznie migać na zielono (~3 sekundy) i puść."
-
-msgid "Connected"
-msgstr "Połączono"
 
 msgid "Press the button on the bridge."
 msgstr "Naciśnij przycisn na bridge."
