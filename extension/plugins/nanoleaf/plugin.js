@@ -37,6 +37,7 @@ import GObject from 'gi://GObject';
 import * as Utils from '../../utils.js';
 import * as Semaphore from '../../semaphore.js';
 import * as SmartHomePanelMenu from '../../smarthome-panelmenu.js';
+import * as ScreenMirror from './screen-mirror.js';
 import * as Api from './api.js';
 
 /**
@@ -59,7 +60,12 @@ export const Plugin =  GObject.registerClass({
         this._firstTime = true;
         this._prepared = false;
         this._semaphore = new Semaphore.Semaphore(1);
+        this._notebookMode = {};
+        this._displays = [];
+        this._mirroring = {};
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
+
+        this._screenMirror = new ScreenMirror.ScreenMirror();
     }
 
     settingRead(needsRebuild) {
@@ -80,6 +86,10 @@ export const Plugin =  GObject.registerClass({
 
             if (this._pluginSettings[id]['on-login']) {
                 this._onLoginSettings[id] = JSON.parse(this._pluginSettings[id]['on-login']);
+            }
+
+            if (this._pluginSettings[id]['notebook-mode'] !== undefined) {
+                this._notebookMode[id] = this._pluginSettings[id]['notebook-mode'] === 'true';
             }
         }
 
@@ -127,9 +137,14 @@ export const Plugin =  GObject.registerClass({
         }
 
         for (let id in this._devices) {
+            this.stopMirrorScreen(id);
             this.disconnectDeviceSignals(id);
             this._devices[id].clear();
             this._devices[id] = null;
+        }
+
+        if (!settingsRead) {
+            this._screenMirror = null;
         }
     }
 
@@ -280,6 +295,10 @@ export const Plugin =  GObject.registerClass({
 
         this.data['devices'][id] = device;
 
+        if (data['panelLayout']) {
+            this._createDisplays(id);
+        }
+
         if (data['effects'] !== undefined) {
             this._currentEffect[id] = data['effects']['select'];
             this._parseStateEffectsList(id, device, data);
@@ -287,6 +306,51 @@ export const Plugin =  GObject.registerClass({
 
         if (this._dataEffects[id]['animations']) {
             this._parseEffectAnimations(id, device, this._dataEffects[id]['animations']);
+        }
+    }
+
+    _createDisplays(id) {
+        this._displays = [];
+
+        if (!this.data['devices'][`sync-screen`]) {
+            this.data['devices'][`sync-screen`] = {
+                'type': 'scene',
+                'name': this._("Screen"),
+                'section': 'device',
+                'capabilities': ['activate'],
+                'associated': ['_all_', id],
+                'icon': "HueIcons/otherWatchingMovie.svg"
+            }
+        } else {
+            this.data['devices'][`sync-screen`]['associated'].push(id);
+        }
+        this.data['devices'][`sync-screen`]['associated'].push(this._pluginSettings[id]['group']);
+
+        let n_monitors = global.display.get_n_monitors();
+        if (n_monitors > 1) {
+            for (let i = 0; i < n_monitors; i++) {
+                let displayId = `sync-screen:${i}`;
+                this._displays.push(displayId);
+
+                if (! this.data['devices'][displayId]) {
+                    let geometry = global.display.get_monitor_geometry(i);
+                    let scale = global.display.get_monitor_scale(i);
+                    let width = Math.round(geometry.width * scale);
+                    let height = Math.round(geometry.height * scale);
+
+                    this.data['devices'][displayId] = {
+                        'type': 'scene',
+                        'name': `${this._("Display")} ${i}: ${width}x${height}`,
+                        'section': 'device',
+                        'capabilities': ['activate'],
+                        'associated': ['_all_', id],
+                        'icon': "HueIcons/otherWatchingMovie.svg"
+                    }
+                } else {
+                    this.data['devices'][displayId]['associated'].push(id);
+                }
+                this.data['devices'][displayId]['associated'].push(this._pluginSettings[id]['group']);
+            }
         }
     }
 
@@ -299,7 +363,7 @@ export const Plugin =  GObject.registerClass({
                     'section': 'device',
                     'name': name,
                     'capabilities': 'activate',
-                    'associated' : [name]
+                    'associated' : [id]
                 };
                 this.data['devices'][name] = effect;
             } else {
@@ -672,6 +736,105 @@ export const Plugin =  GObject.registerClass({
         return onDevices;
     }
 
+    sendMirrorMsg(id, data) {
+        let msg = [];
+
+        if (! data) {
+            return;
+        }
+
+        msg = msg.concat([(data.length >> 8) & 0xFF]);
+        msg = msg.concat([data.length & 0xFF]);
+
+        for (let light of data) {
+            msg = msg.concat([(light['panelId'] >> 8) & 0xFF]);
+            msg = msg.concat([light['panelId'] & 0xFF]);
+
+            msg = msg.concat([light['r'], light['g'], light['b'], light['w']]);
+
+            msg = msg.concat([(light['transTime'] >> 8) & 0xFF]);
+            msg = msg.concat([light['transTime'] & 0xFF]);
+        }
+
+        this._devices[id].sendUDPMsg(msg);
+    }
+
+    startMirrorScreen(id, display) {
+        let signal;
+
+        if (! this._mirroring[id]) {
+            this._mirroring[id] = {
+                'signals-device': [],
+                'signals-mirror': [],
+            };
+        }
+
+        this.stopMirrorScreen(id, false);
+
+        signal = this._devices[id].connect(
+            'ext-control',
+            () => {
+                this._devices[id].enableUDP();
+            }
+        );
+        this._mirroring[id]['signals-device'].push(signal);
+
+        signal = this._devices[id].connect(
+            'udp-ready',
+            () => {
+                this._mirroring[id]['panelLayout'] = this._devices[id].allData['panelLayout'];
+                this._mirroring[id]['display'] = display;
+                this._mirroring[id]['brightness'] = this.data['devices'][id]['brightness'];
+
+                this._screenMirror.subscribe(id, this._mirroring[id]);
+            }
+        );
+        this._mirroring[id]['signals-device'].push(signal);
+
+        signal = this._devices[id].connect(
+            'udp-stopped',
+            () => {
+                this.stopMirrorScreen(id);
+            }
+        );
+        this._mirroring[id]['signals-device'].push(signal);
+
+        signal = this._screenMirror.connect(
+            'event',
+            () => {
+                if (! this._screenMirror.subs[id]) {
+                    return;
+                }
+                this.sendMirrorMsg(id, this._screenMirror.subs[id]['event-data']);
+            }
+        );
+        this._mirroring[id]['signals-mirror'].push(signal);
+
+        this._devices[id].extControl(true);
+    }
+
+    stopMirrorScreen(id, stopped = true) {
+        if (! this._mirroring[id]) {
+            return;
+        }
+
+        while (this._mirroring[id]['signals-device'].length > 0) {
+            let signal = this._mirroring[id]['signals-device'].pop();
+            this._devices[id].disconnect(signal);
+        }
+
+        while (this._mirroring[id]['signals-mirror'].length > 0) {
+            let signal = this._mirroring[id]['signals-mirror'].pop();
+            this._screenMirror.disconnect(signal);
+        }
+
+        this._screenMirror.unsubscribe(id);
+        if (stopped) {
+            this._devices[id].extControl(false);
+            this._devices[id].setDeviceState(false);
+        }
+    }
+
     switchSingle(id, value) {
         this._devices[id].setDeviceState(value);
     }
@@ -750,6 +913,17 @@ export const Plugin =  GObject.registerClass({
     }
 
     sceneSingle(id, ids) {
+        if (id.startsWith('sync-screen')) {
+            for (let i of ids) {
+                let display = id.split(":")[1];
+                this.startMirrorScreen(
+                    i,
+                    display !== undefined ? Number(display) : undefined
+                );
+            }
+            return;
+        }
+
         for (let i of ids) {
             this._devices[i].setDeviceEffect(id);
         }
@@ -764,8 +938,12 @@ export const Plugin =  GObject.registerClass({
         }
         this._firstTime = false;
         for (let id in this._onLoginSettings) {
-            for (let light in this._onLoginSettings[id]) {
-                let device = this._onLoginSettings[id][light];
+            if (this._notebookMode[id] && (! Utils.isExternalMonitorOn())) {
+                continue;
+            }
+
+            for (let effectId in this._onLoginSettings[id]) {
+                let device = this._onLoginSettings[id][effectId];
 
                 if (device['switch']) {
                     switch (device['type']) {
@@ -780,7 +958,7 @@ export const Plugin =  GObject.registerClass({
                             break;
 
                         case 'scene':
-                            this._devices[id].setDeviceEffect(light);
+                            this.sceneSingle(effectId, [id]);
                             this._devices[id].setDeviceBrightness(Math.round(device['brightness']));
                             break;
 

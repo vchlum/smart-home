@@ -96,9 +96,10 @@ const RequestType = {
     STATE: 5,
     ALL_EFFECTS: 6,
     CURRENT_EFFECT: 7,
-    EVENT: 8,
-    EVENT_STATE: 9,
-    EVENT_EFFECTS: 10
+    EXT_CONTROL: 8,
+    EVENT: 9,
+    EVENT_STATE: 10,
+    EVENT_EFFECTS: 11
 };
 
 const Message = class Message extends Soup.Message {
@@ -129,6 +130,9 @@ export const NanoleafDevice =  GObject.registerClass({
         'change-occurred': {},
         'all-effects': {},
         'current-effect': {},
+        'ext-control': {},
+        'udp-ready': {},
+        'udp-stopped': {},
         'event-state': {},
         'event-effects': {},
         'connection-problem': {},
@@ -337,8 +341,12 @@ export const NanoleafDevice =  GObject.registerClass({
 
                     case Soup.Status.NO_CONTENT:
                         this._connected = true;
-                        if (RequestType.CHANGE_OCCURRED) {
+                        if (requestType === RequestType.CHANGE_OCCURRED) {
                             this.emit('change-occurred');
+                            break;
+                        }
+                        if (requestType === RequestType.EXT_CONTROL) {
+                            this.emit('ext-control');
                             break;
                         }
                         break;
@@ -350,6 +358,67 @@ export const NanoleafDevice =  GObject.registerClass({
                 }
             }
         );
+    }
+
+    enableUDP() {
+        let address = Gio.InetSocketAddress.new_from_string(
+            this._ip,
+            60222
+        );
+
+        let clientSocket = new Gio.SocketClient({
+            family: Gio.SocketFamily.IPV4,
+            type: Gio.SocketType.DATAGRAM,
+            protocol: Gio.SocketProtocol.UDP
+        });
+
+        clientSocket.connect_async(
+            address,
+            null,
+            (object, res) =>  {
+                this._udp = object.connect_finish(res);
+                if (!this._udp) {
+                    Utils.logError("UDP connection to Nanoleaf device not established.");
+                    return;
+                }
+
+                this._udp.get_socket().set_blocking(false);
+
+                this._udpCancelleable = new Gio.Cancellable();
+                this._udpOutputStream = this._udp.get_output_stream();
+                this.emit('udp-ready');
+            }
+        );
+    }
+
+    disableUDP() {
+        if (! this._udp) {
+            return;
+        }
+        this._udpCancelleable.cancel();
+        this._udp.get_socket().close();
+        this._udp = undefined;
+
+        this.emit('udp-stopped');
+    }
+
+    sendUDPMsg(data) {
+        if (!this._udp || !this._udpOutputStream) {
+            this.enableUDP();
+        } else {
+            this._udpOutputStream.write_all_async(
+                data,
+                GLib.PRIORITY_DEFAULT,
+                this._udpCancelleable,
+                (object, res) => {
+                    try {
+                        object.write_all_finish(res);
+                    } catch {
+                        this.disableUDP();
+                    }
+                }
+            );
+        }
     }
 
     async keepEventStreamRequest() {
@@ -671,6 +740,17 @@ export const NanoleafDevice =  GObject.registerClass({
         this._PUT(url, RequestType.CHANGE_OCCURRED, data)
     }
 
+    extControl(enable) {
+        let url = `${this._baseUrl}/${this._authToken}/effects`;
+        let data = { "write": {
+            "command": "display",
+            "animType": enable ? "extControl" : "static",
+            "extControlVersion": "v2"
+          }};
+
+        this._PUT(url, enable ? RequestType.EXT_CONTROL : RequestType.NO_RESPONSE_NEED, data)
+    }
+
     deleteDeviceToken() {
         let url = `${this._baseUrl}/${this._authToken}`;
 
@@ -688,6 +768,8 @@ export const NanoleafDevice =  GObject.registerClass({
      * @param {Object} request nano type
      */
      _connectionProblem(requestType) {
+        this.disableUDP();
+
         if (! this._connected) {
             return;
         }

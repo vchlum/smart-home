@@ -472,3 +472,140 @@ export function hueToRgb(p, q, t) {
     if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
     return p;
 }
+
+export function isExternalMonitorOn() {
+    let monitorManager = global.backend.get_monitor_manager();
+    let nMonitors = global.display.get_n_monitors();
+
+    if (! monitorManager.has_builtin_panel) {
+        return false;
+    }
+
+    if (monitorManager.get_is_builtin_display_on()) {
+        if (nMonitors > 1) {
+            return true;
+        }
+    } else {
+        if (nMonitors > 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+export function getScreenGeometry(displayIndex) {
+    let res = [0, 0, -1, -1];
+    let maxScale = 0;
+    let maxWidth = 0;
+    let maxHeight = 0;
+    let display = global.display;
+    let nMonitors = display.get_n_monitors();
+
+    for (let i = 0; i < nMonitors; i++) {
+        let scale = display.get_monitor_scale(i);
+
+        if (scale > maxScale) {
+            maxScale = scale;
+        }
+    }
+
+    for (let i = 0; i < nMonitors; i++) {
+        let rect = global.display.get_monitor_geometry(i);
+        let x = Math.ceil(rect.x * maxScale);
+        let y = Math.ceil(rect.y * maxScale);
+        let width = Math.floor(rect.width * maxScale);
+        let height = Math.floor(rect.height * maxScale);
+
+        if (maxWidth < x + width) {
+            maxWidth = x + width;
+        }
+
+        if (maxHeight < y + height) {
+            maxHeight = y + height;
+        }
+
+        if (displayIndex === i) {
+            res = [x, y , width, height];
+        }
+    }
+
+    if (displayIndex === undefined || displayIndex === null) {
+        res = [0, 0 , maxWidth, maxHeight];
+    }
+
+    return res;
+}
+
+export function getRectangleFromXY(x, y, percentWidth, persentHeight, fullWidth, fullHeight) {
+    let x0, y0, width, height;
+
+    width = Math.round(fullWidth * percentWidth);
+    height = Math.round(fullHeight * persentHeight);
+
+    if (x - width/2 < 0) {
+        x0 = 0;
+    } else if (x + width/2 > fullWidth) {
+        x0 = fullWidth - width - 1;
+    } else {
+        x0 = Math.round(x - width/2);
+    }
+
+    if (y - height/2 < 0) {
+        y0 = 0;
+    } else if (y + height/2 > fullHeight) {
+        y0 = fullHeight - height - 1;
+    } else {
+        y0 = Math.round(y - height/2);
+    }
+
+    return [x0, y0, width, height];
+
+}
+
+function getAvagarePixelRGB(pixels, rowstride, n_channels) {
+    let count = 0;
+    let color = [0, 0, 0];
+    let width = rowstride/n_channels;
+    let height = pixels.length/rowstride;
+
+
+    for (let x = 0; x < width; x++) {
+        for (let y = 0; y < height; y++) {
+            const pixelIndex = (y * rowstride) + (x * n_channels);
+            const red = pixels[pixelIndex];
+            const green = pixels[pixelIndex + 1];
+            const blue = pixels[pixelIndex + 2];
+
+            color[0] += red;
+            color[1] += green;
+            color[2] += blue;
+
+            count++;
+        }
+    }
+
+    if (count > 0) {
+        color[0] = Math.round(color[0] / count);
+        color[1] = Math.round(color[1] / count);
+        color[2] = Math.round(color[2] / count);
+    }
+
+    return color;
+}
+
+export async function getRectangleColorFromScreenshot(screenshot, stream, texture, scale, cursor, x, y, w, h, shiftX, shiftY) {
+    const pixbuf = await screenshot.composite_to_stream(
+        texture,
+        shiftX + x, shiftY + y, w, h,
+        scale,
+        cursor.texture, cursor.x, cursor.y, cursor.scale,
+        stream
+    );
+
+    const rowstride = pixbuf.get_rowstride();
+    const n_channels = pixbuf.get_n_channels();
+    const pixels = pixbuf.get_pixels();
+
+    return getAvagarePixelRGB(pixels, rowstride, n_channels);
+}

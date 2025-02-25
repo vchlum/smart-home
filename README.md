@@ -28,6 +28,7 @@ The features overview:
  * Nanoleaf
     - lights (brightness, color, temperature)
     - scenes
+    - synchronize/mirror screen with devices
     - turn on lights on login
  * Ikea Dirigera
     - lights (brightness, color, temperature)

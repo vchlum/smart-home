@@ -37,6 +37,7 @@
 import Adw from 'gi://Adw';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
+import Gdk from 'gi://Gdk';
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import * as Utils from '../utils.js';
 
@@ -60,6 +61,7 @@ export const SmartHomeNanoleaf = GObject.registerClass({
         'nameEntry',
         'roomEntry',
         'devicesOnLogin',
+        'notebookMode',
         'spinConnectionTimeout',
     ],
 }, class SmartHomeNanoleaf extends Adw.NavigationPage {
@@ -70,6 +72,7 @@ export const SmartHomeNanoleaf = GObject.registerClass({
         this._settings = settings;
         this.tag = pluginID;
         this._onLoginSettings = {};
+        this._onLoginRows = [];
 
         this._pluginSettings = this._settings.get_value(
             Utils.SETTINGS_NANOLEAF
@@ -102,10 +105,18 @@ export const SmartHomeNanoleaf = GObject.registerClass({
         });
 
         device.connect(
+            'all-data',
+            this._appendDisplaysOnLogin.bind(this)
+        );
+
+        device.connect(
             'all-effects',
             this._createOnLoging.bind(this)
         );
 
+        this._displays = this.detectDisplays();
+
+        device.getDeviceInfo();
         device.getDeviceAllEffects();
 
         this.updateUI();
@@ -136,6 +147,33 @@ export const SmartHomeNanoleaf = GObject.registerClass({
             connectionTimeout = Number(this._pluginSettings[this._id]['connection-timeout']);
         }
         this._spinConnectionTimeout.value = connectionTimeout;
+
+        let notebookMode = false;
+        if (this._pluginSettings[this._id]['notebook-mode'] !== undefined) {
+            notebookMode = this._pluginSettings[this._id]['notebook-mode'] === 'true';
+        }
+        this._notebookMode.active = notebookMode;
+    }
+
+    detectDisplays() {
+        let displays = [[-1, _('Screen')]];
+        let monitors = Gdk.Display.get_default().get_monitors();
+        if (monitors.get_n_items() > 1) {
+            let i = 0;
+            for (const m of monitors) {
+                const { x, y, width, height } = m.get_geometry();
+                const scale = m.get_scale()
+                displays.push(
+                    [
+                        i,
+                        `${_("Display")} ${i}: ${width * scale}x${height * scale}`
+                    ]
+                );
+                i++;
+            }
+        }
+
+        return displays;
     }
 
     _writeDevicesSettings() {
@@ -175,15 +213,63 @@ export const SmartHomeNanoleaf = GObject.registerClass({
         this._writeDevicesSettings();
     }
 
-    _onLoginDisableOthers(type, title) {
+    _onLoginDisableOthers(type, id) {
         this._doNotChange = true;
 
         for (let row of this._onLoginRows) {
-            if (row.title !== title)
+            if (row.id !== id)
                 row._deviceSwitch.active = false;
         }
 
         this._doNotChange = false;
+    }
+
+    _notebookModeSwitched(object) {
+        this._pluginSettings[this._id]['notebook-mode'] = String(object.active);
+        this._writeDevicesSettings();
+    }
+
+    _appendDisplaysOnLogin(object) {
+        if (! object.allData['panelLayout']) {
+            return;
+        }
+
+        for (let d of this._displays) {
+            let id = d[0] === -1 ? 'sync-screen' :  `sync-screen:${d[0]}`;
+            let name = d[1];
+
+            let deviceDisplay =  new SmartHomeDeviceLight.SmartHomeDeviceLight(
+                'scene',
+                id,
+                name,
+                true,
+                undefined
+            );
+
+            deviceDisplay.setUI(
+                this._onLoginSettings[id]
+            );
+
+            deviceDisplay.connect(
+                'state-changed',
+                (object) => {
+                    if (this._doNotChange) {
+                        return;
+                    }
+
+                    this._onLoginSettings = {};
+                    this._onLoginSettings[object.id] = object.state;
+
+                    this._onLoginDisableOthers('scene', object.id);
+
+                    this._pluginSettings[this._id]['on-login'] = JSON.stringify(this._onLoginSettings);
+                    this._writeDevicesSettings();
+                }
+            );
+
+            this._devicesOnLogin.add_row(deviceDisplay);
+            this._onLoginRows.push(deviceDisplay);
+        } 
     }
 
     _createOnLoging(object) {
@@ -197,7 +283,6 @@ export const SmartHomeNanoleaf = GObject.registerClass({
             effects.push(e['animName']);
         }
 
-        this._onLoginRows = [];
         this._doNotChange = false;
 
         let device = new SmartHomeDeviceLight.SmartHomeDeviceLight(
@@ -222,7 +307,7 @@ export const SmartHomeNanoleaf = GObject.registerClass({
                 this._onLoginSettings = {};
                 this._onLoginSettings[object.id] = object.state;
 
-                this._onLoginDisableOthers('light', object.title);
+                this._onLoginDisableOthers('light', object.id);
 
                 this._pluginSettings[this._id]['on-login'] = JSON.stringify(this._onLoginSettings);
                 this._writeDevicesSettings();
@@ -254,9 +339,9 @@ export const SmartHomeNanoleaf = GObject.registerClass({
                     }
 
                     this._onLoginSettings = {};
-                    this._onLoginSettings[object.title] = object.state;
+                    this._onLoginSettings[object.id] = object.state;
 
-                    this._onLoginDisableOthers('scene', object.title);
+                    this._onLoginDisableOthers('scene', object.id);
 
                     this._pluginSettings[this._id]['on-login'] = JSON.stringify(this._onLoginSettings);
                     this._writeDevicesSettings();

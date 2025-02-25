@@ -53,50 +53,6 @@ export const SyncSceen =  GObject.registerClass({
         this._displayIndex = displayIndex;
     }
 
-    _getScreenGeometry(displayIndex) {
-        let res = [0, 0, -1, -1];
-        let maxScale = 0;
-        let maxWidth = 0;
-        let maxHeight = 0;
-        let display = global.display;
-        let nMonitors = display.get_n_monitors();
-        for (let i = 0; i < nMonitors; i++) {
-            let scale = display.get_monitor_scale(i);
-
-            if (scale > maxScale) {
-                maxScale = scale;
-            }
-        }
-
-        for (let i = 0; i < nMonitors; i++) {
-            let rect = global.display.get_monitor_geometry(i);
-            let x = Math.ceil(rect.x * maxScale);
-            let y = Math.ceil(rect.y * maxScale);
-            let width = Math.floor(rect.width * maxScale);
-            let height = Math.floor(rect.height * maxScale);
-
-            if (maxWidth < x + width) {
-                maxWidth = x + width;
-            }
-
-            if (maxHeight < y + height) {
-                maxHeight = y + height;
-            }
-
-            if (displayIndex === i) {
-                res = [x, y , width, height];
-            }
-        }
-
-        if (displayIndex === undefined || displayIndex === null) {
-            res = [0, 0 , maxWidth, maxHeight];
-        }
-
-        Utils.logDebug(`Sync desktop, used geometry on display ${displayIndex}: ${res}, full screen resolution: ${maxWidth}x${maxHeight}`);
-
-        return res;
-    }
-
     initSyncSceen() {
         if (!this._streaming) {
             return;
@@ -104,7 +60,7 @@ export const SyncSceen =  GObject.registerClass({
 
         this._shooter = new Shell.Screenshot();
 
-        [this._x, this._y, this._width, this._height] = this._getScreenGeometry(this._displayIndex);
+        [this._x, this._y, this._width, this._height] = Utils.getScreenGeometry(this._displayIndex);
         [this._origX, this._origY, this._origWidth, this._origHeight] = [this._x, this._y, this._width, this._height];
 
         this.syncScreen(0);
@@ -133,79 +89,6 @@ export const SyncSceen =  GObject.registerClass({
         let y = Math.round(heightMiddle  + heightMiddle * relY);
 
         return [x - 1, y - 1, percentWidth, percentHeight];
-    }
-
-    _getSquareFromXY(x, y, percentWidth, persentHeight) {
-        let x0, y0, width, height;
-
-        width = Math.round(this._width * percentWidth);
-        height = Math.round(this._height * persentHeight);
-
-        if (x - width/2 < 0) {
-            x0 = 0;
-        } else if (x + width/2 > this._width) {
-            x0 = this._width - width - 1;
-        } else {
-            x0 = Math.round(x - width/2);
-        }
-
-        if (y - height/2 < 0) {
-            y0 = 0;
-        } else if (y + height/2 > this._height) {
-            y0 = this._height - height - 1;
-        } else {
-            y0 = Math.round(y - height/2);
-        }
-
-        return [x0, y0, width, height];
-
-    }
-
-    _getAvagarePixelRGB(pixels, rowstride, n_channels) {
-        let count = 0;
-        let color = [0, 0, 0];
-        let width = rowstride/n_channels;
-        let height = pixels.length/rowstride;
-
-
-        for (let x = 0; x < width; x++) {
-            for (let y = 0; y < height; y++) {
-                const pixelIndex = (y * rowstride) + (x * n_channels);
-                const red = pixels[pixelIndex];
-                const green = pixels[pixelIndex + 1];
-                const blue = pixels[pixelIndex + 2];
-
-                color[0] += red;
-                color[1] += green;
-                color[2] += blue;
-
-                count++;
-            }
-        }
-
-        if (count > 0) {
-            color[0] = Math.round(color[0] / count);
-            color[1] = Math.round(color[1] / count);
-            color[2] = Math.round(color[2] / count);
-        }
-
-        return color;
-    }
-
-    async _getPixelsRectangleColor(stream, texture, scale, cursor, x, y, w, h) {
-        const pixbuf = await Shell.Screenshot.composite_to_stream(
-            texture,
-            this._x + x, this._y + y, w, h,
-            scale,
-            cursor.texture, cursor.x, cursor.y, cursor.scale,
-            stream
-        );
-
-        const rowstride = pixbuf.get_rowstride();
-        const n_channels = pixbuf.get_n_channels();
-        const pixels = pixbuf.get_pixels();
-
-        return this._getAvagarePixelRGB(pixels, rowstride, n_channels);
     }
 
     async _blackColorTopBottom(stream, texture, scale, cursor, x, y, w, h) {
@@ -330,9 +213,25 @@ export const SyncSceen =  GObject.registerClass({
             let c = this._channels[i]['channel_id'];
             
             let [reqX, reqY, percentWidth, percentHeight] = this._getPositionFromChannel(this._channels[i]);
-            let [x, y, w, h] = this._getSquareFromXY(reqX, reqY, percentWidth, percentHeight); // result: 0, 0, -1, -1 for full screen
+            let [x, y, w, h] = Utils.getRectangleFromXY(
+                reqX,
+                reqY,
+                percentWidth,
+                percentHeight,
+                this._width,
+                this._height
+            ); // result: 0, 0, -1, -1 for full screen
 
-            let color = await this._getPixelsRectangleColor(stream, texture, scale, cursor, x, y, w, h);
+            let color = await Utils.getRectangleColorFromScreenshot(
+                Shell.Screenshot,
+                stream,
+                texture,
+                scale,
+                cursor,
+                x, y, w, h,
+                this._x,
+                this._y
+            );
 
             msg = msg.concat(
                 this.createLightMsg(
