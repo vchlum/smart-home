@@ -75,7 +75,7 @@ export const ScreenMirror =  GObject.registerClass({
         for (let panel of data['panelLayout']['layout']['positionData']) {
             let x = panel['x'];
             let y = panel['y'];
-            
+
             //rotate it clockwise by orientation:
             let rx = Math.round(x * Math.cos(orientation) + y * Math.sin(orientation));
             let ry = Math.round(- x * Math.sin(orientation) + y * Math.cos(orientation));
@@ -128,7 +128,7 @@ export const ScreenMirror =  GObject.registerClass({
                 if (this._runningEvent === undefined) {
                     return GLib.SOURCE_REMOVE;
                 }
-            
+
                 this._invokeEvent();
                 return GLib.SOURCE_CONTINUE;
             });

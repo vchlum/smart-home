@@ -269,7 +269,7 @@ export const SmartHomeNanoleaf = GObject.registerClass({
 
             this._devicesOnLogin.add_row(deviceDisplay);
             this._onLoginRows.push(deviceDisplay);
-        } 
+        }
     }
 
     _createOnLoging(object) {

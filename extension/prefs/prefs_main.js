@@ -814,7 +814,7 @@ export const PreferencesMain = GObject.registerClass({
 
         let syncbox = new PhilipsHueSyncboxApi.PhilipsHueSyncBox ({
             ip: object.ip,
-            cert: this._mainDir + "/crypto/hsb_cacert.pem"
+            cert: this._mainDir.get_path() + "/crypto/hsb_cacert.pem"
         });
 
         alert.connect(
@@ -1253,17 +1253,40 @@ export const PreferencesMain = GObject.registerClass({
     }
 
     aboutDialog() {
+        let releaseNotes = [];
+        let decoder = new TextDecoder();
+        const [ok, changelog] = GLib.file_get_contents(this._mainDir.get_path() + '/CHANGELOG.md');
+        if (ok) {
+            let ul = false;
+            for (let line of decoder.decode(changelog).split("\n")) {
+                if (line.startsWith("## ")) {
+                    line = line.replace("## ", "");
+                    if (ul) { releaseNotes.push('</ul>'); };
+                    ul = false;
+                    releaseNotes.push(`<p>${line}</p>`);
+                }
+                if (line.startsWith(" * ")) {
+                    if (! ul) { releaseNotes.push('<ul>'); };
+                    ul = true;
+                    line = line.replace(" * ", "");
+                    releaseNotes.push(`<li>${line}</li>`);
+                }
+            }
+            if (ul) { releaseNotes.push('</ul>'); };
+        }
+
         let about = new Adw.AboutDialog({
             application_name: this._metadata.name,
             developer_name: "Václav Chlumský",
             copyright: "© 2025 Václav Chlumský",
             license_type: Gtk.License.MIT_X11,
-            version: `${_("Version")}: ${this._metadata.version}`,
+            version: `${this._metadata.version}`,
             website: "https://github.com/vchlum/smart-home",
             issue_url: "https://github.com/vchlum/smart-home/issues",
             developers: ["Václav Chlumský <chlumskyvaclav@gmail.com>"],
             translator_credits: `[DE] Christian Lauinger https://github.com/ChrisLauinger77
 [PL] Ly https://github.com/pkly`,
+            release_notes: releaseNotes.join(""),
             /*
             designers: [""],
             artists: [""]*/
