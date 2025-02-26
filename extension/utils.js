@@ -494,6 +494,102 @@ export function isExternalMonitorOn() {
     return false;
 }
 
+async function blackColorTopBottom(screenshot, stream, texture, scale, cursor, x, y, w, h) {
+    let color;
+    let topBlack = 0;
+    let bottomBlack = 0;
+    let tmpY;
+
+    const pixbuf = await screenshot.composite_to_stream(
+        texture,
+        x, y, w, h,
+        scale,
+        cursor.texture, cursor.x, cursor.y, cursor.scale,
+        stream
+    );
+
+    const rowstride = pixbuf.get_rowstride();
+    const n_channels = pixbuf.get_n_channels();
+    const pixels = pixbuf.get_pixels();
+
+    tmpY = 0;
+    color = [0, 0, 0];
+    while ((color[0] === 0 && color[1] === 0 && color[2] === 0) && (tmpY < Math.round(h / 2) - 1)) {
+        const pixelIndex = (tmpY * rowstride) + 0;
+
+        color[0] = pixels[pixelIndex];
+        color[1] = pixels[pixelIndex + 1];
+        color[2] = pixels[pixelIndex + 2];
+
+        tmpY ++;
+    }
+    topBlack = tmpY - 1;
+
+    tmpY = h - 1;
+    color = [0, 0, 0];
+    while ((color[0] === 0 && color[1] === 0 && color[2] === 0) && (tmpY > Math.round(h / 2) + 1)) {
+        const pixelIndex = (tmpY * rowstride) + 0;
+
+        color[0] = pixels[pixelIndex];
+        color[1] = pixels[pixelIndex + 1];
+        color[2] = pixels[pixelIndex + 2];
+
+        tmpY --;
+    }
+    bottomBlack = h - tmpY - 1 - 1; // also -1 for starting at 0
+
+    return [topBlack, bottomBlack];
+}
+
+export async function detectBlackBorders(screenshot, stream, texture, scale, cursor, x, y, w, h) {
+    let wThird = Math.round(w/3);
+    let hThird = Math.round(h/3);
+
+    let res = [x, y, w, h];
+
+    let verticalBorder = -1;
+
+    for (let i = 1; i < 3; i++) {
+        let [t, b] = await blackColorTopBottom(
+            screenshot,
+            stream,
+            texture,
+            scale,
+            cursor,
+            x + wThird * i,
+            y,
+            1,
+            h
+        );
+
+        // if any color near bezel, use original values
+        if (t < 3 || b < 3) {
+            verticalBorder = 0;
+            break;
+        }
+
+        // let's have 5 pixel tolerance
+        if (verticalBorder === -1) {
+            if (Math.abs(t - b) < 5) {
+                verticalBorder = Math.round((t + b) / 2);
+            } else {
+                break;
+            }
+        } else if (Math.abs(verticalBorder - t) >= 5 || Math.abs(verticalBorder - b) >= 5) {
+            verticalBorder = -2;
+        }
+    }
+
+    let newHeight = h - verticalBorder * 2;
+    // new height must be greater then 30% of the orignal height
+    if (verticalBorder > -1 && newHeight > h * 0.3) {
+        res[1] = y + verticalBorder;
+        res[3] = newHeight;
+    }
+
+    return res;
+}
+
 export function getScreenGeometry(displayIndex) {
     let res = [0, 0, -1, -1];
     let maxScale = 0;

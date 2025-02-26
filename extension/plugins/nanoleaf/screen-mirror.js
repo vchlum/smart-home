@@ -56,9 +56,16 @@ export const ScreenMirror =  GObject.registerClass({
         let ret = {
             'panels': [],
             'panels-screen': [],
+            'counter': 0
         };
 
-        ret['geometry'] = Utils.getScreenGeometry(data['display']);
+        ret['geometry-original'] = Utils.getScreenGeometry(data['display']);
+        ret['geometry'] = [
+            ret['geometry-original'][0],
+            ret['geometry-original'][1],
+            ret['geometry-original'][2],
+            ret['geometry-original'][3],
+        ];
 
         let orientation = Math.PI * (data['panelLayout']['globalOrientation']['value']/180);
         let maxX = -9999999999;
@@ -147,6 +154,22 @@ export const ScreenMirror =  GObject.registerClass({
         const scale = 1;
 
         for (let id in this.subs) {
+            this.subs[id]['counter']++;
+            if (this.subs[id]['counter'] > 8) {
+                this.subs[id]['counter'] = 0;
+                this.subs[id]['geometry'] = await Utils.detectBlackBorders(
+                    Shell.Screenshot,
+                    stream,
+                    texture,
+                    scale,
+                    cursor,
+                    this.subs[id]['geometry-original'][0],
+                    this.subs[id]['geometry-original'][1],
+                    this.subs[id]['geometry-original'][2],
+                    this.subs[id]['geometry-original'][3]
+                );
+            }
+
             this.subs[id]['event-data'] = await this.getSubsColors(id, stream, texture, scale, cursor);
         }
 
@@ -195,5 +218,4 @@ export const ScreenMirror =  GObject.registerClass({
 
         return data;
     }
-
 });
