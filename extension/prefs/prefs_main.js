@@ -1262,6 +1262,8 @@ export const PreferencesMain = GObject.registerClass({
             website: "https://github.com/vchlum/smart-home",
             issue_url: "https://github.com/vchlum/smart-home/issues",
             developers: ["Václav Chlumský <chlumskyvaclav@gmail.com>"],
+            translator_credits: `[DE] Christian Lauinger https://github.com/ChrisLauinger77
+[PL] Ly https://github.com/pkly`,
             /*
             designers: [""],
             artists: [""]*/
