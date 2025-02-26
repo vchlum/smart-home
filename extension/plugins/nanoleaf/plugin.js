@@ -137,7 +137,7 @@ export const Plugin =  GObject.registerClass({
         }
 
         for (let id in this._devices) {
-            this.stopMirrorScreen(id);
+            this.stopMirrorScreen(id, true);
             this.disconnectDeviceSignals(id);
             this._devices[id].clear();
             this._devices[id] = null;
@@ -769,7 +769,7 @@ export const Plugin =  GObject.registerClass({
             };
         }
 
-        this.stopMirrorScreen(id, false);
+        this.stopMirrorScreen(id);
 
         signal = this._devices[id].connect(
             'ext-control',
@@ -813,7 +813,7 @@ export const Plugin =  GObject.registerClass({
         this._devices[id].extControl(true);
     }
 
-    stopMirrorScreen(id, stopped = true) {
+    stopMirrorScreen(id, clear = false) {
         if (! this._mirroring[id]) {
             return;
         }
@@ -829,8 +829,7 @@ export const Plugin =  GObject.registerClass({
         }
 
         this._screenMirror.unsubscribe(id);
-        if (stopped) {
-            this._devices[id].extControl(false);
+        if (clear) {
             this._devices[id].setDeviceState(false);
         }
     }
