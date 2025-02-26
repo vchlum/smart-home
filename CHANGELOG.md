@@ -1,3 +1,9 @@
+## Version 9
+ * Nanoleaf screen sync/mirror feature
+ * Polish translation
+ * black borders detection improved
+ * Notebook mode (Philips Hue, Nanoleaf)
+ * bug fixes
 ## Version 8
  * Home Assistant: fix scenes not showing in menu
  * improved and fixed menu clearing and signal disconnecting
