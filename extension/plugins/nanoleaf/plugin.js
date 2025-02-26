@@ -34,6 +34,7 @@
  */
 
 import GObject from 'gi://GObject';
+import GLib from 'gi://GLib';
 import * as Utils from '../../utils.js';
 import * as Semaphore from '../../semaphore.js';
 import * as SmartHomePanelMenu from '../../smarthome-panelmenu.js';
@@ -114,7 +115,7 @@ export const Plugin =  GObject.registerClass({
 
         this._semaphore.callFunction(this._updateDevices.bind(this));
         if (!settingsRead) {
-            this._semaphore.callFunction(this._runOnStart.bind(this));
+            this._semaphore.callFunction(this._runOnStartDelay.bind(this));
         }
 
         this._prepared = true;
@@ -130,6 +131,10 @@ export const Plugin =  GObject.registerClass({
 
     clearInstance(settingsRead = false) {
         Utils.logDebug(`Nanoleaf clearing.`);
+
+        if (this._onStartTimer) {
+            GLib.Source.remove(this._onStartTimer);
+        };
 
         if (!settingsRead) {
             this._semaphore.clear();
@@ -930,7 +935,7 @@ export const Plugin =  GObject.registerClass({
 
     sceneGroup = this.sceneSingle
 
-    async _runOnStart() {
+    _runOnStart() {
         let h, s, l;
         if (! this._firstTime) {
             return;
@@ -967,5 +972,13 @@ export const Plugin =  GObject.registerClass({
                 }
             }
         }
+    }
+
+    async _runOnStartDelay() {
+        this._onStartTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, () => {
+            this._onStartTimer = null;
+            this._runOnStart();
+            return GLib.SOURCE_REMOVE;
+        });
     }
 });
