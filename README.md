@@ -58,6 +58,9 @@ This extension supports Gnome Shell verison 46 and above.
 ## Installation from e.g.o
 https://extensions.gnome.org/extension/7737/smart-home/
 
+## Sync screen feature - example video
+[![Smart Home Sync screen](https://img.youtube.com/vi/XOh_eLX8--c/0.jpg)](https://www.youtube.com/watch?v=XOh_eLX8--c)
+
 ## Manual installation
 
  1. `git clone https://github.com/vchlum/smart-home.git`
