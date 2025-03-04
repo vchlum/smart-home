@@ -549,7 +549,7 @@ export const Plugin =  GObject.registerClass({
                 case 'light':
                     data = {'entity_id': id};
                     if (device['brightness']) {
-                        data['brightness'] =  device['brightness'];
+                        data['brightness'] = (device['brightness'] / 100) * 255;
                     }
 
                     if (device['color']) {
