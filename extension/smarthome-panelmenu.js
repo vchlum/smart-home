@@ -1662,6 +1662,76 @@ export const SmartHomePanelMenu = GObject.registerClass({
         return slider;
     }
 
+    _enlargeOnHover(icon, hover) {
+        if (this._iconPack === SmartHomeIconPack.NONE) {
+            icon.style = hover ? 'font-size:220%; font-weight:bold;' : 'font-size:220%;';
+        } else {
+            let themeContext = St.ThemeContext.get_for_stage(global.stage);
+            icon.set_size(
+                IconSize * themeContext.scaleFactor * (hover ? 1.2: 1),
+                IconSize * themeContext.scaleFactor * (hover ? 1.2: 1)
+            );
+        }
+    }
+
+    _createButton(uiType, itemType, menuLevel, id, ids) {
+        let signal;
+        let iconPath;
+        let text;
+
+        switch (uiType) {
+            case SmartHomeUiType.UP:
+                iconPath = this.mainDir + `/media/arrowup.svg`;
+                text = '\u2191';
+                break
+            case SmartHomeUiType.DOWN:
+                iconPath = this.mainDir + `/media/arrowdown.svg`;
+                text = '\u2193';
+                break
+            default:
+                return null;
+        }
+
+        let icon = this._getIconByPath(iconPath);
+
+        if (!icon) {
+            icon = new St.Label();
+            icon.text = text;
+            icon.style = 'font-size:220%;';
+        }
+
+        let button = new St.Button({reactive: true, can_focus: true});
+        button.set_x_align(Clutter.ActorAlign.END);
+        button.set_x_expand(true);
+        button.set_child(icon);
+
+        button.set_track_hover(true);
+        signal = button.connect(
+            'notify::hover',
+            (object) => {
+                this._enlargeOnHover(icon, object.hover);
+            }
+        );
+        this._appendSignal(signal, button, menuLevel);
+
+        signal = button.connect(
+            'clicked',
+            this._menuHandler.bind(
+                this,
+                {
+                    'id': id,
+                    'ids': ids,
+                    'object': button,
+                    'itemType': itemType,
+                    'typeUi': uiType
+                }
+            )
+        );
+        this._appendSignal(signal, button, menuLevel);
+
+        return button;
+    }
+
     /**
      * Creates UP/DOWN button for menu item.
      * 
@@ -1674,75 +1744,20 @@ export const SmartHomePanelMenu = GObject.registerClass({
      * @return {Object}
      */
     _createUpDownButton(itemType, menuLevel, id, ids) {
-        let signal;
-        let icon;
-        let iconPath;
-
-
+        let button;
         let itemBox = new St.BoxLayout();
         itemBox.set_x_expand(false);
         itemBox.set_x_align(Clutter.ActorAlign.END);
 
-        iconPath = this.mainDir + `/media/arrowup.svg`
-        icon = this._getIconByPath(iconPath);
-
-        if (!icon) {
-            icon = new St.Label();
-            icon.text = '\u2191';
-            icon.style = 'font-size:200%; font-weight:bold;';
+        button = this._createButton(SmartHomeUiType.UP, itemType, menuLevel, id, ids);
+        if (button) {
+            itemBox.add_child(button);
         }
 
-        let buttonUp = new St.Button({reactive: true, can_focus: true});
-        buttonUp.set_x_align(Clutter.ActorAlign.END);
-        buttonUp.set_x_expand(true);
-        buttonUp.set_child(icon);
-
-        signal = buttonUp.connect(
-            'clicked',
-            this._menuHandler.bind(
-                this,
-                {
-                    'id': id,
-                    'ids': ids,
-                    'object': buttonUp,
-                    'itemType': itemType,
-                    'typeUi': SmartHomeUiType.UP
-                }
-            )
-        );
-        this._appendSignal(signal, buttonUp, menuLevel);
-
-        iconPath = this.mainDir + `/media/arrowdown.svg`
-        icon = this._getIconByPath(iconPath);
-
-        if (!icon) {
-            icon = new St.Label();
-            icon.text = '\u2193';
-            icon.style = 'font-size:200%; font-weight:bold;';
+        button = this._createButton(SmartHomeUiType.DOWN, itemType, menuLevel, id, ids);
+        if (button) {
+            itemBox.add_child(button);
         }
-
-        let buttonDown = new St.Button({reactive: true, can_focus: true});
-        buttonDown.set_x_align(Clutter.ActorAlign.END);
-        buttonDown.set_x_expand(false);
-        buttonDown.set_child(icon);
-
-        signal = buttonDown.connect(
-            'clicked',
-            this._menuHandler.bind(
-                this,
-                {
-                    'id': id,
-                    'ids': ids,
-                    'object': buttonDown,
-                    'itemType': itemType,
-                    'typeUi': SmartHomeUiType.DOWN
-                }
-            )
-        );
-        this._appendSignal(signal, buttonDown, menuLevel);
-
-        itemBox.add_child(buttonDown);
-        itemBox.add_child(buttonUp);
 
         return itemBox;
     }
