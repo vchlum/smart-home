@@ -724,17 +724,20 @@ export const Plugin =  GObject.registerClass({
     _runOnStartDevice(id, device) {
         return new Promise((resolve, reject) => {
             let data;
+            let c;
+
             switch (device['type']) {
                 case 'light':
                     data = {"on": {"on": true}};
                     if (device['brightness']) {
                         data["dimming"] = {"brightness": device['brightness']};
                     }
-                    if (device['color']) {
+                    c = device['color'];
+                    if (c && (c['red'] > 0 || c['green'] > 0 || c['blue'] > 0)) {
                         let xy = PhilipsHueUtils.colorToHueXY(
-                            device['color']['red'],
-                            device['color']['green'],
-                            device['color']['blue']
+                            c['red'],
+                            c['green'],
+                            c['blue']
                         );
                         data["color"] = {"xy": {"x": xy[0], "y":xy[1]}};
                     }

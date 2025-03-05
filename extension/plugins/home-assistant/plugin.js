@@ -545,18 +545,20 @@ export const Plugin =  GObject.registerClass({
     _runOnStartDevice(id, device) {
         return new Promise((resolve, reject) => {
             let data;
+            let c;
             switch (device['type']) {
                 case 'light':
                     data = {'entity_id': id};
                     if (device['brightness']) {
-                        data['brightness'] = (device['brightness'] / 100) * 255;
+                        data['brightness'] = Math.round((device['brightness'] / 100) * 255);
                     }
 
-                    if (device['color']) {
+                    c = device['color'];
+                    if (c && (c['red'] > 0 || c['green'] > 0 || c['blue'] > 0)) {
                         data['rgb_color'] =  [
-                            device['color']['red'],
-                            device['color']['green'],
-                            device['color']['blue']
+                            c['red'],
+                            c['green'],
+                            c['blue']
                         ];
                     }
 

@@ -952,12 +952,14 @@ export const Plugin =  GObject.registerClass({
                 if (device['switch']) {
                     switch (device['type']) {
                         case 'light':
-                            [h, s, l] = Utils.rgbToHsv(
-                                device['color']['red'],
-                                device['color']['green'],
-                                device['color']['blue']
-                            );
-                            this._devices[id].setDeviceColor(h, s);
+                            if (device['color']['red'] > 0 || device['color']['green'] > 0 || device['color']['blue'] > 0) {
+                                [h, s, l] = Utils.rgbToHsv(
+                                    device['color']['red'],
+                                    device['color']['green'],
+                                    device['color']['blue']
+                                );
+                                this._devices[id].setDeviceColor(h, s);
+                            }
                             this._devices[id].setDeviceBrightness(Math.round(device['brightness']));
                             break;
 
