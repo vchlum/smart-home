@@ -45,6 +45,13 @@
                           </child>
 
                           <child>
+                            <object class="AdwSwitchRow" id="switchReducedPadding">
+                              <property name="title" translatable="yes">Reduced panel icon padding</property>
+                              <signal name="notify::active" handler="_reducedPaddingSwitched" swapped="no"/>
+                            </object>
+                          </child>
+
+                          <child>
                             <object class="AdwSwitchRow" id="switchForceEnglish">
                               <property name="title" translatable="yes">Force English language</property>
                               <property name="subtitle" translatable="yes">Requires relogin.</property>

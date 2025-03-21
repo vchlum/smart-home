@@ -37,6 +37,7 @@ export const SETTINGS_SCHEMA = "org.gnome.shell.extensions.smart-home";
 export const SETTINGS_FORCE_ENGLISH = "force-english";
 export const SETTINGS_DEBUG = "debug";
 export const SETTINGS_ICONPACK = "icon-pack";
+export const SETTINGS_REDUCED_PADDING = "reduced-padding";
 export const SETTINGS_MENU_SELECTED = "menu-selection";
 export const SETTINGS_MENU_SELECTED_TYPE = "a{sa{ss}}";
 export const SETTINGS_MISCELLANOUS_STORAGE = "miscellaneous-storage";

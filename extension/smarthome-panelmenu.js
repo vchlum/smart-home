@@ -175,6 +175,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._indicatorPosition = SmartHomeMenuPosition.RIGHT;
         this._signals = {};
         this._networkClient = undefined;
+        this._reducedPadding = false;
         this._itemRefresher = {};
         this._iconPack = SmartHomeIconPack.BRIGHT;
         this._pluginSettings = {};
@@ -208,8 +209,6 @@ export const SmartHomePanelMenu = GObject.registerClass({
             gicon : Gio.icon_new_for_string(`${this.pluginMediaDir}/main.svg`),
             style_class : 'system-status-icon',
         });
-
-        this.style = `-natural-hpadding: 6px; -minimum-hpadding: 6px;`;
 
         let iconEffect = this._getIconBriConEffect(SmartHomeIconPack.BRIGHT);
         icon.add_effect(iconEffect);
@@ -283,6 +282,18 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let needsRebuild = false;
 
         Utils.logDebug(`Settings changed ${this.id}.`);
+
+        tmp = this._settings.get_boolean(Utils.SETTINGS_REDUCED_PADDING)
+        if (this._reducedPadding !== tmp) {
+            this._reducedPadding = tmp;
+            if (this._reducedPadding) {
+                this.set_style('-natural-hpadding: 6px; -minimum-hpadding: 6px;');
+                this.setPositionInPanel(true);
+            } else {
+                this.set_style('');
+                this.setPositionInPanel(true);
+            }
+        }
 
         tmp = JSON.stringify(this._pluginSettings);
         this._pluginSettings = this._settings.get_value(
@@ -567,7 +578,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
      * 
      * @method setPositionInPanel
      */
-    setPositionInPanel() {
+    setPositionInPanel(force = false) {
 
         let children = null;
 
@@ -576,7 +587,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
             return;
         }
 
-        if (this._indicatorPositionBackUp === this._indicatorPosition) {
+        if (this._indicatorPositionBackUp === this._indicatorPosition && ! force) {
             return;
         }
 

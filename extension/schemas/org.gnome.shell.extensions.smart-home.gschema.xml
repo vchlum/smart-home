@@ -18,6 +18,10 @@
       <default>false</default>
       <summary>Force english language</summary>
     </key>
+    <key name="reduced-padding" type="b">
+      <default>false</default>
+      <summary>Reduced padding of icons in panel</summary>
+    </key>
     <key name="debug" type="b">
       <default>false</default>
       <summary>Enable debugging messages</summary>

@@ -316,3 +316,6 @@ msgstr ""
 
 msgid "Turn it on only if an external display is connected"
 msgstr ""
+
+msgid "Reduced panel icon padding"
+msgstr ""

@@ -54,6 +54,7 @@ export const PreferencesMain = GObject.registerClass({
     InternalChildren: [
         "comboIconPack",
         "switchForceEnglish",
+        "switchReducedPadding",
         "switchDebug",
         "philipsHomeAssistantRows",
         "philipsHueBridgeRows",
@@ -133,6 +134,7 @@ export const PreferencesMain = GObject.registerClass({
     async updateUI(settingsLoaded, preferencesPage) {
         this._settingsLoaded = settingsLoaded;
         this._comboIconPack.selected = this._settingsLoaded[Utils.SETTINGS_ICONPACK];
+        this._switchReducedPadding.active = this._settingsLoaded[Utils.SETTINGS_REDUCED_PADDING];
         this._switchForceEnglish.active = this._settingsLoaded[Utils.SETTINGS_FORCE_ENGLISH];
         this._switchDebug.active = this._settingsLoaded[Utils.SETTINGS_DEBUG];
 
@@ -188,6 +190,13 @@ export const PreferencesMain = GObject.registerClass({
         this._settings.set_enum(
             Utils.SETTINGS_ICONPACK,
             object.selected
+        );
+    }
+
+    _reducedPaddingSwitched(object) {
+        this._settings.set_boolean(
+            Utils.SETTINGS_REDUCED_PADDING,
+            object.active
         );
     }
 
