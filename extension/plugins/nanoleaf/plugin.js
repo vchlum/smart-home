@@ -64,6 +64,7 @@ export const Plugin =  GObject.registerClass({
         this._notebookMode = {};
         this._displays = [];
         this._mirroring = {};
+        this._requestedBrightness = {};
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
 
         this._screenMirror = new ScreenMirror.ScreenMirror();
@@ -677,6 +678,10 @@ export const Plugin =  GObject.registerClass({
                     'change-occurred',
                     () => {
                         this._devices[id].keepEventStreamRequest();
+                        if (this._requestedBrightness[id]) {
+                            this._devices[id].setDeviceBrightness(this._requestedBrightness[id]);
+                            delete(this._requestedBrightness[id]);
+                        }
                     }
                 );
                 this._devicesSignals[id].push(signal);
@@ -792,6 +797,10 @@ export const Plugin =  GObject.registerClass({
                 this._mirroring[id]['brightness'] = this.data['devices'][id]['brightness'];
 
                 this._screenMirror.subscribe(id, this._mirroring[id]);
+                if (this._requestedBrightness[id]) {
+                    this._devices[id].setDeviceBrightness(this._requestedBrightness[id]);
+                    delete(this._requestedBrightness[id]);
+                }
             }
         );
         this._mirroring[id]['signals-device'].push(signal);
@@ -964,8 +973,8 @@ export const Plugin =  GObject.registerClass({
                             break;
 
                         case 'scene':
+                            this._requestedBrightness[id] = Math.round(device['brightness']);
                             this.sceneSingle(effectId, [id]);
-                            this._devices[id].setDeviceBrightness(Math.round(device['brightness']));
                             break;
 
                         default:
