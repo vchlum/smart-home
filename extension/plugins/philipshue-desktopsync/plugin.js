@@ -419,6 +419,11 @@ export const Plugin =  GObject.registerClass({
     clearInstance() {
         Utils.logDebug(`Philips Hue desktop sync ${this.id} clearing.`);
 
+        if (this._currentAreaId) {
+            this._bridge.disableStream(this._currentAreaId);
+            this._currentAreaId = null;
+        }
+
         this.disconnectBridgeSignals();
 
         if (this._onStartTimer) {
