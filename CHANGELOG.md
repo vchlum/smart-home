@@ -1,3 +1,7 @@
+## Version 10
+ * enlarge up/down icon on hover
+ * option to reduce panel icon padding
+ * bug fixes
 ## Version 9
  * Nanoleaf screen sync/mirror feature
  * Polish translation
