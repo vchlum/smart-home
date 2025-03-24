@@ -610,7 +610,7 @@ export const PreferencesMain = GObject.registerClass({
     addDialogPhilipsHueBridge(ipAddress = null) {
         let add = new SmartHomeAddDevice.SmartHomeAddDevice(
             "Philips Hue bridge",
-            _("Press the button on the bridge and click 'Add'."),
+            _("Insert IP and press 'Add'."),
             ipAddress
         );
         add.connect(
@@ -746,6 +746,25 @@ export const PreferencesMain = GObject.registerClass({
     };
 
     _addDialogPhilipsHueBridgeCallback(object) {
+        let buttonDialog =  new Adw.AlertDialog({
+            heading: "Philips Hue bridge",
+            body: _("Press the button on the bridge and click 'Add'.")
+        });
+        buttonDialog.add_response('cancel', _("Cancel"));
+	    buttonDialog.add_response('add', _("Add"));
+        buttonDialog.connect(
+            "response",
+            (__, response) => {
+                if (response !== "add") {
+                    return;
+                }
+
+                this._addDialogPhilipsHueBridgeButton(object);
+        });
+        buttonDialog.present(this);
+    }
+
+    _addDialogPhilipsHueBridgeButton(object) {
         if (this.checkIpExists(Utils.SETTINGS_PHILIPSHUEBRIDGE, object.ip)) {
             return;
         }
