@@ -274,6 +274,7 @@ export const Plugin =  GObject.registerClass({
     _updateData(data) {
         let id;
         this._someStreamAcive = false;
+        this._activeStream = null;
         let activeEntertainmentName = this._("Entertainment areas");
 
         if (this._miscellanousStorage[this.pluginID] !== undefined) {
@@ -296,6 +297,7 @@ export const Plugin =  GObject.registerClass({
 
                 if (d['status'] === 'active') {
                     this._someStreamAcive = true;
+                    this._activeStream = d['id'];
                 }
             }
         }
@@ -616,6 +618,10 @@ export const Plugin =  GObject.registerClass({
         this._requestedAreaId = this._onLoginSettings['id'];
         if (this._requestedAreaId &&
             this._onLoginSettings['autostart-mode']) {
+
+            if (this._activeStream === String(this._requestedAreaId)) {
+                this._bridge.disableStream(this._activeStream);
+            }
 
             this._onStartTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, () => {
                 this._onStartTimer = null;
