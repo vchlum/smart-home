@@ -989,7 +989,13 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
         let itemBox = new St.BoxLayout();
         itemBox.set_x_expand(true);
-        itemBox.vertical = vertical;
+        if (vertical) {
+            if (ShellVersion >= 48) {
+                itemBox.orientation = Clutter.Orientation.VERTICAL;
+            } else {
+                itemBox.vertical = vertical;
+            }
+        }
         itemBox.add_child(label);
         itemBox.add_child(subLabel);
         return [itemBox, label, subLabel];

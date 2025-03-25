@@ -39,6 +39,9 @@ import * as Slider from 'resource:///org/gnome/shell/ui/slider.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as Screenshot from './screenshot.js';
 import * as Params from 'resource:///org/gnome/shell/misc/params.js';
+import * as Config from 'resource:///org/gnome/shell/misc/config.js';
+
+const ShellVersion = parseFloat(Config.PACKAGE_VERSION);
 
 /**
  * Button with color wheel or bar on the background.
@@ -163,7 +166,12 @@ export const ColorPickerBox =  GObject.registerClass({
 
         let signal;
 
-        let mainbox = new St.BoxLayout({vertical: true});
+        let mainbox = new St.BoxLayout();
+        if (ShellVersion >= 48) {
+            mainbox.orientation = Clutter.Orientation.VERTICAL;
+        } else {
+            mainbox.vertical = true;
+        }
         this._centerObject(mainbox);
 
         if (this._useColorWheel) {
