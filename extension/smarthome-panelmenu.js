@@ -687,7 +687,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         );
 
         if (this._iconPack !== this._iconPack.NONE) {
-            icon = this._getGnomeIcon('emblem-synchronizing-symbolic');
+            icon = this._getIconByPath(this.mainDir + '/media/HueIcons/settingsSoftwareUpdate.svg');
 
             if (icon !== null){
                 item.insert_child_at_index(icon, 1);
