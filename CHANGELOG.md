@@ -1,3 +1,6 @@
+## Version 11
+ * improve process of adding Philips Hue bridge
+ * bug fixes
 ## Version 10
  * enlarge up/down icon on hover
  * option to reduce panel icon padding
