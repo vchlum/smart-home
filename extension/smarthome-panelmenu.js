@@ -174,6 +174,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._hideUnavailable = Utils.ALL_DEFAULT_HIDE_UNAVAILABLE;
         this._indicatorPosition = SmartHomeMenuPosition.RIGHT;
         this._signals = {};
+        this._dbusSignals = [];
         this._networkClient = undefined;
         this._reducedPadding = false;
         this._itemRefresher = {};
@@ -267,6 +268,67 @@ export const SmartHomePanelMenu = GObject.registerClass({
             this._setScreenChangeDetection(
                 this.requestRebuild.bind(this)
             );
+        }
+
+        this.connectDbusSession();
+    }
+
+    _dbusShutdown() {
+        if (this.onShutdown) { this.onShutdown(); };
+    }
+
+    connectDbusSession() {
+        let signal;
+
+        signal = Gio.DBus.system.signal_subscribe(
+            null,
+            'org.freedesktop.login1.Manager',
+            'PrepareForShutdown',
+            '/org/freedesktop/login1',
+            null,
+            Gio.DBusSignalFlags.NONE,
+            this._dbusShutdown.bind(this)
+        );
+        this._dbusSignals.push(signal);
+
+        signal = Gio.DBus.session.signal_subscribe(
+            null,
+            'org.gnome.SessionManager.EndSessionDialog',
+            'ConfirmedLogout',
+            '/org/gnome/SessionManager/EndSessionDialog',
+            null,
+            Gio.DBusSignalFlags.NONE,
+            this._dbusShutdown.bind(this)
+          );
+          this._dbusSignals.push(signal);
+
+          signal = Gio.DBus.session.signal_subscribe(
+            null,
+            'org.gnome.SessionManager.EndSessionDialog',
+            'ConfirmedReboot',
+            '/org/gnome/SessionManager/EndSessionDialog',
+            null,
+            Gio.DBusSignalFlags.NONE,
+            this._dbusShutdown.bind(this)
+          );
+          this._dbusSignals.push(signal);
+
+          signal = Gio.DBus.session.signal_subscribe(
+            null,
+            'org.gnome.SessionManager.EndSessionDialog',
+            'ConfirmedShutdown',
+            '/org/gnome/SessionManager/EndSessionDialog',
+            null,
+            Gio.DBusSignalFlags.NONE,
+            this._dbusShutdown.bind(this)
+          );
+          this._dbusSignals.push(signal);
+    }
+
+    disconnectDbusSession() {
+        while (this._dbusSignals.length > 0) {
+            let signal = this._dbusSignals.pop();
+            Gio.DBus.session.signal_unsubscribe(signal);
         }
     }
 

@@ -308,7 +308,7 @@ export const NanoleafDevice =  GObject.registerClass({
         }
     }
 
-    _request(method, url, requestType, data) {
+    _request(method, url, requestType, data, synchronous = false) {
         Utils.logDebug(`Nanoleaf device ${method} request, url: ${url} data: ${JSON.stringify(data)}`);
 
         let msg = Message.new(method, url);
@@ -320,6 +320,11 @@ export const NanoleafDevice =  GObject.registerClass({
                 "application/json",
                 new GLib.Bytes(JSON.stringify(data))
             );
+        }
+
+        if (synchronous) {
+            this._session.send(msg, null);
+            return;
         }
 
         this._session.send_and_read_async(
@@ -616,9 +621,9 @@ export const NanoleafDevice =  GObject.registerClass({
      * @param {Object} input data
      * @return {Object} JSON with response
      */
-    _POST(url, requestType, data = null) {
+    _POST(url, requestType, data = null, synchronous = false) {
 
-        this._request("POST", url, requestType, data);
+        this._request("POST", url, requestType, data, synchronous);
     }
 
     /**
@@ -630,9 +635,9 @@ export const NanoleafDevice =  GObject.registerClass({
      * @param {Object} input data
      * @return {Object} JSON with response
      */
-    _PUT(url, requestType, data) {
+    _PUT(url, requestType, data, synchronous = false) {
 
-        this._request("PUT", url, requestType, data);
+        this._request("PUT", url, requestType, data, synchronous);
     }
 
     /**
@@ -656,9 +661,9 @@ export const NanoleafDevice =  GObject.registerClass({
      * @param {Boolean} url to be requested
      * @return {Object} JSON with response
      */
-     _DELETE(url, requestType) {
+     _DELETE(url, requestType, synchronous = false) {
 
-        this._request("DELETE", url, requestType, null);
+        this._request("DELETE", url, requestType, null, synchronous);
     }
 
     authorizate() {
@@ -698,11 +703,11 @@ export const NanoleafDevice =  GObject.registerClass({
         this._GET(url, RequestType.CURRENT_EFFECT);
     }
 
-    setDeviceState(value) {
+    setDeviceState(value, synchronous = false) {
         let url = `${this._baseUrl}/${this._authToken}/state`;
         let data = {"on": { "value": value }};
 
-        this._PUT(url, RequestType.CHANGE_OCCURRED, data)
+        this._PUT(url, RequestType.CHANGE_OCCURRED, data, synchronous);
     }
 
     setDeviceColor(hue, sat) {
@@ -716,28 +721,28 @@ export const NanoleafDevice =  GObject.registerClass({
         let url = `${this._baseUrl}/${this._authToken}/state`;
         let data = {"hue": { "value": hue }, "sat": { "value": sat }, "brightness" : { "value": bri, "duration": 0} };
 
-        this._PUT(url, RequestType.CHANGE_OCCURRED, data)
+        this._PUT(url, RequestType.CHANGE_OCCURRED, data);
     }
 
     setDeviceTemperature(value) {
         let url = `${this._baseUrl}/${this._authToken}/state`;
         let data = {"ct": { "value": value }};
 
-        this._PUT(url, RequestType.CHANGE_OCCURRED, data)
+        this._PUT(url, RequestType.CHANGE_OCCURRED, data);
     }
 
     setDeviceBrightness(value, duration) {
         let url = `${this._baseUrl}/${this._authToken}/state`;
         let data = {"brightness" : { "value": value, "duration": duration }};
 
-        this._PUT(url, RequestType.CHANGE_OCCURRED, data)
+        this._PUT(url, RequestType.CHANGE_OCCURRED, data);
     }
 
     setDeviceEffect(effect) {
         let url = `${this._baseUrl}/${this._authToken}/effects`;
         let data = { "select": effect };
 
-        this._PUT(url, RequestType.CHANGE_OCCURRED, data)
+        this._PUT(url, RequestType.CHANGE_OCCURRED, data);
     }
 
     extControl(enable) {
@@ -748,7 +753,7 @@ export const NanoleafDevice =  GObject.registerClass({
             "extControlVersion": "v2"
           }};
 
-        this._PUT(url, enable ? RequestType.EXT_CONTROL : RequestType.NO_RESPONSE_NEED, data)
+        this._PUT(url, enable ? RequestType.EXT_CONTROL : RequestType.NO_RESPONSE_NEED, data);
     }
 
     deleteDeviceToken() {

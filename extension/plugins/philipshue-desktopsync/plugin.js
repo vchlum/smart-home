@@ -430,11 +430,20 @@ export const Plugin =  GObject.registerClass({
             this.streamer.disconnectStream();
             this.streamer.disconnectSignals();
             this.streamer = null;
-            this._bridge.disableStream(this._currentAreaId);
+            this._bridge.disableStream(this._currentAreaId, true);
         }
 
         this._bridge.clear();
         this._bridge = null;
+    }
+
+    onShutdown() {
+        /* disable streaming */
+        if (this._currentAreaId) {
+            Utils.logDebug(`Shutting down ${this.id} ${this._currentAreaId}`);
+            this._bridge.disableStream(this._currentAreaId, true);
+            this._currentAreaId = null;
+        }
     }
 
     requestData() {

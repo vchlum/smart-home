@@ -154,6 +154,14 @@ export const Plugin =  GObject.registerClass({
         }
     }
 
+    onShutdown() {
+        /* disable screen miroring */
+        for (let id in this._devices) {
+            Utils.logDebug(`Shutting down ${id}`);
+            this.stopMirrorScreen(id, true);
+        }
+    }
+
     getEffectColor(name, data) {
         if (! data['animations']) {
             return [null, null, null];
@@ -844,7 +852,7 @@ export const Plugin =  GObject.registerClass({
 
         this._screenMirror.unsubscribe(id);
         if (clear) {
-            this._devices[id].setDeviceState(false);
+            this._devices[id].setDeviceState(false, clear);
         }
     }
 

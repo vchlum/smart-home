@@ -305,14 +305,14 @@ export const PhilipsHueBridge =  GObject.registerClass({
         this._session.timeout = value;
     }
 
-    _POST(url, requestType, data) {
+    _POST(url, requestType, data, synchronous = false) {
 
-        return this._request("POST", url, requestType, data);
+        return this._request("POST", url, requestType, data, synchronous);
     }
 
-    _PUT(url, requestType, data) {
+    _PUT(url, requestType, data, synchronous = false) {
 
-        return this._request("PUT", url, requestType, data);
+        return this._request("PUT", url, requestType, data, synchronous);
     }
 
     _GET(url, requestType) {
@@ -376,7 +376,7 @@ export const PhilipsHueBridge =  GObject.registerClass({
         }
     }
 
-    _request(method, url, requestType, data, counter = 0) {
+    _request(method, url, requestType, data, synchronous = false,  counter = 0) {
         if (this._ip === null) {
             Utils.logError(`Philips Hue API is missing IP address.`);
             return;
@@ -404,6 +404,11 @@ export const PhilipsHueBridge =  GObject.registerClass({
             );
         }
 
+        if (synchronous) {
+            this._session.send(msg, null);
+            return;
+        }
+
         this._session.send_and_read_async(
             msg,
             Soup.MessagePriority.NORMAL,
@@ -419,7 +424,7 @@ export const PhilipsHueBridge =  GObject.registerClass({
                         GLib.PRIORITY_DEFAULT,
                         Math.round((Math.random() * 300) + 100),
                         () => {
-                            this._request(method, url, requestType, data, ++counter);
+                            this._request(method, url, requestType, data, synchronous, ++counter);
 
                             this._timers = Utils.removeFromArray(this._timers, timerId);
                             return GLib.SOURCE_REMOVE;
@@ -640,11 +645,11 @@ export const PhilipsHueBridge =  GObject.registerClass({
         this._PUT(url, requestType, data)
     }
 
-    disableStream(id, requestType = RequestType.ENTERTAIMENT_STREAM_DISABLED) {
+    disableStream(id, synchronous = false, requestType = RequestType.ENTERTAIMENT_STREAM_DISABLED) {
         let url = `${this._url}/resource/entertainment_configuration/${id}`;
         let data = {"action": "stop"}
 
-        this._PUT(url, requestType, data)
+        this._PUT(url, requestType, data, synchronous)
     }
 
     createUser() {
