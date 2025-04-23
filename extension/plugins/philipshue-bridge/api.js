@@ -679,8 +679,8 @@ export const PhilipsHueBridge =  GObject.registerClass({
         this._GET(`${this._url}/resource`, RequestType.ALL_DATA);
     }
 
-    setLight(id, data, change = true) {
-        this._PUT(`${this._url}/resource/light/${id}`, change ? RequestType.CHANGE_OCCURRED : RequestType.NO_RESPONSE_NEED, data)
+    setLight(id, data, change = true, synchronous = false) {
+        this._PUT(`${this._url}/resource/light/${id}`, change ? RequestType.CHANGE_OCCURRED : RequestType.NO_RESPONSE_NEED, data, synchronous)
     }
 
     setGroup(id, data, change = true) {

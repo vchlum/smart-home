@@ -61,6 +61,14 @@
                               </object>
                             </child>
 
+                            <child>
+                              <object class="AdwSwitchRow" id="offShutdown">
+                                <property name="title" translatable="yes">Turn lights off on shutdown</property>
+                                <property name="subtitle" translatable="yes">On login lights also turn off on shutdown.</property>
+                                <signal name="notify::active" handler="_offShutdownSwitched" swapped="no"/>
+                              </object>
+                            </child>
+
                           </object>
                         </child>
 

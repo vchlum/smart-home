@@ -319,3 +319,9 @@ msgstr ""
 
 msgid "Reduced panel icon padding"
 msgstr ""
+
+msgid "Turn lights off on shutdown"
+msgstr ""
+
+msgid "On login lights also turn off on shutdown."
+msgstr ""

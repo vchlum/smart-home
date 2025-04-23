@@ -62,6 +62,7 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
         'hideUnavailable',
         'comboIndicatorPosition',
         'activatableDesktopSync',
+        'offShutdown',
         'devicesOnLogin',
         'spinConnectionTimeout',
     ],
@@ -163,6 +164,12 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
             connectionTimeout = Number(this._pluginSettings[this._id]['connection-timeout']);
         }
         this._spinConnectionTimeout.value = connectionTimeout;
+
+        let offShutdown = false;
+        if (this._pluginSettings[this._id]['off-shutdown'] !== undefined) {
+            offShutdown = this._pluginSettings[this._id]['off-shutdown'] === 'true';
+        }
+        this._offShutdown.active = offShutdown;
     }
 
     _writeDevicesSettings() {
@@ -324,6 +331,11 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
                 }
             }
         }
+    }
+
+    _offShutdownSwitched(object) {
+        this._pluginSettings[this._id]['off-shutdown'] = String(object.active);
+        this._writeDevicesSettings();
     }
 
     _createLightOnLogin(type, data, roomName) {

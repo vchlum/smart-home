@@ -62,6 +62,7 @@ export const Plugin =  GObject.registerClass({
         this._prepared = false;
         this._semaphore = new Semaphore.Semaphore(1);
         this._notebookMode = {};
+        this._offShutdown = false;
         this._displays = [];
         this._mirroring = {};
         this._requestedBrightness = {};
@@ -92,6 +93,10 @@ export const Plugin =  GObject.registerClass({
 
             if (this._pluginSettings[id]['notebook-mode'] !== undefined) {
                 this._notebookMode[id] = this._pluginSettings[id]['notebook-mode'] === 'true';
+            }
+
+            if (this._pluginSettings[id]['off-shutdown'] !== undefined) {
+                this._offShutdown = this._pluginSettings[id]['off-shutdown'] === 'true';
             }
         }
 
@@ -151,14 +156,6 @@ export const Plugin =  GObject.registerClass({
 
         if (!settingsRead) {
             this._screenMirror = null;
-        }
-    }
-
-    onShutdown() {
-        /* disable screen miroring */
-        for (let id in this._devices) {
-            Utils.logDebug(`Shutting down ${id}`);
-            this.stopMirrorScreen(id, true);
         }
     }
 
@@ -1000,4 +997,33 @@ export const Plugin =  GObject.registerClass({
             return GLib.SOURCE_REMOVE;
         });
     }
+
+    _runOnShutdown() {
+        /* disable screen miroring */
+        for (let id in this._devices) {
+            Utils.logDebug(`Shutting down ${id}`);
+            this.stopMirrorScreen(id, true);
+        }
+
+        if (! this._offShutdown) {
+            return;
+        }
+
+        /* disable on login lights */
+        for (let id in this._onLoginSettings) {
+            if (this._notebookMode[id] && (! Utils.isExternalMonitorOn())) {
+                continue;
+            }
+
+            for (let effectId in this._onLoginSettings[id]) {
+                let device = this._onLoginSettings[id][effectId];
+
+                if (device['switch']) {
+                    this._devices[id].setDeviceState(false, true);
+                }
+            }
+        }
+    }
+
+    onShutdown = this._runOnShutdown;
 });

@@ -59,6 +59,7 @@ export const SmartHomeIkeaDirigera = GObject.registerClass({
         'statusPage',
         'hideUnavailable',
         'comboIndicatorPosition',
+        'offShutdown',
         'devicesOnLogin',
         'spinConnectionTimeout',
     ],
@@ -134,6 +135,12 @@ export const SmartHomeIkeaDirigera = GObject.registerClass({
             connectionTimeout = Number(this._pluginSettings[this._id]['connection-timeout']);
         }
         this._spinConnectionTimeout.value = connectionTimeout;
+
+        let offShutdown = false;
+        if (this._pluginSettings[this._id]['off-shutdown'] !== undefined) {
+            offShutdown = this._pluginSettings[this._id]['off-shutdown'] === 'true';
+        }
+        this._offShutdown.active = offShutdown;
     }
 
     _writeDevicesSettings() {
@@ -158,6 +165,11 @@ export const SmartHomeIkeaDirigera = GObject.registerClass({
 
     _connectionTimeoutChanged(object) {
         this._pluginSettings[this._id]['connection-timeout'] = String(object.value);
+        this._writeDevicesSettings();
+    }
+
+    _offShutdownSwitched(object) {
+        this._pluginSettings[this._id]['off-shutdown'] = String(object.active);
         this._writeDevicesSettings();
     }
 

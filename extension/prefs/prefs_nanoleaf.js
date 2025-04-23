@@ -62,6 +62,7 @@ export const SmartHomeNanoleaf = GObject.registerClass({
         'roomEntry',
         'devicesOnLogin',
         'notebookMode',
+        'offShutdown',
         'spinConnectionTimeout',
     ],
 }, class SmartHomeNanoleaf extends Adw.NavigationPage {
@@ -153,6 +154,12 @@ export const SmartHomeNanoleaf = GObject.registerClass({
             notebookMode = this._pluginSettings[this._id]['notebook-mode'] === 'true';
         }
         this._notebookMode.active = notebookMode;
+
+        let offShutdown = false;
+        if (this._pluginSettings[this._id]['off-shutdown'] !== undefined) {
+            offShutdown = this._pluginSettings[this._id]['off-shutdown'] === 'true';
+        }
+        this._offShutdown.active = offShutdown;
     }
 
     detectDisplays() {
@@ -226,6 +233,11 @@ export const SmartHomeNanoleaf = GObject.registerClass({
 
     _notebookModeSwitched(object) {
         this._pluginSettings[this._id]['notebook-mode'] = String(object.active);
+        this._writeDevicesSettings();
+    }
+
+    _offShutdownSwitched(object) {
+        this._pluginSettings[this._id]['off-shutdown'] = String(object.active);
         this._writeDevicesSettings();
     }
 

@@ -327,3 +327,9 @@ msgstr "Zapnout pouze v případě, že je připojen externí displej"
 
 msgid "Reduced panel icon padding"
 msgstr "Zmenšené okraje ikon na panelu"
+
+msgid "Turn lights off on shutdown"
+msgstr "Při vypnutí systému, vypnout také světla"
+
+msgid "On login lights also turn off on shutdown."
+msgstr "S vypnutím systému, vypnout světla nastavená při přihlášení."

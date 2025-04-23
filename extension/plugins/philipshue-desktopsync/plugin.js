@@ -437,15 +437,6 @@ export const Plugin =  GObject.registerClass({
         this._bridge = null;
     }
 
-    onShutdown() {
-        /* disable streaming */
-        if (this._currentAreaId) {
-            Utils.logDebug(`Shutting down ${this.id} ${this._currentAreaId}`);
-            this._bridge.disableStream(this._currentAreaId, true);
-            this._currentAreaId = null;
-        }
-    }
-
     requestData() {
         this._bridge.getEntertainment();
     }
@@ -656,6 +647,17 @@ export const Plugin =  GObject.registerClass({
             });
         }
     }
+
+    _runOnShutdown() {
+        /* disable streaming */
+        if (this._currentAreaId) {
+            Utils.logDebug(`Shutting down ${this.id} ${this._currentAreaId}`);
+            this._bridge.disableStream(this._currentAreaId, true);
+            this._currentAreaId = null;
+        }
+    }
+
+    onShutdown = this._runOnShutdown;
 
     /**
      * Remove timers created by GLib.timeout_add

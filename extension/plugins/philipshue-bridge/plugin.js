@@ -148,6 +148,7 @@ export const Plugin =  GObject.registerClass({
         this._showScenes = Utils.PHILIPSHUEBRIDGE_DEFAULT_SHOWSCENES;
         this._connectionTimeout = Utils.PHILIPSHUEBRIDGE_DEFAULT_TIMEOUT;
         this._bridgeSignals = [];
+        this._offShutdown = false;
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
     }
 
@@ -174,6 +175,10 @@ export const Plugin =  GObject.registerClass({
 
         if (this._pluginSettings[this.id]['on-login']) {
             this._onLoginSettings = JSON.parse(this._pluginSettings[this.id]['on-login']);
+        }
+
+        if (this._pluginSettings[this.id]['off-shutdown'] !== undefined) {
+            this._offShutdown = this._pluginSettings[this.id]['off-shutdown'] === 'true';
         }
     }
 
@@ -771,6 +776,34 @@ export const Plugin =  GObject.registerClass({
             }
         }
     }
+
+    _runOnShutdown() {
+        if (! this._offShutdown) {
+            return;
+        }
+
+        for (let id in this._onLoginSettings) {
+            let device = this._onLoginSettings[id];
+            if (device['switch']) {
+                switch (device['type']) {
+                    case 'light':
+                        this._bridge.setLight(
+                            id,
+                            {"on": {"on": false}},
+                            false,
+                            true
+                        );
+                        break;
+
+                    case 'scene':
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    onShutdown = this._runOnShutdown;
 
     /**
      * Remove timers created by GLib.timeout_add

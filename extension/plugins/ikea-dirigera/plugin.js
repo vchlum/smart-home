@@ -106,6 +106,7 @@ export const Plugin =  GObject.registerClass({
     _init(id, pluginName, metadata, mainDir, settings, openPref) {
         this.id = id;
         this._bridgeSignals = [];
+        this._offShutdown = false;
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
         this._connectionTimeout = Utils.IKEADIRIGERA_DEFAULT_TIMEOUT;
     }
@@ -125,6 +126,10 @@ export const Plugin =  GObject.registerClass({
 
         if (this._pluginSettings[this.id]['on-login']) {
             this._onLoginSettings = JSON.parse(this._pluginSettings[this.id]['on-login']);
+        }
+
+        if (this._pluginSettings[this.id]['off-shutdown'] !== undefined) {
+            this._offShutdown = this._pluginSettings[this.id]['off-shutdown'] === 'true';
         }
     }
 
@@ -646,6 +651,26 @@ export const Plugin =  GObject.registerClass({
             }
         }
     }
+
+    _runOnShutdown() {
+        if (! this._offShutdown) {
+            return;
+        }
+
+        for (let id in this._onLoginSettings) {
+            let device = this._onLoginSettings[id];
+            if (device['switch']) {
+                this._bridge.setDevice(
+                    id,
+                    [{"attributes": {"isOn": false}}],
+                    false,
+                    true
+                );
+            }
+        }
+    }
+
+    onShutdown = this._runOnShutdown;
 
     /**
      * Remove timers created by GLib.timeout_add

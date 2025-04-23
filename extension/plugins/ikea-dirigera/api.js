@@ -167,8 +167,8 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
         return this._request("PUT", url, requestType, data);
     }
 
-    _PATCH(url, requestType, data) {
-        return this._request("PATCH", url, requestType, data);
+    _PATCH(url, requestType, data, synchronous = false) {
+        return this._request("PATCH", url, requestType, data, synchronous);
     }
 
     _GET(url, requestType) {
@@ -229,7 +229,7 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
         }
     }
 
-    _request(method, url, requestType, data) {
+    _request(method, url, requestType, data, synchronous = false) {
         if (this._ip === null) {
             Utils.logError(`Ikea Dirigera API is missing IP address.`);
             return;
@@ -250,6 +250,11 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
                 "application/json",
                 new GLib.Bytes(JSON.stringify(data))
             );
+        }
+
+        if (synchronous) {
+            this._session.send(msg, null);
+            return;
         }
 
         this._session.send_and_read_async(
@@ -480,8 +485,8 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
         this._GET(`${this._url}/devices`, RequestType.ALL_DATA);
     }
 
-    setDevice(id, data, change = false) {
-        this._PATCH(`${this._url}/devices/${id}`, change ? RequestType.CHANGE_OCCURRED : RequestType.NO_RESPONSE_NEED, data)
+    setDevice(id, data, change = false, synchronous = false) {
+        this._PATCH(`${this._url}/devices/${id}`, change ? RequestType.CHANGE_OCCURRED : RequestType.NO_RESPONSE_NEED, data, synchronous);
     }
 
     _connectionProblem(requestType) {

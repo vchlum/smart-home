@@ -164,9 +164,9 @@ export const HomeAssistantBridge =  GObject.registerClass({
         this._session.timeout = value;
     }
 
-    _POST(url, requestType, data) {
+    _POST(url, requestType, data, synchronous = false) {
 
-        return this._request("POST", url, requestType, data);
+        return this._request("POST", url, requestType, data, synchronous);
     }
 
     _PUT(url, requestType, data) {
@@ -221,7 +221,7 @@ export const HomeAssistantBridge =  GObject.registerClass({
         }
     }
 
-    _request(method, url, requestType, data) {
+    _request(method, url, requestType, data, synchronous = false) {
         if (this._ip === null) {
             Utils.logError(`Home Assistant API is missing IP address.`);
             return;
@@ -242,6 +242,11 @@ export const HomeAssistantBridge =  GObject.registerClass({
                 "application/json",
                 new GLib.Bytes(JSON.stringify(data))
             );
+        }
+
+        if (synchronous) {
+            this._session.send(msg, null);
+            return;
         }
 
         this._session.send_and_read_async(
@@ -434,8 +439,8 @@ export const HomeAssistantBridge =  GObject.registerClass({
         this._POST(`${this._url}/services/${service}/turn_on`, change ? RequestType.CHANGE_OCCURRED : RequestType.NO_RESPONSE_NEED, data)
     }
 
-    setServiceOff(service, data, change = false) {
-        this._POST(`${this._url}/services/${service}/turn_off`, change ? RequestType.CHANGE_OCCURRED : RequestType.NO_RESPONSE_NEED, data)
+    setServiceOff(service, data, change = false, synchronous = false) {
+        this._POST(`${this._url}/services/${service}/turn_off`, change ? RequestType.CHANGE_OCCURRED : RequestType.NO_RESPONSE_NEED, data, synchronous)
     }
 
     _connectionProblem(requestType) {
