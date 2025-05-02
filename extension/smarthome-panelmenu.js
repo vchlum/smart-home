@@ -2264,6 +2264,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this.groups['_all_'] = {'name': allGroupName, 'ids': [], 'capabilities': []};
 
         for (let id in this.data['groups']) {
+            if (! this.data['groups'][id]['name']) {
+                continue;
+            }
             if (this.data['groups'][id]['section'] !== 'common') {
                 continue;
             }
@@ -2772,6 +2775,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let items = [];
 
         for (let id of ids) {
+            if (! this.data['devices'][id]['name']) {
+                continue;
+            }
             if (! DeviceTypes.includes(this.data['devices'][id]['type'])) {
                 continue;
             }
