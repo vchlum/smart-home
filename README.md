@@ -11,11 +11,13 @@ The features overview:
     - scenes
     - rolling blinds/covers
     - turn on lights on login
+    - notification lights
  * Philips Hue Bridge
     - lights (brightness, color, temperature)
     - plugs
     - scenes, effects
     - turn on lights on login
+    - notification lights
  * Philips Hue desktop sync
     - synchronize screen/display with lights
     - synchronize music with lights

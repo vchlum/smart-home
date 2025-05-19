@@ -1,3 +1,8 @@
+## Version 12
+ * Philips Hue and Home Assistant notification lights support
+ * option to stop light synchronization on shutdown
+ * option to turn off lights on shutdown
+ * bug fixes
 ## Version 11
  * improve process of adding Philips Hue bridge
  * bug fixes
