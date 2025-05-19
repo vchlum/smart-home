@@ -33,11 +33,23 @@
  * THE SOFTWARE.
  */
 
- import * as Main from 'resource:///org/gnome/shell/ui/main.js';
- import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
- import * as SmartHome from './smarthome.js';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as MessageTray from 'resource:///org/gnome/shell/ui/messageTray.js';
+import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
+import * as SmartHome from './smarthome.js';
+
+let runNotify = [];
 
 export default class SmartHomeExtension extends Extension {
+
+    addNotificationSmartHome(notification) {
+        for (let notify of runNotify) {
+            notify(notification.title, notification.body);
+        }
+
+        MessageTray.Source.prototype.origAddNotification.call(this, notification);
+    }
+
     enable() {
         this._smarthome = new SmartHome.SmartHome(
             this.metadata,
@@ -53,14 +65,30 @@ export default class SmartHomeExtension extends Extension {
                     `smart-home_${this._smarthome.instances[pluginID].pluginName}_${this._smarthome.instances[pluginID].id}`,
                     this._smarthome.instances[pluginID]
                 );
-                this._smarthome.instances[pluginID].setPositionInPanel(); 
+                this._smarthome.instances[pluginID].setPositionInPanel();
+
+                if (this._smarthome.instances[pluginID].runNotify !== undefined) {
+                    runNotify.push(
+                        this._smarthome.instances[pluginID].runNotify.bind(
+                            this._smarthome.instances[pluginID]
+                        )
+                    );
+                }
             }
         );
 
         this._smarthome.refreshPlugins();
+
+        MessageTray.Source.prototype.origAddNotification = MessageTray.Source.prototype.addNotification;
+        MessageTray.Source.prototype.addNotification = this.addNotificationSmartHome;
     }
 
     disable() {
+        runNotify = [];
+
+        MessageTray.Source.prototype.addNotification = MessageTray.Source.prototype.origAddNotification;
+        delete(MessageTray.Source.prototype.origAddNotification);
+
         this._smarthome.clear();
         this._smarthome.disconnect(this._signalPluginReady);
         this._signalPluginsReady = undefined;

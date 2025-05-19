@@ -333,3 +333,30 @@ msgstr "Při vypnutí systému, vypnout také světla"
 
 msgid "On login lights also turn off on shutdown."
 msgstr "S vypnutím systému, vypnout světla nastavená při přihlášení."
+
+msgid "Notification lights"
+msgstr "Oznámení světlem"
+
+msgid "Notify only if an external display is connected"
+msgstr "Oznámení pouze v případě, že je připojen externí displej"
+
+msgid "Notification light"
+msgstr "Oznámení světlem"
+
+msgid "Add new notification light"
+msgstr "Přidat nové oznámení světlem"
+
+msgid "Light"
+msgstr "Světlo"
+
+msgid "Select light for notification."
+msgstr "Vyberte světlo pro oznámení"
+
+msgid "Notification title (regex)"
+msgstr "Název oznámení (regulární výraz)"
+
+msgid "Notification body (regex)"
+msgstr "Tělo oznámení (regulární výraz)"
+
+msgid "Notification light settings"
+msgstr "Nastavení světla oznámení"

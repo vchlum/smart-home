@@ -4,6 +4,7 @@
 		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_page.ui</file>
 		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_main.ui</file>
 		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_add_device.ui</file>
+		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_add_notification.ui</file>
 		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_device_row.ui</file>
 		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_device_light.ui</file>
 		<file compressed="true" preprocess="xml-stripblanks">ui/prefs_home-assistant.ui</file>

@@ -46,6 +46,7 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as Slider from 'resource:///org/gnome/shell/ui/slider.js';
 import * as Utils from './utils.js';
 import * as ColorPicker from './colorpicker.js';
+import * as Queue from './queue.js';
 import {Extension, gettext} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 const ShellVersion = parseFloat(Config.PACKAGE_VERSION)
@@ -180,11 +181,15 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._itemRefresher = {};
         this._iconPack = SmartHomeIconPack.BRIGHT;
         this._pluginSettings = {};
+        this._notificationSettings = {};
         this._timers = [];
         this._needsRebuild = true;
         this._menuObjects = {};
         this._allMenusSelected = {};
         this._menuSelected = {};
+        this._notificationQueue = new Queue.Queue(Queue.handlerType.TIMED);
+        this._notifyBackup = {};
+        this._notifyNotebookMode = false;
 
         this.readSettings();
         this.readSettingsMiscellaneous();
@@ -397,6 +402,14 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 let hideUnavailable = this._pluginSettings[id]['hide-unavailable'];
                 if (hideUnavailable !== undefined) {
                     this._hideUnavailable = hideUnavailable === 'true' ? true : false;
+                }
+
+                if (this._pluginSettings[id]['notification'] !== undefined) {
+                    this._notificationSettings = JSON.parse(this._pluginSettings[id]['notification']);
+                }
+
+                if (this._pluginSettings[id]['notify-notebook-mode'] !== undefined) {
+                    this._notifyNotebookMode = this._pluginSettings[id]['notify-notebook-mode'] === 'true';
                 }
             }
         }
@@ -3314,5 +3327,122 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 Utils.logError(`Unknown UI type: ${data['typeUi']}`);
                 break;
         }
+    }
+
+    checkRegexNotify(title, body, reTitle, reBody) {
+        if (! title.match(reTitle)) {
+            return false;
+        }
+
+        if (! body) {
+            return true;
+        }
+
+        if (! body.match(reBody)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    _backupNotify(id) {
+        this._notifyBackup[id] = {};
+
+        let switchValue = this._getGroupSwitchValue([id], SmartHomeItemType.SINGLE);
+        this._notifyBackup[id]['switch'] = switchValue;
+
+        let brightness = this._getGroupBrightnessValue([id]);
+        if (brightness) {
+            this._notifyBackup[id]['brightness'] = brightness;
+        }
+
+        let color = this._getGroupColor([id]);
+        if (color) {
+            this._notifyBackup[id]['color'] = {
+                'r': color[0], 'g': color[1], 'b': color[2]
+            }
+        }
+    }
+
+    _startNotify(id, brightness, color) {
+        this.switchSingle(id, true);
+
+        if (brightness) {
+            this.brightnessSingle(id, brightness);
+        }
+        if (color) {
+            this.colorSingle(id, color);
+        }
+    }
+
+    _restoreNotify(id) {
+        if (! this._notifyBackup[id]['switch']) {
+            this.switchSingle(id, false);
+        } else {
+            let brightness = this._notifyBackup[id]['brightness'];
+            if (brightness) {
+                this.brightnessSingle(id, brightness);
+            }
+
+            let color = this._notifyBackup[id]['color'];
+            if (color) {
+                this.colorSingle(id, color);
+            }
+        }
+
+        delete(this._notifyBackup[id]);
+    }
+
+    runNotify(title, body) {
+
+        if (this._notificationSettings === undefined) {
+            return;
+        }
+
+        if (this._notifyNotebookMode && (! Utils.isExternalMonitorOn())) {
+            return;
+        }
+
+        for (let n in this._notificationSettings) {
+            let notfyMe = this.checkRegexNotify(
+                title,
+                body,
+                this._notificationSettings[n]['reTitle'],
+                this._notificationSettings[n]['reBody'],
+            );
+
+            if (! notfyMe) {
+                continue;
+            }
+
+            this._notificationQueue.append([
+                () => {
+                    this._backupNotify(this._notificationSettings[n]['id']);
+                    this._startNotify(
+                        this._notificationSettings[n]['id'],
+                        this._notificationSettings[n]['brightness'] / 100,
+                        this._notificationSettings[n]['color'] ? {
+                            r: this._notificationSettings[n]['color']['red'],
+                            g: this._notificationSettings[n]['color']['green'],
+                            b: this._notificationSettings[n]['color']['blue']
+                        } : null
+                    );
+                }
+                ,
+                100
+            ]);
+
+            this._notificationQueue.append([
+                () => {
+                    this._restoreNotify(this._notificationSettings[n]['id']);
+                }
+                ,
+                1100
+            ]);
+        }
+    }
+
+    clearNotify() {
+        this._notificationQueue.stopTimers();
     }
 });

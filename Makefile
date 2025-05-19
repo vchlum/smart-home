@@ -35,6 +35,7 @@ package: gresource
 	--extra-source=avahi.js \
 	--extra-source=prefspage.js \
 	--extra-source=utils.js \
+	--extra-source=queue.js \
 	--extra-source=preferences.gresource \
 	-o ../$(BUILD_DIR)/
 check:

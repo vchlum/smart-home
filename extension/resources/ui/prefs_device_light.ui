@@ -17,7 +17,7 @@
 
     <child>
       <object class="GtkBox" id="regexBox">
-        <property name="visible">false</property>
+        <property name="visible">true</property>
         <property name="halign">end</property>
         <property name="can-focus">True</property>
         <property name="vexpand">True</property>
@@ -28,6 +28,7 @@
             <property name="text">.*title.*</property>
             <property name="can_focus">True</property>
             <property name="editable">True</property>
+            <signal name="changed" handler="_regexChanged" swapped="no"/>
           </object>
         </child>
 
@@ -36,6 +37,7 @@
             <property name="text">.*body.*</property>
             <property name="can_focus">True</property>
             <property name="editable">True</property>
+            <signal name="changed" handler="_regexChanged" swapped="no"/>
           </object>
         </child>
 
@@ -71,6 +73,18 @@
         <property name="vexpand">false</property>
         <property name="valign">center</property>
         <signal name="notify::active" handler="_deviceSwitchChanged" swapped="no"/>
+      </object>
+    </child>
+
+    <child>
+      <object class="GtkButton" id="buttonTrash">
+        <property name="valign">center</property>
+        <property name="icon_name">user-trash-symbolic</property>
+        <property name="tooltip-text" translatable="yes">Delete</property>
+        <signal name="clicked" handler="_deleteNotification" swapped="no"/>
+        <style>
+          <class name="flat"/>
+        </style>
       </object>
     </child>
 

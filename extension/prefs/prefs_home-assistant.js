@@ -39,8 +39,10 @@ import GObject from 'gi://GObject';
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import * as Utils from '../utils.js';
 
+import * as PrefsUtils from './prefs_utils.js';
 import * as SmartHomeDeviceLight from './prefs_device_light.js';
 import * as HomeAssistantApi from '../plugins/home-assistant/api.js';
+import * as SmartHomeAddNotification from './prefs_add_notification.js';
 
 /**
  * Preference page - HomeAssistant
@@ -60,9 +62,20 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
         'comboIndicatorPosition',
         'offShutdown',
         'devicesOnLogin',
+        'devicesNotification',
+        'notifyNotebookMode',
         'spinConnectionTimeout',
     ],
 }, class SmartHomeHomeAssistant extends Adw.NavigationPage {
+    static _classInit(klass) {
+        super._classInit(klass);
+
+        klass.install_action('add-notification.run', null, (widget, actionName, parameter) => {
+            PrefsUtils.addNotificationDialog(widget, this);
+        });
+
+        return klass;
+    }
 
     _init(pluginID, id, settings) {
         super._init();
@@ -70,6 +83,8 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
         this._settings = settings;
         this.tag = pluginID;
         this._onLoginSettings = {};
+        this._notificationSettings = {};
+        this._notificationDeviceList = [];
 
         this._pluginSettings = this._settings.get_value(
             Utils.SETTINGS_HOMEASSISTANT
@@ -77,6 +92,10 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
 
         if (this._pluginSettings[this._id]['on-login']) {
             this._onLoginSettings = JSON.parse(this._pluginSettings[this._id]['on-login']);
+        }
+
+        if (this._pluginSettings[this._id]['notification']) {
+            this._notificationSettings = JSON.parse(this._pluginSettings[this._id]['notification']);
         }
 
         this._settingsignal = this._settings.connect(
@@ -92,6 +111,10 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
 
                 if (this._pluginSettings[this._id]['on-login']) {
                     this._onLoginSettings = JSON.parse(this._pluginSettings[this._id]['on-login']);
+                }
+
+                if (this._pluginSettings[this._id]['notification']) {
+                    this._notificationSettings = JSON.parse(this._pluginSettings[this._id]['notification']);
                 }
 
                 this.updateUI();
@@ -133,6 +156,12 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
             indicatorPosition = Number(this._pluginSettings[this._id]['indicator-position']);
         }
         this._comboIndicatorPosition.selected = indicatorPosition;
+
+        let notifyNotebookMode = false;
+        if (this._pluginSettings[this._id]['notify-notebook-mode'] !== undefined) {
+            notifyNotebookMode = this._pluginSettings[this._id]['notify-notebook-mode'] === 'true';
+        }
+        this._notifyNotebookMode.active = notifyNotebookMode;
 
         let connectionTimeout = Utils.HOMEASSISTANT_DEFAULT_TIMEOUT;
         if (this._pluginSettings[this._id]['connection-timeout'] !== undefined) {
@@ -177,9 +206,15 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
         this._writeDevicesSettings();
     }
 
+    _notifyNotebookModeSwitched(object) {
+        this._pluginSettings[this._id]['notify-notebook-mode'] = String(object.active);
+        this._writeDevicesSettings();
+    }
+
     _parseBridgeData(bridge) {
         let lights = [];
         let scenes = [];
+        let notificationLights = [];
 
         const sortFce = (a, b) => {
             if (a.title < b.title) {
@@ -207,10 +242,52 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
                     data
                 ));
             }
+
+            if (data['entity_id'].startsWith('light.')) {
+                let tmp = [];
+                let dimming = false;
+                let color = false;
+
+                for (let i of data['attributes']['supported_color_modes']) {
+                    if (i !== 'color_temp') {
+                        tmp.push(i);
+                    }
+                }
+
+                if (! tmp.includes('onoff')) {
+                    dimming = true;
+                    if (tmp.length >= 1) {
+                        color = true;
+                    }
+                }
+                this._notificationDeviceList.push(
+                    {
+                        id: data['entity_id'],
+                        title: data['attributes']['friendly_name'],
+                        brightness: dimming,
+                        color: color
+                    }
+                );
+
+                for (let n of Object.keys(this._notificationSettings)) {
+                    let id = n.split(PrefsUtils.notifSplitter)[0];
+                    if (id === data['entity_id']) {
+                        notificationLights.push(PrefsUtils.createNotificationLight(
+                            this,
+                            n,
+                            id,
+                            data['attributes']['friendly_name'],
+                            dimming,
+                            color
+                        ));
+                    }
+                }
+            }
         }
 
         lights.sort(sortFce);
         scenes.sort(sortFce);
+        this._notificationDeviceList.sort(sortFce);
 
         for (let light of lights) {
             this._devicesOnLogin.add_row(light);
@@ -218,6 +295,10 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
 
         for (let scene of scenes) {
             this._devicesOnLogin.add_row(scene);
+        }
+
+        for (let light of notificationLights) {
+            this._devicesNotification.add_row(light);
         }
     }
 
@@ -243,8 +324,8 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
             type,
             data['entity_id'],
             `${data['attributes']['friendly_name']}`,
-            dimming,
-            color
+            dimming !== undefined,
+            color !== undefined
         );
 
         device.setUI(

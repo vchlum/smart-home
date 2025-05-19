@@ -34,14 +34,15 @@
  */
 
 import Adw from 'gi://Adw';
+import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import * as Utils from '../utils.js';
 
+import * as PrefsUtils from './prefs_utils.js';
 import * as SmartHomeDeviceLight from './prefs_device_light.js';
 import * as PhilipsHueBridgeApi from '../plugins/philipshue-bridge/api.js';
-
 
 /**
  * Preference page - Philips Hue bridge
@@ -64,11 +65,17 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
         'activatableDesktopSync',
         'offShutdown',
         'devicesOnLogin',
+        'devicesNotification',
+        'notifyNotebookMode',
         'spinConnectionTimeout',
     ],
 }, class SmartHomePhilipsHueBridge extends Adw.NavigationPage {
     static _classInit(klass) {
         super._classInit(klass);
+
+        klass.install_action('add-notification.run', null, (widget, actionName, parameter) => {
+            PrefsUtils.addNotificationDialog(widget, this);
+        });
 
         return klass;
     }
@@ -79,6 +86,8 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
         this._settings = settings;
         this.tag = pluginID;
         this._onLoginSettings = {};
+        this._notificationSettings = {};
+        this._notificationDeviceList = [];
 
         this._pluginSettings = this._settings.get_value(
             Utils.SETTINGS_PHILIPSHUEBRIDGE
@@ -86,6 +95,10 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
 
         if (this._pluginSettings[this._id]['on-login']) {
             this._onLoginSettings = JSON.parse(this._pluginSettings[this._id]['on-login']);
+        }
+
+        if (this._pluginSettings[this._id]['notification']) {
+            this._notificationSettings = JSON.parse(this._pluginSettings[this._id]['notification']);
         }
 
         this._settingsignal = this._settings.connect(
@@ -97,6 +110,10 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
 
                 if (this._pluginSettings[this._id]['on-login']) {
                     this._onLoginSettings = JSON.parse(this._pluginSettings[this._id]['on-login']);
+                }
+
+                if (this._pluginSettings[this._id]['notification']) {
+                    this._notificationSettings = JSON.parse(this._pluginSettings[this._id]['notification']);
                 }
 
                 this.updateUI();
@@ -158,6 +175,12 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
         } else {
             this._activatableDesktopSync.subtitle = "";
         }
+
+        let notifyNotebookMode = false;
+        if (this._pluginSettings[this._id]['notify-notebook-mode'] !== undefined) {
+            notifyNotebookMode = this._pluginSettings[this._id]['notify-notebook-mode'] === 'true';
+        }
+        this._notifyNotebookMode.active = notifyNotebookMode;
 
         let connectionTimeout = Utils.PHILIPSHUEBRIDGE_DEFAULT_TIMEOUT;
         if (this._pluginSettings[this._id]['connection-timeout'] !== undefined) {
@@ -244,9 +267,15 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
         this._writeDevicesSettings();
     }
 
+    _notifyNotebookModeSwitched(object) {
+        this._pluginSettings[this._id]['notify-notebook-mode'] = String(object.active);
+        this._writeDevicesSettings();
+    }
+
     _parseBridgeData(bridge) {
         let lights = [];
         let scenes = [];
+        let notificationLights = [];
 
         const sortFce = (a, b) => {
             if (a.title < b.title) {
@@ -276,10 +305,37 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
                     this._getGroupNameOfScene(bridge.data['data'], data['id'])
                 ));
             }
+
+            if (data['type'] === 'light') {
+                let roomName = this._getRoomNameOfLight(bridge.data['data'], data['id'])
+                this._notificationDeviceList.push(
+                    {
+                        id: data['id'],
+                        title: `${roomName} - ${data['metadata']['name']}`,
+                        brightness: data['dimming'] !== undefined,
+                        color: data['color'] !== undefined
+                    }
+                );
+
+                for (let n of Object.keys(this._notificationSettings)) {
+                    let id = n.split(PrefsUtils.notifSplitter)[0];
+                    if (id === data['id']) {
+                        notificationLights.push(PrefsUtils.createNotificationLight(
+                            this,
+                            n,
+                            id,
+                            `${this._getRoomNameOfLight(bridge.data['data'], data['id'])} - ${data['metadata']['name']}`,
+                            data['dimming'] !== undefined,
+                            data['color'] !== undefined
+                        ));
+                    }
+                }
+            }
         }
 
         lights.sort(sortFce);
         scenes.sort(sortFce);
+        this._notificationDeviceList.sort(sortFce);
 
         for (let light of lights) {
             this._devicesOnLogin.add_row(light);
@@ -287,6 +343,10 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
 
         for (let scene of scenes) {
             this._devicesOnLogin.add_row(scene);
+        }
+
+        for (let light of notificationLights) {
+            this._devicesNotification.add_row(light);
         }
     }
 
@@ -343,8 +403,8 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
             type,
             data['id'],
             `${roomName} - ${data['metadata']['name']}`,
-            data['dimming'],
-            data['color']
+            data['dimming'] !== undefined,
+            data['color'] !== undefined
         );
 
         device.setUI(

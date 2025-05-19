@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <interface domain="smart-home">
+
+  <object class="GtkAdjustment" id="brightnessAdjustment">
+    <property name="value">1.0</property>
+    <property name="lower">0</property>
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">20</property>
+    <property name="page_size">0</property>
+  </object>
+
+  <template class="SmartHomeAddNotification" parent="AdwDialog">
+    <property name="title" translatable="yes">Add new notification light</property>
+    <property name="content_width">500</property>
+    <property name="child">
+        <object class="AdwToolbarView">
+          <child type="top">
+            <object class="AdwHeaderBar">
+            </object>
+          </child>
+          <property name="content">
+            <object class="AdwStatusPage" id="addDevicePage">
+              <property name="title" translatable="yes"></property>
+              <property name="description" translatable="yes"></property>
+
+              <property name="child">
+                <object class="GtkBox">
+                  <property name="halign">center</property>
+                  <property name="valign">center</property>
+                  <property name="orientation">vertical</property>
+                  <property name="spacing">18</property>
+                  <property name="width-request">700</property>
+
+                  <child>
+                    <object class="AdwClamp">
+                  <property name="maximum-size">700</property>
+                  <property name="tightening-threshold">700</property>
+                      <property name="unit">sp</property>
+                      <property name="child">
+                        <object class="AdwPreferencesGroup">
+                          <property name="title" translatable="yes">Notification light</property>
+
+                        <child>
+                          <object class="AdwComboRow" id="lights">
+                            <property name="title" translatable="yes">Light</property>
+                            <property name="subtitle" translatable="yes">Select light for notification.</property>
+                            <property name="enable-search">True</property>
+                            <property name="expression">
+                              <lookup type="AdwEnumListItem" name="name"/>
+                            </property>
+                            <signal name="notify::selected" handler="_selected" swapped="no"/>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="AdwEntryRow" id="reTitle">
+                            <property name="title" translatable="yes">Notification title (regex)</property>
+                            <property name="show-apply-button">True</property>
+                            <property name="use_underline">True</property>
+                            <property name="text">.*</property>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="AdwEntryRow" id="reBody">
+                            <property name="title" translatable="yes">Notification body (regex)</property>
+                            <property name="show-apply-button">True</property>
+                            <property name="use_underline">True</property>
+                            <property name="text">.*</property>
+                          </object>
+                        </child>
+
+
+                        <child>
+                          <object class="AdwActionRow" id="control">
+                            <property name="title" translatable="yes">Notification light settings</property>
+                            <property name="use_underline">True</property>
+
+                            <child>
+                              <object class="GtkScale" id="brightness">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="hexpand">True</property>
+                                <property name="round_digits">1</property>
+                                <property name="digits">0</property>
+                                <property name="halign">end</property>
+                                <property name="width_request">200</property>
+                                <property name="adjustment">brightnessAdjustment</property>
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkColorButton" id="color">
+                                <property name="halign">end</property>
+                                <property name="margin-top">15%</property>
+                                <property name="margin-bottom">15%</property>
+                              </object>
+                            </child>
+
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="AdwActionRow" id="addButton">
+                            <property name="title" translatable="yes">Add</property>
+                            <property name="activatable">True</property>
+                            <signal name="activated" handler="_addnotification" swapped="no"/>
+                          </object>
+                        </child>
+
+                        </object>
+                      </property>
+                    </object>
+                  </child>
+
+                </object>
+              </property>
+            </object>
+          </property>
+        </object>
+    </property>
+  </template>
+</interface>

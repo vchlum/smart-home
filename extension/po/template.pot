@@ -325,3 +325,30 @@ msgstr ""
 
 msgid "On login lights also turn off on shutdown."
 msgstr ""
+
+msgid "Notification lights"
+msgstr ""
+
+msgid "Notify only if an external display is connected"
+msgstr ""
+
+msgid "Notification light"
+msgstr ""
+
+msgid "Add new notification light"
+msgstr ""
+
+msgid "Light"
+msgstr ""
+
+msgid "Select light for notification."
+msgstr ""
+
+msgid "Notification title (regex)"
+msgstr ""
+
+msgid "Notification body (regex)"
+msgstr ""
+
+msgid "Notification light settings"
+msgstr ""

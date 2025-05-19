@@ -195,8 +195,8 @@ export const SmartHomeIkeaDirigera = GObject.registerClass({
                     d['type'],
                     d['id'],
                     `${d['room']['name']} - ${d['attributes']['customName']}`,
-                    undefined,
-                    undefined
+                    false,
+                    false
                 );
         
                 device.setUI(

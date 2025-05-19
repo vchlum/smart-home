@@ -54,27 +54,42 @@ export const SmartHomeDeviceLight = GObject.registerClass({
     GTypeName: 'SmartHomeDeviceLight',
     Template: 'resource:///org/gnome/Shell/Extensions/smart-home/ui/prefs_device_light.ui',
     InternalChildren: [
+        'regexBox',
+        'reTitle',
+        'reBody',
         'brightnessAdjustment',
         'deviceBrightness',
         'deviceColor',
         'deviceSwitch',
+        'buttonTrash',
     ],
     Signals: {
         'state-changed': {},
+        'delete-me': {},
     }
 }, class SmartHomeDeviceLight extends Adw.ActionRow {
 
-    _init(type, id, name, brightness, color) {
+    _init(type, id, title, brightness = false, color = false, regex = false, trashButton = false) {
         super._init();
         this.type = type;
-        this.title = name;
+        this.title = title;
         this.id = id;
 
-        if (brightness === undefined) {
+        if (! brightness) {
             this._deviceBrightness.visible = false;
         }
-        if (color === undefined) {
+        if (! color) {
             this._deviceColor.visible = false;
+        }
+        if (! regex) {
+            this._regexBox.visible = false;
+        }
+
+        if (! trashButton) {
+            this._buttonTrash.visible = false;
+        } else {
+            this._buttonTrash.visible = true;
+            this._deviceSwitch.visible = false;
         }
     }
 
@@ -98,6 +113,14 @@ export const SmartHomeDeviceLight = GObject.registerClass({
             color.blue = state['color']['blue'] / 255;
             color.alpha = 1.0;
             this._deviceColor.rgba = color;
+        }
+
+        if (state['reTitle'] !== undefined) {
+            this._reTitle.text = state['reTitle'];
+        }
+
+        if (state['reBody'] !== undefined) {
+            this._reBody.text = state['reBody'];
         }
     }
 
@@ -134,6 +157,15 @@ export const SmartHomeDeviceLight = GObject.registerClass({
         this._saveChange();
     }
 
+    _deleteNotification(object) {
+        this.emit('delete-me');
+    }
+
+    _regexChanged(object) {
+        this._deviceSwitch.active = true;
+        this._saveChange();
+    }
+
     _saveChange() {
         this.state = {};
         if (this._deviceSwitch.active) {
@@ -149,6 +181,11 @@ export const SmartHomeDeviceLight = GObject.registerClass({
                     'green': Math.round(this._deviceColor.rgba.green * 255),
                     'blue': Math.round(this._deviceColor.rgba.blue * 255)
                 }
+            }
+
+            if (this._regexBox.visible) {
+                this.state['reTitle'] = this._reTitle.text;
+                this.state['reBody'] = this._reBody.text;
             }
         }
 

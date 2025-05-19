@@ -255,7 +255,7 @@ export const SmartHomeNanoleaf = GObject.registerClass({
                 id,
                 name,
                 true,
-                undefined
+                false
             );
 
             deviceDisplay.setUI(
@@ -336,7 +336,7 @@ export const SmartHomeNanoleaf = GObject.registerClass({
                 effect,
                 effect,
                 true,
-                undefined
+                false
             );
 
             deviceEffect.setUI(

@@ -154,6 +154,7 @@ export const SmartHome = GObject.registerClass({
             return;
         }
 
+        this.instances[pluginID].clearNotify();
         this.instances[pluginID].disconnectDbusSession();
         this.instances[pluginID].disconnectSignals();
         this.instances[pluginID].clearInstance();
