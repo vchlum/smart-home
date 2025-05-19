@@ -169,7 +169,12 @@ export const SmartHomeDeviceLight = GObject.registerClass({
     _saveChange() {
         this.state = {};
         if (this._deviceSwitch.active) {
-            this.state = { "switch": true, "type": this.type };
+            this.state = {
+                "id": this.id,
+                "name": this.title,
+                "switch": true,
+                "type": this.type
+            };
 
             if (this._deviceBrightness.visible) {
                 this.state['brightness'] = this._brightnessAdjustment.value;

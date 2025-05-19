@@ -83,7 +83,9 @@ export const SmartHomeAddNotification = GObject.registerClass({
     _addnotification(object) {
         this.state = {
             'id': this._lights.selected_item.id,
-            'name': this._lights.selected_item.name
+            'name': this._lights.selected_item.name,
+            "switch": true,
+            "type": "light"
         };
 
         if (this._control.visible && this._brightness.visible && this._lights.selected_item.brightness) {
