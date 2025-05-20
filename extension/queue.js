@@ -106,7 +106,11 @@ class _Queue {
 
     _delayTask(task, callback) {
         let timerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, task[1], () => {
-            task[0]();
+            try {
+                task[0]();
+            } catch (e) {
+                Utils.logError(`${e}\n${e.stack}`);
+            }
             callback();
             this._timers = Utils.removeFromArray(this._timers, timerId);
             return GLib.SOURCE_REMOVE;

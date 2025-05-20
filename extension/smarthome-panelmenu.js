@@ -3427,8 +3427,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
                             b: this._notificationSettings[n]['color']['blue']
                         } : null
                     );
-                }
-                ,
+                },
                 100
             ]);
 

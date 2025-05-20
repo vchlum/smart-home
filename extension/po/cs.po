@@ -360,3 +360,6 @@ msgstr "Tělo oznámení (regulární výraz)"
 
 msgid "Notification light settings"
 msgstr "Nastavení světla oznámení"
+
+msgid "No lights detected"
+msgstr "Světla nenalezena"

@@ -35,7 +35,8 @@
 
 import GObject from 'gi://GObject';
 import Gio from 'gi://Gio';
-
+import Adw from 'gi://Adw';
+import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import * as SmartHomeAddNotification from './prefs_add_notification.js';
 import * as SmartHomeDeviceLight from './prefs_device_light.js';
 import * as Utils from '../utils.js';
@@ -96,6 +97,14 @@ export function addNotificationDialog(widget) {
         stringList.append(
             new NotificationItem({ name: i.title, id: i.id , brightness: i.brightness, color: i.color })
         );
+    }
+
+    if (stringList.get_n_items() === 0) {
+        let toast = Adw.Toast.new(_("No lights detected"));
+        toast.set_timeout(3);
+        widget.get_root().add_toast(toast);
+        notificationDialog.close();
+        return;
     }
 
     let notificationDialog = new SmartHomeAddNotification.SmartHomeAddNotification(

@@ -352,3 +352,6 @@ msgstr ""
 
 msgid "Notification light settings"
 msgstr ""
+
+msgid "No lights detected"
+msgstr ""
