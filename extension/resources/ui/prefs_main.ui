@@ -45,6 +45,13 @@
                           </child>
 
                           <child>
+                            <object class="AdwSwitchRow" id="switchRememberSubmenu">
+                              <property name="title" translatable="yes">Remember opened menu</property>
+                              <signal name="notify::active" handler="_rememberSubmenuSwitched" swapped="no"/>
+                            </object>
+                          </child>
+
+                          <child>
                             <object class="AdwSwitchRow" id="switchReducedPadding">
                               <property name="title" translatable="yes">Reduced panel icon padding</property>
                               <signal name="notify::active" handler="_reducedPaddingSwitched" swapped="no"/>

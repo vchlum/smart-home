@@ -18,6 +18,10 @@
       <default>false</default>
       <summary>Force english language</summary>
     </key>
+    <key name="remember-opened-submenu" type="b">
+      <default>false</default>
+      <summary>Remember opened menu</summary>
+    </key>
     <key name="reduced-padding" type="b">
       <default>false</default>
       <summary>Reduced padding of icons in panel</summary>

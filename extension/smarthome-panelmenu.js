@@ -187,6 +187,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._menuObjects = {};
         this._allMenusSelected = {};
         this._menuSelected = {};
+        this._rememberOpenedSubmenu = false;
         this._notificationQueue = new Queue.Queue(Queue.handlerType.TIMED);
         this._notifyBackup = {};
         this._notifyNotebookMode = false;
@@ -201,7 +202,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 if (this.menu.isOpen) {
                     this.requestData();
 
-                    if (this._openMenu){
+                    if (this._openMenu) {
                         this._openMenu.open(false);
                     }
                 }
@@ -349,6 +350,12 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let needsRebuild = false;
 
         Utils.logDebug(`Settings changed ${this.id}.`);
+
+        tmp = this._settings.get_boolean(Utils.SETTINGS_REMEMBER_OPENED_SUBMENU)
+        if (this._rememberOpenedSubmenu !== tmp) {
+            this._rememberOpenedSubmenu = tmp;
+            needsRebuild = true;
+        }
 
         tmp = this._settings.get_boolean(Utils.SETTINGS_REDUCED_PADDING)
         if (this._reducedPadding !== tmp) {
@@ -2554,7 +2561,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
                     SmartHomeMenuLevel.MENU
                 );
 
-                if (this._menuSelected['group'] === id) {
+                if (this._menuSelected['group'] === id && this._rememberOpenedSubmenu) {
                     this._openMenu = subMenu.menu;
                 }
 
@@ -2562,7 +2569,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
                     'open-state-changed',
                     (menu, isOpen) => {
                         if (isOpen) {
-                            this._openMenu = menu;
+                            if (this._rememberOpenedSubmenu) {
+                                this._openMenu = menu;
+                            }
                             this._menuSelected['group'] = id;
                             this.writeMenuSelectedSettings();
                         }
@@ -2607,6 +2616,16 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
         /* disable closing menu on item activated */
         subMenu.menu.itemActivated = () => {};
+
+        signal = subMenu.menu.connect(
+            'open-state-changed',
+            (menu, isOpen) => {
+                if (isOpen && this._rememberOpenedSubmenu) {
+                    this._openMenu = menu;
+                }
+            }
+        );
+        this._appendSignal(signal, subMenu.menu, SmartHomeMenuLevel.MENU);
 
         let l = subMenu.label;
         subMenu.remove_child(subMenu.label);
@@ -2666,6 +2685,16 @@ export const SmartHomePanelMenu = GObject.registerClass({
         /* disable closing menu on item activated */
         subMenu.menu.itemActivated = () => {};
 
+        signal = subMenu.menu.connect(
+            'open-state-changed',
+            (menu, isOpen) => {
+                if (isOpen && this._rememberOpenedSubmenu) {
+                    this._openMenu = menu;
+                }
+            }
+        );
+        this._appendSignal(signal, subMenu.menu, SmartHomeMenuLevel.MENU);
+
         let l = subMenu.label;
         subMenu.remove_child(subMenu.label);
         l.destroy();
@@ -2709,6 +2738,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
      * @return {Array}
      */
     _createMenuControl() {
+        let signal;
         let items = [];
 
         let subMenu = new PopupMenu.PopupSubMenuMenuItem(
@@ -2717,6 +2747,16 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
         /* disable closing menu on item activated */
         subMenu.menu.itemActivated = () => {};
+
+        signal = subMenu.menu.connect(
+            'open-state-changed',
+            (menu, isOpen) => {
+                if (isOpen && this._rememberOpenedSubmenu) {
+                    this._openMenu = menu;
+                }
+            }
+        );
+        this._appendSignal(signal, subMenu, SmartHomeMenuLevel.MENU);
 
         let iconPath = this.mainDir + `/media/HueIcons/uicontrolsColorScenes.svg`
         let icon = this._getIconByPath(iconPath);
@@ -2746,6 +2786,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
      * @return {Array}
      */
     _createMenuScenes() {
+        let signal;
         let items = [];
 
         let subMenu = new PopupMenu.PopupSubMenuMenuItem(
@@ -2754,6 +2795,16 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
         /* disable closing menu on item activated */
         subMenu.menu.itemActivated = () => {};
+
+        signal = subMenu.menu.connect(
+            'open-state-changed',
+            (menu, isOpen) => {
+                if (isOpen && this._rememberOpenedSubmenu) {
+                    this._openMenu = menu;
+                }
+            }
+        );
+        this._appendSignal(signal, subMenu, SmartHomeMenuLevel.MENU);
 
         let iconPath = this.mainDir + `/media/HueIcons/uicontrolsScenes.svg`
         let icon = this._getIconByPath(iconPath);

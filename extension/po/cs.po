@@ -363,3 +363,6 @@ msgstr "Nastavení světla oznámení"
 
 msgid "No lights detected"
 msgstr "Světla nenalezena"
+
+msgid "Remember opened menu"
+msgstr "Zapamatovat otevření nabídky"

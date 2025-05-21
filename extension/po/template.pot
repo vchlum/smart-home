@@ -355,3 +355,6 @@ msgstr ""
 
 msgid "No lights detected"
 msgstr ""
+
+msgid "Remember opened menu"
+msgstr ""
