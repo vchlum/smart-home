@@ -191,6 +191,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._notificationQueue = new Queue.Queue(Queue.handlerType.TIMED);
         this._notifyBackup = {};
         this._notifyNotebookMode = false;
+        this._createGroupAll = true;
 
         this.readSettings();
         this.readSettingsMiscellaneous();
@@ -725,6 +726,10 @@ export const SmartHomePanelMenu = GObject.registerClass({
     _checkMenuSelectedFeasible() {
         let selectedGroup = this._menuSelected['group'];
         let selectedDevice = this._menuSelected['device'];
+
+        if (this.data['groups'][selectedGroup] === undefined && ! this._createGroupAll) {
+            this._menuSelected['group'] = Object.keys(this.data['groups'])[0];
+        }
 
         if (this.data['groups'][selectedGroup] === undefined) {
             this._menuSelected['group'] = '_all_';
@@ -2276,12 +2281,20 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let items = [];
         this.groups = {};
 
+        if (Object.keys(this.data['groups']).length === 1) {
+            this._createGroupAll = false;
+        } else {
+            this._createGroupAll = true;
+        }
+
         let allGroupName = this._("All groups");
         if (this.data['config']['_all_'] && this.data['config']['_all_']['name']) {
             allGroupName = this.data['config']['_all_']['name'];
         }
 
-        this.groups['_all_'] = {'name': allGroupName, 'ids': [], 'capabilities': []};
+        if (this._createGroupAll) {
+            this.groups['_all_'] = {'name': allGroupName, 'ids': [], 'capabilities': []};
+        }
 
         for (let id in this.data['groups']) {
             if (! this.data['groups'][id]['name']) {
@@ -2313,11 +2326,15 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
             switch (this.data['devices'][id]['type']) {
                 case 'device':
-                    this.groups['_all_']['ids'].push(id);
+                    if (this._createGroupAll) {
+                        this.groups['_all_']['ids'].push(id);
+                    }
                     break;
                 case 'scene':
                     if (this.data['devices'][id]['groups'].includes('_all_')) {
-                        this.groups['_all_']['ids'].push(id);
+                        if (this._createGroupAll) {
+                            this.groups['_all_']['ids'].push(id);
+                        }
                     }
                     break;
                 default:
@@ -2325,12 +2342,14 @@ export const SmartHomePanelMenu = GObject.registerClass({
             }
 
             // merge arrays, no repeating
-            this.groups['_all_']['capabilities'] = [
-                ...new Set([
-                    ...this.groups['_all_']['capabilities'],
-                    ...this.data['devices'][id]['capabilities']
-                ])
-            ];
+            if (this._createGroupAll) {
+                this.groups['_all_']['capabilities'] = [
+                    ...new Set([
+                        ...this.groups['_all_']['capabilities'],
+                        ...this.data['devices'][id]['capabilities']
+                    ])
+                ];
+            }
 
             for (let groupId of this.data['devices'][id]['groups']) {
                 if (groupId === '_all_') {
@@ -2370,7 +2389,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 this._menuObjects['groups']['hidden'].visible = false;
             }
 
-            if (id === '_all_') {
+            if (id === '_all_' || ! this._createGroupAll) {
                 this._menuObjects['groups']['default'] = item;
             }
         }
@@ -2644,6 +2663,15 @@ export const SmartHomePanelMenu = GObject.registerClass({
             this._createUnselectButton('groups'),
             subMenu.get_children().length - 1
         );
+
+        if (! this._createGroupAll) {
+            /* remove menu arrow symbol*/
+            subMenu.remove_child(
+                subMenu.get_children()[
+                    subMenu.get_children().length - 1
+                ]
+            );
+        }
 
         signal = subMenu.connect(
             'activate',
@@ -3130,8 +3158,12 @@ export const SmartHomePanelMenu = GObject.registerClass({
     selectMenu(groupId = '_all_', deviceId = null, initMenu = false) {
         let toDelete = [];
 
-        if (this.groups['_all_']['ids'].length === 0) {
+        if (this.groups['_all_'] && this.groups['_all_']['ids'].length === 0) {
             return;
+        }
+
+        if (! this._createGroupAll) {
+            groupId = Object.keys(this.data['groups'])[0];
         }
 
         Utils.logDebug(`Selecting menu ${this.pluginName} - ${this.id}, group: ${groupId}, device: ${deviceId}`);
@@ -3179,7 +3211,11 @@ export const SmartHomePanelMenu = GObject.registerClass({
             this.setSelectedScenes();
         }
 
-        if (groupId === '_all_') {
+        if (! this._createGroupAll) {
+            this._menuObjects['groups']['unselect'].visible = false;
+            this._menuObjects['groups']['default'].visible = false;
+            this._menuObjects['groups']['hidden'] = this._menuObjects['groups']['default'];
+        } else if (groupId === '_all_' || ! this._createGroupAll) {
             this._menuObjects['groups']['unselect'].visible = false;
 
             this._menuObjects['groups']['hidden'].visible = true;
@@ -3188,6 +3224,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         } else {
             this._menuObjects['groups']['unselect'].visible = true;
         }
+
         if (deviceId) {
             this._menuObjects['devices']['unselect'].visible = true;
         } else {
