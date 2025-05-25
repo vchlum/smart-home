@@ -417,7 +417,7 @@ export const HomeAssistantBridge =  GObject.registerClass({
             "template": '{\
             {% for area in areas() %} \
                 "{{area}}": {"name":"{{area_name(area)}}", "entities":[\
-                {% for entity in area_entities(area) %}\
+                {% for entity in area_entities(area) if not is_hidden_entity(entity) %}\
                     "{{ entity }}" \
                     {{ "," if not loop.last }}\
                 {% endfor %} ]}\
