@@ -96,6 +96,53 @@
                   <property name="unit">sp</property>
                   <property name="child">
                     <object class="AdwPreferencesGroup">
+                      <property name="title" translatable="yes">Smart Home Universal Menu</property>
+
+                      <child>
+                        <object class="AdwExpanderRow" id="smartHomeUniversalRows">
+                          <property name="title" translatable="yes">Smart Home Universal Menu</property>
+                          <property name="subtitle" translatable="yes">Device plugins can be merged into one universal menu.</property>
+
+                          <child>
+                            <object class="AdwSwitchRow" id="hideUnavailableUniversal">
+                              <property name="title" translatable="yes">Hide unavailable device</property>
+                              <property name="subtitle" translatable="yes">If the device is not available, the status icon is hidden.</property>
+                              <signal name="notify::active" handler="_hideUnavailableUniversalSwitched" swapped="no"/>
+                            </object>
+                          </child>
+
+                          <child>
+                            <object class="AdwComboRow" id="universalComboIndicatorPosition">
+                              <property name="title" translatable="yes">Status icon position</property>
+                              <property name="model">
+                                <object class="GtkStringList">
+                                  <items>
+                                  <item translatable="yes" comments="none">center</item>
+                                    <item translatable="yes" comments="bright">right</item>
+                                    <item translatable="yes" comments="dark">left</item>
+                                  </items>
+                                </object>
+                              </property>
+                              <signal name="notify::selected-item" handler="_universalIndicatorPositionSelected" swapped="no"/>
+                            </object>
+                          </child>
+
+                        </object>
+                      </child>
+
+                    </object>
+                  </property>
+
+                </object>
+              </child>
+
+              <child>
+                <object class="AdwClamp">
+                  <property name="maximum-size">700</property>
+                  <property name="tightening-threshold">700</property>
+                  <property name="unit">sp</property>
+                  <property name="child">
+                    <object class="AdwPreferencesGroup">
                       <property name="title">Home Assistant</property>
 
                       <child>
@@ -221,6 +268,14 @@
                             </object>
                           </child>
 
+                          <child>
+                            <object class="AdwSwitchRow" id="mergeUniversalNanoleaf">
+                              <property name="title" translatable="yes">Merge into universal menu</property>
+                              <property name="subtitle" translatable="yes">This device's menu can be merged into one universal menu.</property>
+                              <signal name="notify::active" handler="_mergeUniversalNanoleafSwitched" swapped="no"/>
+                            </object>
+                          </child>
+
                         </object>
                       </child>
 
@@ -321,6 +376,14 @@
                                 </object>
                               </property>
                               <signal name="notify::selected-item" handler="_indicatorPositionShellySelected" swapped="no"/>
+                            </object>
+                          </child>
+
+                          <child>
+                            <object class="AdwSwitchRow" id="mergeUniversalShelly">
+                              <property name="title" translatable="yes">Merge into universal menu</property>
+                              <property name="subtitle" translatable="yes">This device's menu can be merged into one universal menu.</property>
+                              <signal name="notify::active" handler="_mergeUniversalShellySwitched" swapped="no"/>
                             </object>
                           </child>
 

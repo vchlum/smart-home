@@ -73,6 +73,14 @@
                               </object>
                             </child>
 
+                            <child>
+                              <object class="AdwSwitchRow" id="mergeUniversal">
+                                <property name="title" translatable="yes">Merge into universal menu</property>
+                                <property name="subtitle" translatable="yes">This device's menu can be merged into one universal menu.</property>
+                                <signal name="notify::active" handler="_mergeUniversalSwitched" swapped="no"/>
+                              </object>
+                            </child>
+
                           </object>
                         </child>
 

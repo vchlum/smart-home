@@ -61,12 +61,6 @@ export default class SmartHomeExtension extends Extension {
         this._signalPluginReady = this._smarthome.connect(
             'plugin-ready',
             (object, pluginID) => {
-                Main.panel.addToStatusArea(
-                    `smart-home_${this._smarthome.instances[pluginID].pluginName}_${this._smarthome.instances[pluginID].id}`,
-                    this._smarthome.instances[pluginID]
-                );
-                this._smarthome.instances[pluginID].setPositionInPanel();
-
                 if (this._smarthome.instances[pluginID].runNotify !== undefined) {
                     runNotify.push(
                         this._smarthome.instances[pluginID].runNotify.bind(
@@ -74,6 +68,16 @@ export default class SmartHomeExtension extends Extension {
                         )
                     );
                 }
+
+                if (this._smarthome.instances[pluginID].inUniversalMenu()) {
+                    return;
+                }
+
+                Main.panel.addToStatusArea(
+                    `smart-home_${this._smarthome.instances[pluginID].pluginName}_${this._smarthome.instances[pluginID].id}`,
+                    this._smarthome.instances[pluginID]
+                );
+                this._smarthome.instances[pluginID].setPositionInPanel();
             }
         );
 

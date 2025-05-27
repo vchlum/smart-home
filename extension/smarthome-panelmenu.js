@@ -69,10 +69,6 @@ export const SmartHomeMenuPosition = {
     LEFT: 2
 };
 
-export const SmartHomeRequest = {
-    FULL: 0
-};
-
 export const SmartHomeItemType = {
     SINGLE: 0,
     GROUP_ALL: 1,
@@ -141,6 +137,10 @@ function getColor(red, green, blue, alpha = 255) {
  */
 export const SmartHomePanelMenu = GObject.registerClass({
     GTypeName: 'SmartHomePanelMenu',
+    Signals: {
+        'data-ready': {},
+        'rebuild': {},
+    }
 }, class SmartHomePanelMenu extends PanelMenu.Button {
 
     /**
@@ -192,6 +192,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._notifyBackup = {};
         this._notifyNotebookMode = false;
         this._createGroupAll = true;
+        this._inUniversalMenu = false;
 
         this.readSettings();
         this.readSettingsMiscellaneous();
@@ -337,6 +338,14 @@ export const SmartHomePanelMenu = GObject.registerClass({
             let signal = this._dbusSignals.pop();
             Gio.DBus.session.signal_unsubscribe(signal);
         }
+    }
+
+    setUniversalMenu(value) {
+        this._inUniversalMenu = value;
+    }
+
+    inUniversalMenu() {
+        return this._inUniversalMenu;
     }
 
     /**
@@ -754,6 +763,8 @@ export const SmartHomePanelMenu = GObject.registerClass({
         } else {
             this.refreshMenu();
         }
+
+        this.emit('data-ready');
     }
 
     /**
@@ -837,7 +848,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 return GLib.SOURCE_REMOVE;
             }
 
-            this.requestData(SmartHomeRequest.FULL);
+            this.requestData();
 
             this._tryReconnect(
                 seconds * 2 < 600 ? seconds * 2 : 600
@@ -866,7 +877,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         }
         this._needsRebuild = true;
 
-        this.requestData(SmartHomeRequest.FULL);
+        this.requestData();
     }
 
     /**
@@ -887,6 +898,8 @@ export const SmartHomePanelMenu = GObject.registerClass({
         for (let item of menuItems) {
             this.menu.addMenuItem(item);
         }
+
+        this.emit('rebuild');
     }
 
     /**
@@ -1543,13 +1556,15 @@ export const SmartHomePanelMenu = GObject.registerClass({
      */
     _getGroupControllable(ids, capability) {
         let deviceSwitcher;
-        if ((! this.data['config']) || (! this.data['config']['control-only-on'])) {
-            return true;
-        }
 
         for (let i of ids) {
             if (! this.data['devices'][i]['capabilities'].includes(capability)) {
                 continue;
+            }
+
+            /* if any device is on, the group should be controllable */
+            if (! this.data['devices'][i]['control-only-on']) {
+                return true;
             }
 
             deviceSwitcher = this.data['devices'][i]['switch'];
@@ -2594,7 +2609,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
                             this._menuSelected['group'] = id;
                             this.writeMenuSelectedSettings();
                         }
-                        this.requestData(SmartHomeRequest.FULL);
+                        this.requestData();
                     }
                 );
                 this._appendSignal(signal, subMenu.menu, SmartHomeMenuLevel.MENU);
@@ -2676,7 +2691,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         signal = subMenu.connect(
             'activate',
             () => {
-                this.requestData(SmartHomeRequest.FULL);
+                this.requestData();
             }
         );
         this._appendSignal(signal, subMenu, SmartHomeMenuLevel.MENU);
@@ -2744,7 +2759,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         signal = subMenu.connect(
             'activate',
             () => {
-                this.requestData(SmartHomeRequest.FULL);
+                this.requestData();
             }
         );
         this._appendSignal(signal, subMenu, SmartHomeMenuLevel.MENU);

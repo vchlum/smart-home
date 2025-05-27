@@ -463,7 +463,7 @@ export const Plugin =  GObject.registerClass({
 
         for (let d in devices) {
             devices[d]['groups'].push(group);
-            this.data['devices'][`${id}::${d}`] = devices[d];
+            this.data['devices'][`${id}:${d}`] = devices[d];
         }
 
 
@@ -565,7 +565,7 @@ export const Plugin =  GObject.registerClass({
         let onDevices = [];
         for (let id of ids) {
 
-            if (! this._initialized[id.split('::')[0]]) {
+            if (! this._initialized[id.split(':')[0]]) {
                 continue;
             }
 
@@ -582,8 +582,8 @@ export const Plugin =  GObject.registerClass({
     switchSingle(id, value) {
         let data;
         let types = this.data['devices'][id]['shelly_type'];
-        let mainId = id.split('::')[0];
-        let subId = Number(id.split('::')[1]);
+        let mainId = id.split(':')[0];
+        let subId = Number(id.split(':')[1]);
 
         if (this._devices[mainId].gen < 2) {
             if (types.includes('light')) {
@@ -635,8 +635,8 @@ export const Plugin =  GObject.registerClass({
         let data = null;
         let brightness = Math.round(value * 100);
         let types = this.data['devices'][id]['shelly_type'];
-        let mainId = id.split('::')[0];
-        let subId = Number(id.split('::')[1]);
+        let mainId = id.split(':')[0];
+        let subId = Number(id.split(':')[1]);
 
         if (this._devices[mainId].gen < 2) {
             if (types.includes('light')) {
@@ -697,8 +697,8 @@ export const Plugin =  GObject.registerClass({
     colorSingle(id, value) {
         let data = null;
         let types = this.data['devices'][id]['shelly_type'];
-        let mainId = id.split('::')[0];
-        let subId = Number(id.split('::')[1]);
+        let mainId = id.split(':')[0];
+        let subId = Number(id.split(':')[1]);
 
         if (this._devices[mainId].gen < 2) {
             if (types.includes('light')) {
@@ -760,8 +760,8 @@ export const Plugin =  GObject.registerClass({
 
         let data = null;
         let types = this.data['devices'][id]['shelly_type'];
-        let mainId = id.split('::')[0];
-        let subId = Number(id.split('::')[1]);
+        let mainId = id.split(':')[0];
+        let subId = Number(id.split(':')[1]);
 
         if (this._devices[mainId].gen < 2) {
             if (types.includes('light')) {
@@ -814,8 +814,8 @@ export const Plugin =  GObject.registerClass({
     positionSingle(id, value) {
         let data = null;
         let types = this.data['devices'][id]['shelly_type'];
-        let mainId = id.split('::')[0];
-        let subId = Number(id.split('::')[1]);
+        let mainId = id.split(':')[0];
+        let subId = Number(id.split(':')[1]);
         value = Math.round(value * 100);
 
         if (this._devices[mainId].gen < 2) {
@@ -854,8 +854,8 @@ export const Plugin =  GObject.registerClass({
     upSingle(id) {
         let data = null;
         let types = this.data['devices'][id]['shelly_type'];
-        let mainId = id.split('::')[0];
-        let subId = Number(id.split('::')[1]);
+        let mainId = id.split(':')[0];
+        let subId = Number(id.split(':')[1]);
 
         if (this._devices[mainId].gen < 2) {
             if (types.includes('roller')) {
@@ -885,15 +885,15 @@ export const Plugin =  GObject.registerClass({
 
     upGroup(id, ids) {
         for (let i of ids) {
-            this.upGroup(i);
+            this.upSingle(i);
         }
     }
 
     downSingle(id) {
         let data = null;
         let types = this.data['devices'][id]['shelly_type'];
-        let mainId = id.split('::')[0];
-        let subId = Number(id.split('::')[1]);
+        let mainId = id.split(':')[0];
+        let subId = Number(id.split(':')[1]);
 
         if (this._devices[mainId].gen < 2) {
             if (types.includes('roller')) {

@@ -366,3 +366,18 @@ msgstr "Světla nenalezena"
 
 msgid "Remember opened menu"
 msgstr "Zapamatovat otevření nabídky"
+
+msgid "Smart Home Universal Menu"
+msgstr "Univerzální nabídka chytré domácnosti"
+
+msgid "Device plugins can be merged into one universal menu."
+msgstr "Zařízení mohou být spojena do jedné, univerzální nabídky."
+
+msgid "Merge into universal menu"
+msgstr "Připojit do univerzální nabídky"
+
+msgid "This device's menu can be merged into one universal menu."
+msgstr "Nabídka tohoto zařízení může být připojena do jedné, univerzální nabídky."
+
+msgid "The device has been merged into universal menu. Separate it in device's settings."
+msgstr "Zařízení bylo připojeno do univerzální nabídky. Oddělte jej v nastavení zařízení."

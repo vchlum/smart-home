@@ -358,3 +358,18 @@ msgstr ""
 
 msgid "Remember opened menu"
 msgstr ""
+
+msgid "Smart Home Universal Menu"
+msgstr ""
+
+msgid "Device plugins can be merged into one universal menu."
+msgstr ""
+
+msgid "Merge into universal menu"
+msgstr ""
+
+msgid "This device's menu can be merged into one universal menu."
+msgstr ""
+
+msgid "The device has been merged into universal menu. Separate it in device's settings."
+msgstr ""

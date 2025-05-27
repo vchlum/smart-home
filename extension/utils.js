@@ -51,9 +51,11 @@ export const SETTINGS_NANOLEAF = "nanoleaf";
 export const SETTINGS_IKEADIRIGERA = "ikea-dirigera";
 export const SETTINGS_HOMEASSISTANT = "home-assistant";
 export const SETTINGS_SHELLY = "shelly";
+export const SETTINGS_SMARTHOME_UNIVERSAL = "smart-home-universal";
 export const SETTINGS_PLUGIN_TYPE = "a{sa{ss}}";
 
 export const PLUGIN_LIST = [
+    SETTINGS_SMARTHOME_UNIVERSAL, /* must be first */
     SETTINGS_PHILIPSHUEBRIDGE,
     SETTINGS_PHILIPSHUEDESKTOPSYNC,
     SETTINGS_PHILIPSHUESYNCBOX,
@@ -64,6 +66,7 @@ export const PLUGIN_LIST = [
 ];
 
 export const PLUGIN_ALL_IN_ONE = [
+    SETTINGS_SMARTHOME_UNIVERSAL,
     SETTINGS_NANOLEAF,
     SETTINGS_SHELLY,
 ]

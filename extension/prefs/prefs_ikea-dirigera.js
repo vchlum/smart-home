@@ -59,6 +59,7 @@ export const SmartHomeIkeaDirigera = GObject.registerClass({
         'statusPage',
         'hideUnavailable',
         'comboIndicatorPosition',
+        'mergeUniversal',
         'offShutdown',
         'devicesOnLogin',
         'spinConnectionTimeout',
@@ -67,6 +68,7 @@ export const SmartHomeIkeaDirigera = GObject.registerClass({
 
     _init(pluginID, id, settings) {
         super._init();
+        this.pluginID = pluginID;
         this._id = id;
         this._settings = settings;
         this.tag = pluginID;
@@ -130,6 +132,13 @@ export const SmartHomeIkeaDirigera = GObject.registerClass({
         }
         this._comboIndicatorPosition.selected = indicatorPosition;
 
+        let universalPluginSettings = this._settings.get_value(
+            Utils.SETTINGS_SMARTHOME_UNIVERSAL
+        ).deep_unpack();
+        if (Object.keys(universalPluginSettings).includes(this.pluginID)) {
+            this._mergeUniversal.active = true;
+        }
+
         let connectionTimeout = Utils.IKEADIRIGERA_DEFAULT_TIMEOUT;
         if (this._pluginSettings[this._id]['connection-timeout'] !== undefined) {
             connectionTimeout = Number(this._pluginSettings[this._id]['connection-timeout']);
@@ -161,6 +170,26 @@ export const SmartHomeIkeaDirigera = GObject.registerClass({
     _indicatorPositionSelected(object) {
         this._pluginSettings[this._id]['indicator-position'] = String(object.selected);
         this._writeDevicesSettings();
+    }
+
+    _mergeUniversalSwitched(object) {
+        let universalPluginSettings = this._settings.get_value(
+            Utils.SETTINGS_SMARTHOME_UNIVERSAL
+        ).deep_unpack();
+
+        if (object.active) {
+            universalPluginSettings[this.pluginID] = {};
+        } else {
+            delete(universalPluginSettings[this.pluginID]);
+        }
+
+        this._settings.set_value(
+            Utils.SETTINGS_SMARTHOME_UNIVERSAL,
+            new GLib.Variant(
+                Utils.SETTINGS_PLUGIN_TYPE,
+                universalPluginSettings
+            )
+        );
     }
 
     _connectionTimeoutChanged(object) {

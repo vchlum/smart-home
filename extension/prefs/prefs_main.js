@@ -57,15 +57,20 @@ export const PreferencesMain = GObject.registerClass({
         "switchRememberSubmenu",
         "switchReducedPadding",
         "switchDebug",
+        "smartHomeUniversalRows",
+        "universalComboIndicatorPosition",
+        "hideUnavailableUniversal",
         "philipsHomeAssistantRows",
         "philipsHueBridgeRows",
         "philipsHueDesktopSyncRows",
         "philipsHueSyncboxRows",
         "hideUnavailableNanoleaf",
         "comboIndicatorPositionNanoleaf",
+        "mergeUniversalNanoleaf",
         "hideUnavailableShelly",
         "showPowerConsumptionShelly",
         "comboIndicatorPositionShelly",
+        "mergeUniversalShelly",
         "nanoleafRows",
         "ikeaDirigeraRows",
         "shellyRows",
@@ -139,6 +144,20 @@ export const PreferencesMain = GObject.registerClass({
         this._switchReducedPadding.active = this._settingsLoaded[Utils.SETTINGS_REDUCED_PADDING];
         this._switchForceEnglish.active = this._settingsLoaded[Utils.SETTINGS_FORCE_ENGLISH];
         this._switchDebug.active = this._settingsLoaded[Utils.SETTINGS_DEBUG];
+        let universalPluginSettings = this._settingsLoaded[Utils.SETTINGS_SMARTHOME_UNIVERSAL];
+
+        for (let i of Object.keys(this._rows)) {
+
+            if (i.startsWith(Utils.SETTINGS_SMARTHOME_UNIVERSAL)) {
+                let id = i.split('::');
+                id.shift();
+                id = id.join('::');
+                if (universalPluginSettings && ! Object.keys(universalPluginSettings).includes(id)) {
+                    this._smartHomeUniversalRows.remove(this._rows[i]);
+                    delete(this._rows[i]);
+                }
+            }
+        }
 
         for (let pluginName of Utils.PLUGIN_LIST) {
             for (let id of Object.keys(this._settingsLoaded[pluginName])) {
@@ -146,13 +165,34 @@ export const PreferencesMain = GObject.registerClass({
                     continue;
                 }
 
-                let pluginID = `${pluginName}_${id}`;
+                if (pluginName === Utils.SETTINGS_SMARTHOME_UNIVERSAL) {
+                    if (! this._rows[`${pluginName}::${id}`]) {
+                        await this.createUniversalDevice(id, pluginName, preferencesPage);
+                    }
+                    continue;
+                }
+
+                let pluginID = `${pluginName}::${id}`;
 
                 if ((! this._rows[pluginID]) || (! this._pages[pluginID])) {
                     await this.createDeviceUI(id, pluginName, preferencesPage);
                 }
             }
         }
+
+        let universalhideUnavailable = Utils.ALL_DEFAULT_HIDE_UNAVAILABLE;
+        let universalPluginIndicatorPosition = 1;
+        if (universalPluginSettings['_general_']) {
+            if (universalPluginSettings['_general_']['hide-unavailable'] !== undefined) {
+                universalhideUnavailable = universalPluginSettings['_general_']['hide-unavailable'] === 'true';
+            }
+
+            if (universalPluginSettings['_general_']['indicator-position'] !== undefined) {
+                universalPluginIndicatorPosition = Number(universalPluginSettings['_general_']['indicator-position']);
+            }
+        }
+        this._hideUnavailableUniversal.active = universalhideUnavailable;
+        this._universalComboIndicatorPosition.selected = universalPluginIndicatorPosition;
 
         let nanoleafSettings = this._settingsLoaded[Utils.SETTINGS_NANOLEAF];
         let nanoleafhideUnavailable = Utils.ALL_DEFAULT_HIDE_UNAVAILABLE;
@@ -167,6 +207,11 @@ export const PreferencesMain = GObject.registerClass({
         }
         this._hideUnavailableNanoleaf.active = nanoleafhideUnavailable;
         this._comboIndicatorPositionNanoleaf.selected = nanoleafIndicatorPosition;
+        if (Object.keys(universalPluginSettings).includes(Utils.SETTINGS_NANOLEAF)) {
+            this._mergeUniversalNanoleaf.active = true;
+        } else {
+            this._mergeUniversalNanoleaf.active = false;
+        }
 
         let shellySettings = this._settingsLoaded[Utils.SETTINGS_SHELLY];
         let shellyhideUnavailable = Utils.ALL_DEFAULT_HIDE_UNAVAILABLE;
@@ -186,6 +231,11 @@ export const PreferencesMain = GObject.registerClass({
         this._hideUnavailableShelly.active = shellyhideUnavailable;
         this._showPowerConsumptionShelly.active = shellyShowPowerConsumption;
         this._comboIndicatorPositionShelly.selected = shellyIndicatorPosition;
+        if (Object.keys(universalPluginSettings).includes(Utils.SETTINGS_SHELLY)) {
+            this._mergeUniversalShelly.active = true;
+        } else {
+            this._mergeUniversalShelly.active = false;
+        }
     }
 
     _iconPackSelected(object) {
@@ -256,6 +306,26 @@ export const PreferencesMain = GObject.registerClass({
         );
     }
 
+    _mergeUniversalNanoleafSwitched(object) {
+        let universalPluginSettings = this._settings.get_value(
+            Utils.SETTINGS_SMARTHOME_UNIVERSAL
+        ).deep_unpack();
+
+        if (object.active) {
+            universalPluginSettings[Utils.SETTINGS_NANOLEAF] = {};
+        } else {
+            delete(universalPluginSettings[Utils.SETTINGS_NANOLEAF]);
+        }
+
+        this._settings.set_value(
+            Utils.SETTINGS_SMARTHOME_UNIVERSAL,
+            new GLib.Variant(
+                Utils.SETTINGS_PLUGIN_TYPE,
+                universalPluginSettings
+            )
+        );
+    }
+
     _hideUnavailableShellySwitched(object) {
         let pluginSettings = this._settings.get_value(
             Utils.SETTINGS_SHELLY
@@ -316,6 +386,26 @@ export const PreferencesMain = GObject.registerClass({
         );
     }
 
+    _mergeUniversalShellySwitched(object) {
+        let universalPluginSettings = this._settings.get_value(
+            Utils.SETTINGS_SMARTHOME_UNIVERSAL
+        ).deep_unpack();
+
+        if (object.active) {
+            universalPluginSettings[Utils.SETTINGS_SHELLY] = {};
+        } else {
+            delete(universalPluginSettings[Utils.SETTINGS_SHELLY]);
+        }
+
+        this._settings.set_value(
+            Utils.SETTINGS_SMARTHOME_UNIVERSAL,
+            new GLib.Variant(
+                Utils.SETTINGS_PLUGIN_TYPE,
+                universalPluginSettings
+            )
+        );
+    }
+
     _debugSwitched(object) {
         this._settings.set_boolean(
             Utils.SETTINGS_DEBUG,
@@ -323,10 +413,70 @@ export const PreferencesMain = GObject.registerClass({
         );
     }
 
+    _universalIndicatorPositionSelected(object) {
+        let pluginSettings = this._settings.get_value(
+            Utils.SETTINGS_SMARTHOME_UNIVERSAL
+        ).deep_unpack();
+
+        if (! pluginSettings['_general_']) {
+            pluginSettings['_general_'] = {};
+        }
+
+        pluginSettings['_general_']['indicator-position'] = String(object.selected);
+        this._settings.set_value(
+            Utils.SETTINGS_SMARTHOME_UNIVERSAL,
+            new GLib.Variant(
+                Utils.SETTINGS_PLUGIN_TYPE,
+                pluginSettings
+            )
+        );
+    }
+
+    _hideUnavailableUniversalSwitched(object) {
+        let pluginSettings = this._settings.get_value(
+            Utils.SETTINGS_SMARTHOME_UNIVERSAL
+        ).deep_unpack();
+
+        if (! pluginSettings['_general_']) {
+            pluginSettings['_general_'] = {};
+        }
+
+        pluginSettings['_general_']['hide-unavailable'] = String(object.active);
+
+        this._settings.set_value(
+            Utils.SETTINGS_SMARTHOME_UNIVERSAL,
+            new GLib.Variant(
+                Utils.SETTINGS_PLUGIN_TYPE,
+                pluginSettings
+            )
+        );
+    }
+
+    async createUniversalDevice(id, pluginName, preferencesPage) {
+        let device = new Adw.ActionRow();
+        let title = "";
+
+        let tmp = id.split('::');
+        if (tmp.length > 1) {
+            title = `${this._settingsLoaded[tmp[0]][tmp[1]]['name']} - ${tmp[0]}`;
+        } else {
+            title = id;
+        }
+
+        device.title = title;
+        device.subtitle = _("The device has been merged into universal menu. Separate it in device's settings.");
+
+
+
+        let universalID = `${pluginName}::${id}`;
+        this._rows[universalID] = device;
+        this._smartHomeUniversalRows.add_row(this._rows[universalID]);
+    }
+
     async createDeviceUI(id, pluginName, preferencesPage) {
         let devicePage;
         let rowsObject;
-        let pluginID = `${pluginName}_${id}`;
+        let pluginID = `${pluginName}::${id}`;
 
         try {
             const { SmartHomeDeviceRow } = await import('./prefs_device_row.js');
@@ -419,6 +569,13 @@ export const PreferencesMain = GObject.registerClass({
                                 delete(this._rows[pluginID]);
                                 delete(this._settingsLoaded[pluginName][id]);
                                 this.writeSettings();
+
+                                if (this._settingsLoaded[Utils.SETTINGS_SMARTHOME_UNIVERSAL] &&
+                                    this._settingsLoaded[Utils.SETTINGS_SMARTHOME_UNIVERSAL][pluginID] !== undefined) {
+
+                                    delete(this._settingsLoaded[Utils.SETTINGS_SMARTHOME_UNIVERSAL][pluginID]);
+                                    this.writeSettings();
+                                }
                             }
                         }
                     );
@@ -435,7 +592,7 @@ export const PreferencesMain = GObject.registerClass({
 
     async createDeviceTmpUI(id, pluginName, settings) {
         let rowsObject;
-        let pluginID = `${pluginName}_${id}`;
+        let pluginID = `${pluginName}::${id}`;
 
         try {
             const { SmartHomeDeviceRow } = await import('./prefs_device_row.js');

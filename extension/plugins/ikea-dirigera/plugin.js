@@ -198,7 +198,6 @@ export const Plugin =  GObject.registerClass({
         this.data = {'config': {}, 'devices': {}, 'groups': {}};
         this.data['config'] = {
             '_all_': {'name': this._("All rooms")},
-            'control-only-on': true
         };
         this._groups = {};
         this._blinds = {};
@@ -378,6 +377,7 @@ export const Plugin =  GObject.registerClass({
 
         out['type'] = 'device';
         out['name'] = data['attributes']['customName'];
+        out['control-only-on'] = true;
         out['section'] = 'common';
         if (data['deviceType'] === 'outlet') {
             out['icon'] = `HueIcons/devicesPlug.svg`

@@ -70,6 +70,7 @@ export const SmartHome = GObject.registerClass({
         this._metadata = metadata;
         this._mainDir = mainDir;
         this._settings = settings;
+        this._universalPlugins = { 'settings': null, 'added': {} };
         this._openPref = openPref;
         this.instances = {};
         this._semaphore = new Semaphore.Semaphore(1);
@@ -137,6 +138,16 @@ export const SmartHome = GObject.registerClass({
             );
             this.instances[pluginID] = pluginInstance;
             Utils.logDebug(`Device ${pluginName}: ${id} loaded.`);
+
+            if (Object.keys(this._universalPlugins['settings']).includes(pluginID)) {
+                this.instances[pluginID].setUniversalMenu(true);
+                this._universalPlugins['added'][pluginID] = this.instances[pluginID];
+                this.instances[Utils.SETTINGS_SMARTHOME_UNIVERSAL].addPlugin(
+                    pluginID,
+                    this.instances[pluginID]
+                );
+            }
+
             this.emit('plugin-ready', pluginID);
         } catch (e) {
             Utils.logError(`Device ${pluginName}: ${id} failed to load with error ${e}:\n${e.stack}`);
@@ -185,6 +196,24 @@ export const SmartHome = GObject.registerClass({
                 pluginName
             ).deep_unpack();
 
+            /* first iteration of this for */
+            if (pluginName === Utils.SETTINGS_SMARTHOME_UNIVERSAL &&
+                JSON.stringify(this._universalPlugins['settings']) !== JSON.stringify(pluginSettings) ) {
+
+                for (let i in this._universalPlugins['added']) {
+                    this.instances[Utils.SETTINGS_SMARTHOME_UNIVERSAL].removePlugin(i);
+                    this.removePlugin(i);
+                }
+                this._universalPlugins['added'] = {};
+
+                this._universalPlugins['settings'] = pluginSettings;
+                for (let i in this._universalPlugins['settings']) {
+                    if (Object.keys(this.instances).includes(i)) {
+                        this.removePlugin(i);
+                    }
+                }
+            }
+
             if (Utils.PLUGIN_ALL_IN_ONE.includes(pluginName)) {
                 if (Object.keys(pluginSettings).length === 0) {
                     continue;
@@ -195,7 +224,7 @@ export const SmartHome = GObject.registerClass({
                     continue;
                 }
 
-                pluginID = `${pluginName}_${pluginName}`;
+                pluginID = `${pluginName}`;
                 shouldBe.push(pluginID);
                 if (Object.keys(this.instances).includes(pluginID)) {
                     continue;
@@ -206,7 +235,7 @@ export const SmartHome = GObject.registerClass({
                 await this.createPlugin(pluginID, pluginName, pluginName);
             } else {
                 for (let id in pluginSettings) {
-                    pluginID = `${pluginName}_${id}`;
+                    pluginID = `${pluginName}::${id}`;
                     shouldBe.push(pluginID);
                     if (Object.keys(this.instances).includes(pluginID)) {
                         continue;

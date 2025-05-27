@@ -34,6 +34,10 @@
       <default>"bright"</default>
       <summary>Used icon pack</summary>
     </key>
+    <key name="smart-home-universal" type="a{sa{ss}}">
+      <default>{}</default>
+      <summary>Smart Home Universal plugin</summary>
+    </key>
     <key name="philipshue-bridge" type="a{sa{ss}}">
       <default>{}</default>
       <summary>Philips Hue Bridge</summary>
