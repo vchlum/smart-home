@@ -44,6 +44,9 @@ The features overview:
     - rolling blinds/covers
     - show power consumption per device
 
+## Smart Home Universal menu
+Usually, each device has its own menu in the status bar. Devices like Home Assistant, Philips Hue Bridge, Ikea Dirigera, Nanoleaf, and Shelly can be merged into one Smart Home menu. Groups/Rooms with the same name are marged into one in the Smart Home menu. The device merging can be turned on/off in the settings per device.
+
 ## Troubleshooting
  1. If you are experiencing any trouble with the upgrade, try to log out and log in again.
  1. If your troubles persist, reset this extension by reseting key: "/org/gnome/shell/extensions/smart-home/" in gnome.

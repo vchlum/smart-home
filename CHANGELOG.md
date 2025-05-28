@@ -1,3 +1,8 @@
+## Version 13
+ * Smart Home Universal menu plugin added
+ * if there is only one group, remove all groups item
+ * option to remember opened submenu
+ * bug fixes
 ## Version 12
  * Philips Hue and Home Assistant notification lights support
  * option to stop light synchronization on shutdown
