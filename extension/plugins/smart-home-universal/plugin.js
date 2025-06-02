@@ -214,18 +214,48 @@ export const Plugin =  GObject.registerClass({
         }
 
         for (let deviceID in this._plugins[pluginID].data['devices']) {
-            this.data['devices'][`${pluginID}::${deviceID}`] = this._plugins[pluginID].data['devices'][deviceID];
+            if (this._plugins[pluginID].data['devices'][deviceID]['type'] !== 'device') {
+                continue;
+            }
 
-            for (let i of ['groups', 'associated']) {
-                if (this.data['devices'][`${pluginID}::${deviceID}`][i]) {
-                    for (let origGroupID of this.data['devices'][`${pluginID}::${deviceID}`][i]) {
-                        let index = this.data['devices'][`${pluginID}::${deviceID}`][i].indexOf(origGroupID);
+            let newDeviceID = `${pluginID}::${deviceID}`;
+            this.data['devices'][newDeviceID] = this._plugins[pluginID].data['devices'][deviceID];
 
-                        let newGroupID = this._findNewGroupId(pluginID, origGroupID);
-                    
-                        newGroupID !== null ? 
-                            this.data['devices'][`${pluginID}::${deviceID}`][i][index] = newGroupID : null;
-                    }
+            if (this.data['devices'][newDeviceID]['groups']) {
+                for (let i in this.data['devices'][newDeviceID]['groups']) {
+                    let origGroupID = this.data['devices'][newDeviceID]['groups'][i];
+                    let newGroupID = this._findNewGroupId(pluginID, origGroupID);
+
+                    newGroupID !== null ?
+                        this.data['devices'][newDeviceID]['groups'][i] = newGroupID : null;
+                }
+            }
+        }
+
+        for (let deviceID in this._plugins[pluginID].data['devices']) {
+            if (this._plugins[pluginID].data['devices'][deviceID]['type'] !== 'scene') {
+                continue;
+            }
+
+            let newDeviceID = `${pluginID}::${deviceID}`;
+
+            if (! this.data['devices'][newDeviceID]) {
+                this.data['devices'][newDeviceID] = {
+                    'type': 'scene',
+                    'section': this._plugins[pluginID].data['devices'][deviceID]['section'],
+                    'name': this._plugins[pluginID].data['devices'][deviceID]['name'],
+                    'capabilities': this._plugins[pluginID].data['devices'][deviceID]['capabilities'],
+                    'associated': []
+                }
+            }
+
+            for (let origAssociated of this._plugins[pluginID].data['devices'][deviceID]['associated']) {
+                let newAssociated = this._findNewGroupId(pluginID, origAssociated);
+                newAssociated = newAssociated === null && origAssociated === '_all_' ? origAssociated : newAssociated;
+                newAssociated = newAssociated !== null ? newAssociated : `${pluginID}::${origAssociated}`;
+
+                if (this.data['devices'][newDeviceID]['associated'].indexOf(newAssociated) === -1) {
+                    this.data['devices'][newDeviceID]['associated'].push(newAssociated);
                 }
             }
         }

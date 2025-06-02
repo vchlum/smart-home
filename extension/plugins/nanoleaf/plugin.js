@@ -333,9 +333,13 @@ export const Plugin =  GObject.registerClass({
                 'icon': "HueIcons/otherWatchingMovie.svg"
             }
         } else {
-            this.data['devices'][`sync-screen`]['associated'].push(id);
+            if (this.data['devices'][`sync-screen`]['associated'].indexOf(id) === -1) {
+                this.data['devices'][`sync-screen`]['associated'].push(id);
+            }
         }
-        this.data['devices'][`sync-screen`]['associated'].push(this._pluginSettings[id]['group']);
+        if (this.data['devices'][`sync-screen`]['associated'].indexOf(this._pluginSettings[id]['group']) === -1) {
+            this.data['devices'][`sync-screen`]['associated'].push(this._pluginSettings[id]['group']);
+        }
 
         let n_monitors = global.display.get_n_monitors();
         if (n_monitors > 1) {
@@ -358,9 +362,13 @@ export const Plugin =  GObject.registerClass({
                         'icon': "HueIcons/otherWatchingMovie.svg"
                     }
                 } else {
-                    this.data['devices'][displayId]['associated'].push(id);
+                    if (this.data['devices'][displayId]['associated'].indexOf(id) === -1) {
+                        this.data['devices'][displayId]['associated'].push(id);
+                    }
                 }
-                this.data['devices'][displayId]['associated'].push(this._pluginSettings[id]['group']);
+                if (this.data['devices'][displayId]['associated'].indexOf(this._pluginSettings[id]['group'])) {
+                    this.data['devices'][displayId]['associated'].push(this._pluginSettings[id]['group']);
+                }
             }
         }
     }
@@ -378,15 +386,22 @@ export const Plugin =  GObject.registerClass({
                 };
                 this.data['devices'][name] = effect;
             } else {
-                this.data['devices'][name]['associated'].push(id);
+                if (this.data['devices'][name]['associated'].indexOf(id) === -1) {
+                    this.data['devices'][name]['associated'].push(id);
+                }
             }
 
-            this.data['devices'][name]['associated'].push(
-                this._pluginSettings[id]['group']
-            );
-            this.data['devices'][name]['associated'].push(
-                '_all_'
-            );
+            if (this.data['devices'][name]['associated'].indexOf(this._pluginSettings[id]['group']) === -1) {
+                this.data['devices'][name]['associated'].push(
+                    this._pluginSettings[id]['group']
+                );
+            }
+
+            if (this.data['devices'][name]['associated'].indexOf('_all_') === -1) {
+                this.data['devices'][name]['associated'].push(
+                    '_all_'
+                );
+            }
         }
     }
 
@@ -405,19 +420,26 @@ export const Plugin =  GObject.registerClass({
                 };
                 this.data['devices'][name] = anim;
             } else {
-                this.data['devices'][name]['associated'].push(id);
+                if (this.data['devices'][name]['associated'].indexOf(id) === -1) {
+                    this.data['devices'][name]['associated'].push(id);
+                }
             }
 
             if (a['pluginType'] === 'rhythm') {
                 this.data['devices'][name]['icon'] = 'HueIcons/otherMusic.svg'
             }
 
-            this.data['devices'][name]['associated'].push(
-                this._pluginSettings[id]['group']
-            );
-            this.data['devices'][name]['associated'].push(
-                '_all_'
-            );
+            if (this.data['devices'][name]['associated'].indexOf(this._pluginSettings[id]['group']) === -1) {
+                this.data['devices'][name]['associated'].push(
+                    this._pluginSettings[id]['group']
+                );
+            }
+
+            if (this.data['devices'][name]['associated'].indexOf('_all_') === -1) {
+                this.data['devices'][name]['associated'].push(
+                    '_all_'
+                );
+            }
         }
     }
 
