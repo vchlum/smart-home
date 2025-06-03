@@ -388,12 +388,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
             needsRebuild = true;
         }
 
-        this._allMenusSelected = this._settings.get_value(
-            Utils.SETTINGS_MENU_SELECTED
-        ).deep_unpack();
-        if (this._allMenusSelected[this.pluginID] !== undefined) {
-            this._menuSelected = this._allMenusSelected[this.pluginID];
-        }
+        this.readMenuSelectedSettings();
 
         tmp = this._iconPack;
         this._iconPack = this._settings.get_enum(
@@ -444,7 +439,21 @@ export const SmartHomePanelMenu = GObject.registerClass({
     }
 
     /**
-     * Wite setting for current selection in menu
+     * Read setting for current selection in menu
+     *
+     * @method readMenuSelectedSettings
+     */
+    readMenuSelectedSettings() {
+        this._allMenusSelected = this._settings.get_value(
+            Utils.SETTINGS_MENU_SELECTED
+        ).deep_unpack();
+        if (this._allMenusSelected[this.pluginID] !== undefined) {
+            this._menuSelected = this._allMenusSelected[this.pluginID];
+        }
+    }
+
+    /**
+     * Write setting for current selection in menu
      *
      * @method writeMenuSelectedSettings
      */
@@ -888,6 +897,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
     rebuildMenuDo() {
         Utils.logDebug(`Actually rebuilding the menu ${this.pluginName} - ${this.id}.`);
 
+        this.readMenuSelectedSettings();
         this._checkMenuSelectedFeasible();
 
         this.visible = true;
@@ -3183,11 +3193,13 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
         Utils.logDebug(`Selecting menu ${this.pluginName} - ${this.id}, group: ${groupId}, device: ${deviceId}`);
 
-
         if (initMenu || groupId !== this._menuSelected['group']) {
             this._menuSelected['group'] = groupId;
             this._menuSelected['device'] = deviceId;
-            this.writeMenuSelectedSettings();
+
+            if (! initMenu) {
+                this.writeMenuSelectedSettings();
+            }
 
             toDelete = [
                 SmartHomeMenuLevel.GROUPITEMSSELECTED,
@@ -3209,7 +3221,10 @@ export const SmartHomePanelMenu = GObject.registerClass({
             this.setSelectedScenes();
         } else if (deviceId !== this._menuSelected['device']) {
             this._menuSelected['device'] = deviceId;
-            this.writeMenuSelectedSettings();
+
+            if (! initMenu) {
+                this.writeMenuSelectedSettings();
+            }
 
             toDelete = [
                 SmartHomeMenuLevel.DEVICEITEMSSELECTED
