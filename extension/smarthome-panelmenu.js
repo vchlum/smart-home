@@ -2118,25 +2118,28 @@ export const SmartHomePanelMenu = GObject.registerClass({
         label.text = this.data['devices'][id]['name'];
         item.insert_child_at_index(itemBox, 1);
 
-        item.originalActivate = item.activate;
-        item.activate = (event) => {
-            let hiddenObject = this._menuObjects['devices']['hidden'];
-            let controlsObject = this._menuObjects['controls']['object'];
+        let [hasColor, hasColorTemp] = this._checkColorOrColorTemp([id]);
+        if (hasColor || hasColorTemp) {
+            item.originalActivate = item.activate;
+            item.activate = (event) => {
+                let hiddenObject = this._menuObjects['devices']['hidden'];
+                let controlsObject = this._menuObjects['controls']['object'];
 
-            if (hiddenObject) {
-                hiddenObject.visible = true;
+                if (hiddenObject) {
+                    hiddenObject.visible = true;
+                }
+
+                item.visible = false;
+                this._menuObjects['devices']['hidden'] = item;
+
+                this.selectMenu(this._menuSelected['group'], id);
+
+                if (controlsObject) {
+                    controlsObject.menu.open(true);
+                }
+
+                return item.originalActivate(event);
             }
-
-            item.visible = false;
-            this._menuObjects['devices']['hidden'] = item;
-
-            this.selectMenu(this._menuSelected['group'], id);
-
-            if (controlsObject) {
-                controlsObject.menu.open(true);
-            }
-
-            return item.originalActivate(event);
         }
 
         this._createDeviceItemUI(
