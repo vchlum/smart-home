@@ -1,3 +1,8 @@
+## Version 14
+ * Gnome 49 support
+ * a device without controls can not be selected
+ * fix saved menu selecting
+ * fix scenes in universal menu
 ## Version 13
  * Smart Home Universal menu plugin added
  * if there is only one group, remove all groups item
