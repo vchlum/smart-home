@@ -195,7 +195,6 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._inUniversalMenu = false;
 
         this.readSettings();
-        this.readSettingsMiscellaneous();
 
         signal = this.menu.connect(
             'open-state-changed',
@@ -228,7 +227,6 @@ export const SmartHomePanelMenu = GObject.registerClass({
         signal = this._settings.connect(
             'changed',
             () => {
-                this.readSettingsMiscellaneous();
                 if (this.readSettings()) {
                     this.requestRebuild();
                 }
@@ -483,6 +481,12 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._miscellanousStorage = this._settings.get_value(
             Utils.SETTINGS_MISCELLANOUS_STORAGE
         ).deep_unpack();
+
+        if (this._miscellanousStorage[this.pluginID] !== undefined) {
+            return this._miscellanousStorage[this.pluginID];
+        }
+
+        return {};
     }
 
     /**
@@ -490,7 +494,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
      *
      * @method writeSettingsMiscellaneous
      */
-    writeSettingsMiscellaneous() {
+    writeSettingsMiscellaneous(data) {
+        this._miscellanousStorage[this.pluginID] = data;
+
         this._settings.set_value(
             Utils.SETTINGS_MISCELLANOUS_STORAGE,
             new GLib.Variant(

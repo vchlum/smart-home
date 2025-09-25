@@ -58,6 +58,7 @@ export const Plugin =  GObject.registerClass({
         this._intensity = 0.5;
         this._firstTime = true;
         this._displays = [];
+        this.miscStorage = this.readSettingsMiscellaneous();
     }
 
     settingRead() {
@@ -80,6 +81,8 @@ export const Plugin =  GObject.registerClass({
         if (this._pluginSettings[this.id]['notebook-mode'] !== undefined) {
             this._notebookMode = this._pluginSettings[this.id]['notebook-mode'] === 'true';
         }
+
+        this.miscStorage = this.readSettingsMiscellaneous();
     }
 
     preparePlugin() {
@@ -90,10 +93,6 @@ export const Plugin =  GObject.registerClass({
         this._userName = this._pluginSettings[this.id]['username'];
         this._clientKey = this._pluginSettings[this.id]['clientkey'];
         this._bridgeName = this._pluginSettings[this.id]['name'];
-
-        if (this._miscellanousStorage[this.pluginID] === undefined) {
-            this._miscellanousStorage[this.pluginID] = {}
-        }
 
         this._bridge = new BridgeApi.PhilipsHueBridge({
             ip: this._ip,
@@ -277,16 +276,14 @@ export const Plugin =  GObject.registerClass({
         this._activeStream = null;
         let activeEntertainmentName = this._("Entertainment areas");
 
-        if (this._miscellanousStorage[this.pluginID] !== undefined) {
-            this._requestedAreaId = this._miscellanousStorage[this.pluginID]['streamingID'];
+        this._requestedAreaId = this.miscStorage['streamingID'];
 
-            if (this._miscellanousStorage[this.pluginID]['brightness'] !== undefined) {
-                this._brightness = parseFloat(this._miscellanousStorage[this.pluginID]['brightness']);
-            }
+        if (this.miscStorage['brightness'] !== undefined) {
+            this._brightness = parseFloat(this.miscStorage['brightness']);
+        }
 
-            if (this._miscellanousStorage[this.pluginID]['intensity'] !== undefined) {
-                this._intensity = parseFloat(this._miscellanousStorage[this.pluginID]['intensity']);
-            }
+        if (this.miscStorage['intensity'] !== undefined) {
+            this._intensity = parseFloat(this.miscStorage['intensity']);
         }
 
         for (let d of data) {
@@ -568,8 +565,8 @@ export const Plugin =  GObject.registerClass({
 
     brightnessSingle(id, value) {
         this._brightness = value;
-        this._miscellanousStorage[this.pluginID]["brightness"] = String(this._brightness);
-        this.writeSettingsMiscellaneous();
+        this.miscStorage["brightness"] = String(this._brightness);
+        this.writeSettingsMiscellaneous(this.miscStorage);
         if (this.streamer) {
             this.streamer.setParameters(this._brightness, this._intensity);
         }
@@ -582,8 +579,8 @@ export const Plugin =  GObject.registerClass({
 
     positionSingle(id, value) {
         this._intensity = value;
-        this._miscellanousStorage[this.pluginID]["intensity"] = String(this._intensity);
-        this.writeSettingsMiscellaneous();
+        this.miscStorage["intensity"] = String(this._intensity);
+        this.writeSettingsMiscellaneous(this.miscStorage);
         if (this.streamer) {
             this.streamer.setParameters(this._brightness, this._intensity);
         }
@@ -596,8 +593,8 @@ export const Plugin =  GObject.registerClass({
 
     sceneSingle(id, ids) {
         this._requestedAreaId = id;
-        this._miscellanousStorage[this.pluginID]["streamingID"] = String(this._requestedAreaId);
-        this.writeSettingsMiscellaneous();
+        this.miscStorage["streamingID"] = String(this._requestedAreaId);
+        this.writeSettingsMiscellaneous(this.miscStorage);
 
         this.changeStream();
 
@@ -626,8 +623,8 @@ export const Plugin =  GObject.registerClass({
             this._onStartTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, () => {
                 this._onStartTimer = null;
 
-                this._miscellanousStorage[this.pluginID]["streamingID"] = String(this._requestedAreaId);
-                this.writeSettingsMiscellaneous();
+                this.miscStorage["streamingID"] = String(this._requestedAreaId);
+                this.writeSettingsMiscellaneous(this.miscStorage);
 
                 let param = this._onLoginSettings['autostart-mode'].split(':');
                 this._streamParameter = null;
