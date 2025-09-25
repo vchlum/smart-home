@@ -1,3 +1,6 @@
+## Version 15
+ * Philips Hue Bridge Pro support
+ * bug fix
 ## Version 14
  * Gnome 49 support
  * a device without controls can not be selected
