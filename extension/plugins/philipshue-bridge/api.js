@@ -40,6 +40,18 @@ import GObject from 'gi://GObject';
 import * as Utils from '../../utils.js';
 import * as Avahi from '../../avahi.js';
 
+const TlsDatabaseBridge = GObject.registerClass({
+    Implements: [Gio.TlsFileDatabase],
+    Properties: {
+        'anchors': GObject.ParamSpec.override('anchors', Gio.TlsFileDatabase),
+    },
+}, class TlsDatabaseBridge extends Gio.TlsDatabase {
+
+    vfunc_verify_chain(chain, purpose, identity, interaction, flags, cancellable) {
+        return 0;
+    }
+});
+
 export const DiscoveryPhilipsHueBridges = GObject.registerClass({
     GTypeName: 'SmartHomeDiscoveryPhilipsHueBridges',
     Signals: {
@@ -95,7 +107,10 @@ export const DiscoveryPhilipsHueBridges = GObject.registerClass({
         let session = Soup.Session.new();
         session.timeout = 3;
 
-        let msg = Soup.Message.new('GET', `http://${ip}/api/config`);
+        let tlsDatabase =  new TlsDatabaseBridge();
+        session.tls_database  = tlsDatabase;
+
+        let msg = Soup.Message.new('GET', `https://${ip}/api/config`);
 
         try {
             let bytes = session.send_and_read(msg, null);
@@ -205,18 +220,6 @@ export const RequestType = {
     NEW_USER: 15,
     EVENT: 16
 };
-
-const TlsDatabaseBridge = GObject.registerClass({
-    Implements: [Gio.TlsFileDatabase],
-    Properties: {
-        'anchors': GObject.ParamSpec.override('anchors', Gio.TlsFileDatabase),
-    },
-}, class TlsDatabaseBridge extends Gio.TlsDatabase {
-
-    vfunc_verify_chain(chain, purpose, identity, interaction, flags, cancellable) {
-        return 0;
-    }
-});
 
 const Message = class Message extends Soup.Message {
 
@@ -672,7 +675,7 @@ export const PhilipsHueBridge =  GObject.registerClass({
 
         Utils.logDebug(`New Philips Hue bridge username: ${username}`);
 
-        this._POST(`http://${this._ip}/api`, RequestType.NEW_USER, data)
+        this._POST(`https://${this._ip}/api`, RequestType.NEW_USER, data)
     }
 
     getAll() {
