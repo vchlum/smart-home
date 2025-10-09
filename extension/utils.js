@@ -618,6 +618,8 @@ export function getScreenGeometry(displayIndex) {
         let width = Math.floor(rect.width * maxScale);
         let height = Math.floor(rect.height * maxScale);
 
+        logDebug(`Monitor ${i} geometry is ${rect.x},${rect.y}+${rect.width}x${rect.height}, screen ${i} geometry is ${x},${y}+${width}x${height}`);
+
         if (maxWidth < x + width) {
             maxWidth = x + width;
         }
@@ -634,6 +636,8 @@ export function getScreenGeometry(displayIndex) {
     if (displayIndex === undefined || displayIndex === null) {
         res = [0, 0 , maxWidth, maxHeight];
     }
+
+    logDebug(`Selected screen geometry for index: ${displayIndex} is ${res[0]},${res[1]}+${res[2]}x${res[3]} max scale: ${maxScale})`);
 
     return res;
 }
