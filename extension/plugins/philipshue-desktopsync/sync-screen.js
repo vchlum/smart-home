@@ -119,6 +119,8 @@ export const SyncSceen =  GObject.registerClass({
             );
         }
 
+        Utils.logDebug(`Black borders detection: ${this._x}, ${this._y}, ${this._width}, ${this._height}`);
+
         for (let i in this._channels) {
             let c = this._channels[i]['channel_id'];
             
@@ -131,6 +133,8 @@ export const SyncSceen =  GObject.registerClass({
                 this._width,
                 this._height
             ); // result: 0, 0, -1, -1 for full screen
+
+            Utils.logDebug(`Color channel ${c} - x: ${reqX}, y: ${reqY}, perc-w: ${percentWidth}, perc-h: ${percentHeight}, color rectangle: x: ${x}, y: ${y}, w: ${w}, h: ${h}, max: ${x+w}x${y+h}, shifted: ${this._x + x},${this._y + y}`);
 
             let color = await Utils.getRectangleColorFromScreenshot(
                 Shell.Screenshot,
