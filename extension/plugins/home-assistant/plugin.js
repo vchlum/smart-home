@@ -342,22 +342,25 @@ export const Plugin =  GObject.registerClass({
         out['capabilities'].push('switch');
         out['switch'] = data['state'] === 'on' ? true: false;
 
-        if (data['attributes']['supported_color_modes'].includes("onoff")) {
-            return out;
-        }
-
         if (data['attributes']['brightness'] !== undefined) {
             out['capabilities'].push('brightness');
             out['brightness'] = data['attributes']['brightness'] / 255;
         }
 
-        if (data['attributes']['color_temp_kelvin'] !== undefined) {
+        if (data['attributes']['supported_color_modes'].includes('color_temp')) {
             out['capabilities'].push('color_temperature');
+        }
+
+        if (data['attributes']['color_temp_kelvin'] !== undefined) {
             out['ct_min'] = data['attributes']['min_color_temp_kelvin'];
             out['ct_max'] = data['attributes']['max_color_temp_kelvin'];
         }
 
-        if (data['attributes']['color_mode'] !== undefined) {
+        if (data['attributes']['supported_color_modes'].includes('xy') ||
+            data['attributes']['supported_color_modes'].includes('hs') ||
+            data['attributes']['supported_color_modes'].includes('rgb') ||
+            data['attributes']['supported_color_modes'].includes('rgbw') ||
+            data['attributes']['supported_color_modes'].includes('rgbww')) {
             out['capabilities'].push('color');
         }
 
