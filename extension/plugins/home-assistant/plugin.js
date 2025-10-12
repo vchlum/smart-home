@@ -161,13 +161,17 @@ export const Plugin =  GObject.registerClass({
 
     _preparseStates(data) {
         let id;
-        this._states = {'lights': {}, 'covers': {}, 'scenes': {}};
+        this._states = {'lights': {},  'switches': {}, 'covers': {}, 'scenes': {}};
 
         for (let item of data) {
             id = item['entity_id'];
 
             if (id.startsWith('light')) {
                 this._states['lights'][id] = item;
+            }
+
+            if (id.startsWith('switch')) {
+                this._states['switches'][id] = item;
             }
 
             if (id.startsWith('cover')) {
@@ -211,6 +215,13 @@ export const Plugin =  GObject.registerClass({
         if (this._states['lights']) {
             for (let id in this._states['lights']) {
                 this.data['devices'][id] = this._parseLight(this._states['lights'][id]);
+                this.data['devices'][id]['groups'] = this._getDeviceGroups(id);
+            }
+        }
+
+        if (this._states['switches']) {
+            for (let id in this._states['switches']) {
+                this.data['devices'][id] = this._parseSwitch(this._states['switches'][id]);
                 this.data['devices'][id]['groups'] = this._getDeviceGroups(id);
             }
         }
@@ -263,6 +274,14 @@ export const Plugin =  GObject.registerClass({
                         break;
                 }
             }
+        }
+
+        if (id.startsWith('switch')) {
+            if ((!this.data['devices']) || (!this.data['devices'][id])) {
+                return;
+            }
+
+            this.data['devices'][id]['switch'] = event['new_state']['state'] === 'on' ? true: false;
         }
 
         if (id.startsWith('cover')) {
@@ -318,6 +337,7 @@ export const Plugin =  GObject.registerClass({
         out['name'] = data['attributes']['friendly_name'];
         out['section'] = 'common';
         out['capabilities'] = [];
+        out['ha_type'] = 'light';
 
         out['capabilities'].push('switch');
         out['switch'] = data['state'] === 'on' ? true: false;
@@ -359,6 +379,22 @@ export const Plugin =  GObject.registerClass({
         return out;
     }
 
+    _parseSwitch(data) {
+        let out = {};
+
+        out['groups'] = [];
+        out['type'] = 'device';
+        out['name'] = data['attributes']['friendly_name'];
+        out['section'] = 'common';
+        out['capabilities'] = [];
+        out['ha_type'] = 'switch';
+
+        out['capabilities'].push('switch');
+        out['switch'] = data['state'] === 'on' ? true: false;
+
+        return out;
+    }
+
     _parseCover(data) {
         let out = {};
 
@@ -367,6 +403,7 @@ export const Plugin =  GObject.registerClass({
         out['section'] = 'common';
         out['icon'] = 'blinds.svg';
         out['capabilities'] = ['position', 'up/down'];
+        out['ha_type'] = 'cover';
 
         out['position'] =  1 - data['attributes']['current_position'] / 100;
 
@@ -381,12 +418,22 @@ export const Plugin =  GObject.registerClass({
         out['name'] = data['attributes']['friendly_name'];
         out['capabilities'] = ['activate'];
         out['associated'] = [];
+        out['ha_type'] = 'scene';
 
         return out;
     }
 
     requestData() {
         this._bridge.getStates();
+    }
+
+    checkHATypeExists(ids, hatype) {
+        for (let id of ids) {
+            if (this.data['devices'][id]['ha_type'] === hatype) {
+                return true;
+            }
+        }
+        return false;
     }
 
     positionSingle(id, value) {
@@ -449,17 +496,27 @@ export const Plugin =  GObject.registerClass({
     switchSingle(id, value) {
         let fce = value ? this._bridge.setServiceOn.bind(this._bridge) : this._bridge.setServiceOff.bind(this._bridge);
         fce(
-            'light',
+            this.data['devices'][id]['ha_type'],
             { 'entity_id': id }
         );
     }
 
     switchGroup(id, ids, value) {
         let fce = value ? this._bridge.setServiceOn.bind(this._bridge) : this._bridge.setServiceOff.bind(this._bridge);
-        fce(
-            'light',
-            id === '_all_' ? { 'entity_id': 'all' } : { 'area_id': id }
-        );
+
+        if (this.checkHATypeExists(ids, 'light')) {
+            fce(
+                'light',
+                id === '_all_' ? { 'entity_id': 'all' } : { 'area_id': id }
+            );
+        }
+
+        if (this.checkHATypeExists(ids, 'switch')) {
+            fce(
+                'switch',
+                id === '_all_' ? { 'entity_id': 'all' } : { 'area_id': id }
+            );
+        }
     }
 
     brightnessSingle(id, value) {
