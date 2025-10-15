@@ -985,17 +985,10 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 );
             }
 
-            object = this._itemRefresher[uuid]['color'];
+            object = this._itemRefresher[uuid]['color_or_temp'];
             if (object !== undefined) {
                 object.forEach(o => {
-                    o.visible = this._getGroupControllable(ids, 'color');
-                });
-            }
-
-            object = this._itemRefresher[uuid]['color_temperature'];
-            if (object !== undefined) {
-                object.forEach(o => {
-                    o.visible = this._getGroupControllable(ids, 'color_temperature');
+                    o.visible = this._getGroupControllable(ids, 'color') || this._getGroupControllable(ids, 'color_temperature');
                 });
             }
         }
@@ -3083,8 +3076,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 'menuLevel': SmartHomeMenuLevel.DEVICEITEMSSELECTED
             };
 
-            this._itemRefresher[uuid]['color'] = items;
-            this._itemRefresher[uuid]['color_temperature'] = items;
+            this._itemRefresher[uuid]['color_or_temp'] = items;
         }
     }
 
