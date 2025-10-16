@@ -1,3 +1,8 @@
+## Version 16
+ * Home assistant - add switch support
+ * fix unselect button
+ * fix color picker not showing without color temperature
+ * fix screen scaling detection
 ## Version 15
  * Philips Hue Bridge Pro support
  * bug fix
