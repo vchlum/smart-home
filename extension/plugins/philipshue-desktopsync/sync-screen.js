@@ -39,6 +39,7 @@ import Shell from 'gi://Shell';
 import Gio from 'gi://Gio';
 import * as Utils from '../../utils.js';
 import * as Streamer from './streamer.js';
+import * as ScreenGeometry from '../../screen-geometry.js';
 
 export const SyncSceen =  GObject.registerClass({
     GTypeName: "SmartHomeSyncScreenStreamer",
@@ -51,16 +52,17 @@ export const SyncSceen =  GObject.registerClass({
         this._channels = channels;
         this.streamingFunction = this.initSyncSceen;
         this._displayIndex = displayIndex;
+        this._screenGeometry = new ScreenGeometry.ScreenGeometry();
     }
 
-    initSyncSceen() {
+    async initSyncSceen() {
         if (!this._streaming) {
             return;
         }
 
         this._shooter = new Shell.Screenshot();
 
-        [this._x, this._y, this._width, this._height] = Utils.getScreenGeometry(this._displayIndex);
+        [this._x, this._y, this._width, this._height] = await this._screenGeometry.getScreenGeometry(this._displayIndex);
         [this._origX, this._origY, this._origWidth, this._origHeight] = [this._x, this._y, this._width, this._height];
 
         this.syncScreen(0);
@@ -162,6 +164,13 @@ export const SyncSceen =  GObject.registerClass({
             this._timers = Utils.removeFromArray(this._timers, timerId);
         });
         this._timers.push(timerId);
+    }
+
+    clear() {
+        if (this._screenGeometry) {
+            this._screenGeometry.destroy();
+            this._screenGeometry = null;
+        }
     }
 
     /**

@@ -424,6 +424,9 @@ export const Plugin =  GObject.registerClass({
         };
 
         if (this.streamer) {
+            if (this.streamer.clear) {
+                this.streamer.clear();
+            }
             this.streamer.disconnectStream();
             this.streamer.disconnectSignals();
             this.streamer = null;

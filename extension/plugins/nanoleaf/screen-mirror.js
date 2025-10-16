@@ -38,7 +38,7 @@ import GLib from 'gi://GLib';
 import Shell from 'gi://Shell';
 import Gio from 'gi://Gio';
 import * as Utils from '../../utils.js';
-
+import * as ScreenGeometry from '../../screen-geometry.js';
 
 export const ScreenMirror =  GObject.registerClass({
     GTypeName: "SmartHomeScreenMirror",
@@ -48,18 +48,19 @@ export const ScreenMirror =  GObject.registerClass({
 }, class ScreenMirror extends GObject.Object {
     _init() {
         super._init();
+        this._screenGeometry = new ScreenGeometry.ScreenGeometry();
         this._shooter = new Shell.Screenshot();
         this.subs = {};
     }
 
-    precalculate(data) {
+    async precalculate(data) {
         let ret = {
             'panels': [],
             'panels-screen': [],
             'counter': 0
         };
 
-        ret['geometry-original'] = Utils.getScreenGeometry(data['display']);
+        ret['geometry-original'] = await this._screenGeometry.getScreenGeometry(data['display']);
         ret['geometry'] = [
             ret['geometry-original'][0],
             ret['geometry-original'][1],
@@ -116,12 +117,12 @@ export const ScreenMirror =  GObject.registerClass({
         return ret;
     }
 
-    subscribe(id, data) {
+    async subscribe(id, data) {
         if (Object.keys(this.subs).includes(id)) {
             delete(this.subs[id]);
         }
 
-        this.subs[id] = this.precalculate(data);
+        this.subs[id] = await this.precalculate(data);
 
         if (this._runningEvent === undefined) {
             this._runningEvent = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
@@ -217,5 +218,12 @@ export const ScreenMirror =  GObject.registerClass({
         }
 
         return data;
+    }
+
+    clear() {
+        if (this._screenGeometry) {
+            this._screenGeometry.destroy();
+            this._screenGeometry = null;
+        }
     }
 });

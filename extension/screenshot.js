@@ -49,7 +49,7 @@ const ShellVersion = parseFloat(Config.PACKAGE_VERSION);
  * @return {Object} instance
  */
 export const Screenshot =  GObject.registerClass({
-    GTypeName: "Screenshot",
+    GTypeName: "SmartHomeScreenshot",
 }, class Screenshot extends GObject.Object {
 
     _init(props={}) {

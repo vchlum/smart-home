@@ -31,6 +31,7 @@ package: gresource
 	--extra-source=smarthome.js \
 	--extra-source=smarthome-panelmenu.js \
 	--extra-source=screenshot.js \
+	--extra-source=screen-geometry.js \
 	--extra-source=colorpicker.js \
 	--extra-source=avahi.js \
 	--extra-source=prefspage.js \

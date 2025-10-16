@@ -595,53 +595,6 @@ export async function detectBlackBorders(screenshot, stream, texture, scale, cur
     return res;
 }
 
-export function getScreenGeometry(displayIndex) {
-    let res = [0, 0, -1, -1];
-    let maxScale = 0;
-    let maxWidth = 0;
-    let maxHeight = 0;
-    let display = global.display;
-    let nMonitors = display.get_n_monitors();
-
-    for (let i = 0; i < nMonitors; i++) {
-        let scale = display.get_monitor_scale(i);
-
-        if (scale > maxScale) {
-            maxScale = scale;
-        }
-    }
-
-    for (let i = 0; i < nMonitors; i++) {
-        let rect = global.display.get_monitor_geometry(i);
-        let x = Math.ceil(rect.x * maxScale);
-        let y = Math.ceil(rect.y * maxScale);
-        let width = Math.floor(rect.width * maxScale);
-        let height = Math.floor(rect.height * maxScale);
-
-        logDebug(`Monitor ${i} geometry is ${rect.x},${rect.y}+${rect.width}x${rect.height}, screen ${i} geometry is ${x},${y}+${width}x${height}`);
-
-        if (maxWidth < x + width) {
-            maxWidth = x + width;
-        }
-
-        if (maxHeight < y + height) {
-            maxHeight = y + height;
-        }
-
-        if (displayIndex === i) {
-            res = [x, y , width, height];
-        }
-    }
-
-    if (displayIndex === undefined || displayIndex === null) {
-        res = [0, 0 , maxWidth, maxHeight];
-    }
-
-    logDebug(`Selected screen geometry for index: ${displayIndex} is ${res[0]},${res[1]}+${res[2]}x${res[3]} max scale: ${maxScale})`);
-
-    return res;
-}
-
 export function getRectangleFromXY(x, y, percentWidth, persentHeight, fullWidth, fullHeight) {
     let x0, y0, width, height;
 

@@ -155,6 +155,7 @@ export const Plugin =  GObject.registerClass({
         }
 
         if (!settingsRead) {
+            this._screenMirror.clear();
             this._screenMirror = null;
         }
     }
@@ -818,12 +819,12 @@ export const Plugin =  GObject.registerClass({
 
         signal = this._devices[id].connect(
             'udp-ready',
-            () => {
+            async () => {
                 this._mirroring[id]['panelLayout'] = this._devices[id].allData['panelLayout'];
                 this._mirroring[id]['display'] = display;
                 this._mirroring[id]['brightness'] = this.data['devices'][id]['brightness'];
 
-                this._screenMirror.subscribe(id, this._mirroring[id]);
+                await this._screenMirror.subscribe(id, this._mirroring[id]);
                 if (this._requestedBrightness[id]) {
                     this._devices[id].setDeviceBrightness(this._requestedBrightness[id]);
                     delete(this._requestedBrightness[id]);
