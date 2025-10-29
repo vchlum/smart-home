@@ -1913,16 +1913,11 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let position;
         let updown;
         let executer;
-        let uuid
         if (! ids) {
             ids = [id];
         }
 
-        if (id === '_all_') {
-            uuid = '_all_::0';
-        } else {
-            uuid = `${id}::${Utils.getUuid()}`;
-        }
+        let uuid = `${id}::${Utils.getUuid()}`;
 
         this._itemRefresher[uuid] = {
             'ids': ids,
