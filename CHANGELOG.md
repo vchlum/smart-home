@@ -1,3 +1,6 @@
+## Version 17
+ * add icons to group sliders if needed
+ * fix _all_ group refreshing
 ## Version 16
  * Home assistant - add switch support
  * fix unselect button
