@@ -1741,8 +1741,10 @@ export const SmartHomePanelMenu = GObject.registerClass({
      * @private
      * @return {Object}
      */
-    _createSlider(itemType, menuLevel, typeUi, id, ids, value, color) {
+    _createSlider(itemType, menuLevel, typeUi, addMiniIcon, id, ids, value, color) {
         let signal;
+        let sliderBox;
+        let icon;
         let themeContext = St.ThemeContext.get_for_stage(global.stage);
         let slider = new Slider.Slider(0);
         slider.set_width(180 * themeContext.scaleFactor);
@@ -1750,6 +1752,10 @@ export const SmartHomePanelMenu = GObject.registerClass({
         slider.set_x_align(Clutter.ActorAlign.START);
         slider.set_x_expand(false);
         slider.value = value;
+
+        sliderBox = new St.BoxLayout();
+        sliderBox.set_x_expand(false);
+        sliderBox.set_style('spacing: 5px;');
 
         this._setColorSlider(slider, color);
 
@@ -1787,7 +1793,20 @@ export const SmartHomePanelMenu = GObject.registerClass({
         );
         this._appendSignal(signal, slider, menuLevel);
 
-        return slider;
+        if (addMiniIcon && [SmartHomeMenuLevel.GROUPITEMS, SmartHomeMenuLevel.GROUPITEMSSELECTED].includes(menuLevel)) {
+            if (typeUi == SmartHomeUiType.BRIGHTNESS) {
+                icon = this._getIconByPath(`${this.mediaDir}/HueIcons/routinesDaytime.svg`);
+            } else if (typeUi == SmartHomeUiType.POSITION) {
+                icon = this._getIconByPath(`${this.mediaDir}/blinds.svg`);
+            }
+        }
+
+        if (icon) {
+            sliderBox.add_child(icon);
+        }
+        sliderBox.add_child(slider);
+
+        return [sliderBox, slider];
     }
 
     _enlargeOnHover(icon, hover) {
@@ -1910,6 +1929,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let button;
         let switcher;
         let brightness;
+        let sliderBox;
         let position;
         let updown;
         let executer;
@@ -1940,36 +1960,38 @@ export const SmartHomePanelMenu = GObject.registerClass({
         }
 
         if (capabilities.includes('brightness') && itemType !== SmartHomeItemType.GROUP_ALL) {
-            brightness = this._createSlider(
+            [sliderBox, brightness] = this._createSlider(
                 itemType,
                 menuLevel,
                 SmartHomeUiType.BRIGHTNESS,
+                capabilities.includes('brightness') && capabilities.includes('position'),
                 id,
                 ids,
                 this._getGroupBrightnessValue(ids),
                 this._getGroupColor(ids)
             );
-            itemBox.add_child(brightness);
+            itemBox.add_child(sliderBox);
             if (objectType) {
-                this._menuObjects[objectType]['brightness'] = brightness;
+                this._menuObjects[objectType]['brightness'] = sliderBox;
             }
 
             this._itemRefresher[uuid]['brightness'] = brightness;
         }
 
         if (capabilities.includes('position') && itemType !== SmartHomeItemType.GROUP_ALL) {
-            position = this._createSlider(
+            [sliderBox, position] = this._createSlider(
                 itemType,
                 menuLevel,
                 SmartHomeUiType.POSITION,
+                capabilities.includes('brightness') && capabilities.includes('position'),
                 id,
                 ids,
                 this._getGroupPositionValue(ids),
                 null
             );
-            itemBox.add_child(position);
+            itemBox.add_child(sliderBox);
             if (objectType) {
-                this._menuObjects[objectType]['position'] = position;
+                this._menuObjects[objectType]['position'] = sliderBox;
             }
 
             this._itemRefresher[uuid]['position'] = position;
