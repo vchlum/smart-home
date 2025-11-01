@@ -535,8 +535,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
      * @param {Enum} requested icon effect
      * @return {Object} effect
      */
-    _getIconColorEffect(reqEffect) {
-
+    _getIconColorEffect(reqEffect, iconColor = null) {
         let color;
         switch (reqEffect) {
 
@@ -549,7 +548,11 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 break;
 
             default:
-                return null;
+                if (!iconColor) {
+                    return null;
+                }
+                color = getColor(iconColor[0], iconColor[1], iconColor[2]);
+                break;
         }
 
         let effect = new Clutter.ColorizeEffect({tint: color});
@@ -591,6 +594,24 @@ export const SmartHomePanelMenu = GObject.registerClass({
         effect.set_brightness(bri);
         effect.set_contrast(cont);
         return effect;
+    }
+
+    _setIconColor(icon, color, clearOnly = false) {
+        let iconEffect;
+
+        icon.clear_effects();
+
+        if (clearOnly) {
+            iconEffect = this._getIconColorEffect(this._iconPack);
+            icon.add_effect(iconEffect);
+
+            iconEffect = this._getIconBriConEffect(this._iconPack);
+            icon.add_effect(iconEffect);
+            return;
+        }
+
+        iconEffect = this._getIconColorEffect(null, color);
+        icon.add_effect(iconEffect);
     }
 
     /**
@@ -968,6 +989,18 @@ export const SmartHomePanelMenu = GObject.registerClass({
                     object,
                     this._getGroupColor(ids)
                 );
+                object.visible = this._getGroupControllable(ids, 'brightness');
+            }
+
+            object = this._itemRefresher[uuid]['brightnessIcon'];
+            if (object !== undefined) {
+                let color = this._getGroupColor(ids);
+                this._setIconColor(
+                    object,
+                    color,
+                    !color ? true : false
+                );
+                /* based on brightness visibility */
                 object.visible = this._getGroupControllable(ids, 'brightness');
             }
 
@@ -1744,7 +1777,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
     _createSlider(itemType, menuLevel, typeUi, addMiniIcon, id, ids, value, color) {
         let signal;
         let sliderBox;
-        let icon;
+        let icon = null;
         let themeContext = St.ThemeContext.get_for_stage(global.stage);
         let slider = new Slider.Slider(0);
         slider.set_width(180 * themeContext.scaleFactor);
@@ -1795,7 +1828,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
         if (addMiniIcon && [SmartHomeMenuLevel.GROUPITEMS, SmartHomeMenuLevel.GROUPITEMSSELECTED].includes(menuLevel)) {
             if (typeUi == SmartHomeUiType.BRIGHTNESS) {
-                icon = this._getIconByPath(`${this.mediaDir}/HueIcons/routinesDaytime.svg`);
+                icon = this._getIconByPath(`${this.mediaDir}/brightness-white.svg`);
             } else if (typeUi == SmartHomeUiType.POSITION) {
                 icon = this._getIconByPath(`${this.mediaDir}/blinds.svg`);
             }
@@ -1806,7 +1839,18 @@ export const SmartHomePanelMenu = GObject.registerClass({
         }
         sliderBox.add_child(slider);
 
-        return [sliderBox, slider];
+        /* only brightness icon changes color */
+        if (icon && typeUi === SmartHomeUiType.BRIGHTNESS) {
+            this._setIconColor(
+                icon,
+                color,
+                !color ? true : false
+            );
+        } else {
+            icon = null;
+        }
+
+        return [sliderBox, slider, icon];
     }
 
     _enlargeOnHover(icon, hover) {
@@ -1929,10 +1973,17 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let button;
         let switcher;
         let brightness;
+        let brightnessIcon;
         let sliderBox;
         let position;
         let updown;
         let executer;
+        let possiblyCreateMiniIcon = this._createGroupAll &&
+            this.groups &&
+            Object.keys(this.groups).includes('_all_') &&
+            this.groups['_all_']['capabilities'].includes('brightness') &&
+            this.groups['_all_']['capabilities'].includes('position');
+
         if (! ids) {
             ids = [id];
         }
@@ -1960,11 +2011,11 @@ export const SmartHomePanelMenu = GObject.registerClass({
         }
 
         if (capabilities.includes('brightness') && itemType !== SmartHomeItemType.GROUP_ALL) {
-            [sliderBox, brightness] = this._createSlider(
+            [sliderBox, brightness, brightnessIcon] = this._createSlider(
                 itemType,
                 menuLevel,
                 SmartHomeUiType.BRIGHTNESS,
-                capabilities.includes('brightness') && capabilities.includes('position'),
+                possiblyCreateMiniIcon,
                 id,
                 ids,
                 this._getGroupBrightnessValue(ids),
@@ -1976,6 +2027,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
             }
 
             this._itemRefresher[uuid]['brightness'] = brightness;
+            if (brightnessIcon) {
+                this._itemRefresher[uuid]['brightnessIcon'] = brightnessIcon;
+            }
         }
 
         if (capabilities.includes('position') && itemType !== SmartHomeItemType.GROUP_ALL) {
@@ -1983,7 +2037,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 itemType,
                 menuLevel,
                 SmartHomeUiType.POSITION,
-                capabilities.includes('brightness') && capabilities.includes('position'),
+                possiblyCreateMiniIcon,
                 id,
                 ids,
                 this._getGroupPositionValue(ids),
