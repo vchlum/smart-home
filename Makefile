@@ -6,12 +6,23 @@ PNG_FILES = $(wildcard ./docs/*.png)
 RAW_PATH = "$(BUILD_DIR)/$(UUID).shell-extension.zip"
 BUNDLE_PATH = "$(BUILD_DIR)/$(UUID).zip"
 
+ifeq ($(strip $(DESTDIR)),)
+	INSTALLTYPE = local
+	INSTALLBASE = $(HOME)/.local/share/gnome-shell/extensions
+else
+	INSTALLTYPE = system
+	SHARE_PREFIX = $(DESTDIR)/usr/share
+	INSTALLBASE = $(SHARE_PREFIX)/gnome-shell/extensions
+endif
+
 .PHONY: build package check release install uninstall clean
 
 build: clean
 	@mkdir -p $(BUILD_DIR)
 	$(MAKE) package
 	@mv -v $(RAW_PATH) $(BUNDLE_PATH)
+	mkdir -p $(BUILD_DIR)
+	cp -R ./extension/schemas/ $(BUILD_DIR)
 gresource:
 	@cd "extension/resources"; \
 	glib-compile-resources --target=../preferences.gresource preferences.gresource.xml
@@ -49,9 +60,12 @@ install:
 	@if [[ ! -f $(BUNDLE_PATH) ]]; then \
 	  $(MAKE) build; \
 	fi
-	gnome-extensions install $(BUNDLE_PATH) --force
+	rm -rf $(INSTALLBASE)/$(UUID)
+	mkdir -p $(INSTALLBASE)/$(UUID)
+	unzip $(BUNDLE_PATH) -d $(INSTALLBASE)/$(UUID)
+	glib-compile-schemas --targetdir=$(INSTALLBASE)/$(UUID)/schemas $(BUILD_DIR)/schemas
 uninstall:
-	gnome-extensions uninstall "$(UUID)"
+	rm -rf $(INSTALLBASE)/$(UUID)
 clean:
 	@rm -rfv $(BUILD_DIR)
 	@rm -rfv "$(UUID).zip"
