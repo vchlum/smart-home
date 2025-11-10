@@ -2,9 +2,36 @@ SHELL = bash
 UUID = smart-home@chlumskyvaclav.gmail.com
 
 BUILD_DIR ?= build
-PNG_FILES = $(wildcard ./docs/*.png)
 RAW_PATH = "$(BUILD_DIR)/$(UUID).shell-extension.zip"
 BUNDLE_PATH = "$(BUILD_DIR)/$(UUID).zip"
+
+LANGUAGES := $(shell find extension/po/ -type f -name '*.po' -exec sh -c 'basename "$1" | echo' _ {} \;)
+
+FILES_PACKAGE = \
+		../LICENSE \
+		../CHANGELOG.md \
+		../README.md \
+		prefs \
+		media \
+		plugins \
+		crypto \
+		semaphore.js \
+		smarthome.js \
+		smarthome-panelmenu.js \
+		screenshot.js \
+		screen-geometry.js \
+		colorpicker.js \
+		avahi.js \
+		prefs.js \
+		utils.js \
+		queue.js \
+		preferences.gresource \
+		$(NULL)
+
+FILES_BUILD = \
+		extension.js \
+		metadata.json \
+		$(NULL)
 
 ifeq ($(strip $(DESTDIR)),)
 	INSTALLTYPE = local
@@ -17,39 +44,38 @@ endif
 
 .PHONY: build package check release install uninstall clean
 
-build: clean
-	@mkdir -p $(BUILD_DIR)
-	$(MAKE) package
-	@mv -v $(RAW_PATH) $(BUNDLE_PATH)
-	mkdir -p $(BUILD_DIR)
-	cp -R ./extension/schemas/ $(BUILD_DIR)
+build: clean gresource po schemas
+	@mkdir -p $(BUILD_DIR)/$(UUID)
+	@cd "extension"; \
+	for f in $(FILES_PACKAGE) $(FILES_BUILD) ; do \
+		cp -r $$f ../$(BUILD_DIR)/$(UUID)/; \
+	done;
+schemas:
+	@mkdir -p $(BUILD_DIR)/$(UUID)/schemas
+	@cp extension/schemas/*.xml $(BUILD_DIR)/$(UUID)/schemas/; \
+	glib-compile-schemas $(BUILD_DIR)/$(UUID)/schemas/
+po:
+	@mkdir -p $(BUILD_DIR)/$(UUID)
+	@cd "extension"; \
+	for f in po/*.po; do \
+		lang=$$(basename "$$f" .po); \
+		mkdir -p  ../$(BUILD_DIR)/$(UUID)/locale/$${lang}/LC_MESSAGES/; \
+		msgfmt -c po/$${lang}.po -o ../$(BUILD_DIR)/$(UUID)/locale/$${lang}/LC_MESSAGES/smart-home.mo; \
+	done;
 gresource:
 	@cd "extension/resources"; \
 	glib-compile-resources --target=../preferences.gresource preferences.gresource.xml
 package: gresource
 	@mkdir -p $(BUILD_DIR)
 	@echo "Packing files..."
-	@cd "extension"; \
+	@for f in $(FILES_PACKAGE) ; do \
+		SOURCES="$$SOURCES --extra-source=$$f"; \
+	done; \
+	cd "extension"; \
 	gnome-extensions pack --force \
-	--extra-source=../LICENSE \
-	--extra-source=../CHANGELOG.md \
-	--extra-source=../README.md \
-	--extra-source=prefs \
-	--extra-source=media \
-	--extra-source=plugins \
-	--extra-source=crypto \
-	--extra-source=semaphore.js \
-	--extra-source=smarthome.js \
-	--extra-source=smarthome-panelmenu.js \
-	--extra-source=screenshot.js \
-	--extra-source=screen-geometry.js \
-	--extra-source=colorpicker.js \
-	--extra-source=avahi.js \
-	--extra-source=prefspage.js \
-	--extra-source=utils.js \
-	--extra-source=queue.js \
-	--extra-source=preferences.gresource \
+	$$SOURCES \
 	-o ../$(BUILD_DIR)/
+	@mv -v $(RAW_PATH) $(BUNDLE_PATH)
 check:
 	@if [[ ! -f $(BUNDLE_PATH) ]]; then \
 	  echo -e "\nWARNING! Extension zip couldn't be found"; exit 1; \
@@ -57,16 +83,12 @@ check:
 	  echo -e "\nWARNING! The extension is too big to be uploaded to the extensions website, keep it smaller than 4096 KB"; exit 1; \
 	fi
 install:
-	@if [[ ! -f $(BUNDLE_PATH) ]]; then \
-	  $(MAKE) build; \
-	fi
+	$(MAKE) build; \
 	rm -rf $(INSTALLBASE)/$(UUID)
 	mkdir -p $(INSTALLBASE)/$(UUID)
-	unzip $(BUNDLE_PATH) -d $(INSTALLBASE)/$(UUID)
-	glib-compile-schemas --targetdir=$(INSTALLBASE)/$(UUID)/schemas $(BUILD_DIR)/schemas
+	cp -rv $(BUILD_DIR)/$(UUID)/* $(INSTALLBASE)/$(UUID)
 uninstall:
 	rm -rf $(INSTALLBASE)/$(UUID)
 clean:
-	@rm -rfv $(BUILD_DIR)
+	@rm -rf $(BUILD_DIR)
 	@rm -rfv "$(UUID).zip"
-	@rm -rfv extension/ui/*.ui~ extension/ui/*.ui#
