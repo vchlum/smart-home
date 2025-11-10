@@ -1,3 +1,5 @@
+## Version 18
+ * colorize brightness icon if available
 ## Version 17
  * add icons to group sliders if needed
  * fix _all_ group refreshing
