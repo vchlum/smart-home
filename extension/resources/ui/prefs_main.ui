@@ -148,7 +148,7 @@
                       <child>
                         <object class="AdwExpanderRow" id="philipsHomeAssistantRows">
                           <property name="title">Home Assistant</property>
-                          
+
                           <child type="suffix">
                             <object class="GtkButton">
                               <property name="valign">center</property>
@@ -157,6 +157,17 @@
                               <property name="action-name">add-device-home-assistant.run</property>
                               <style>
                                 <class name="flat"/>
+                              </style>
+                            </object>
+                          </child>
+
+                          <child type="suffix">
+                            <object class="GtkImage" id="homeAssistantDiscoverIcon">
+                              <property name="icon-name">starred-symbolic</property>
+                              <property name="valign">center</property>
+                              <property name="visible">false</property>
+                              <style>
+                                <class name="dimmed"/>
                               </style>
                             </object>
                           </child>
@@ -195,6 +206,17 @@
                             </object>
                           </child>
 
+                          <child type="suffix">
+                            <object class="GtkImage" id="philipsHueBridgeDiscoverIcon">
+                              <property name="icon-name">starred-symbolic</property>
+                              <property name="valign">center</property>
+                              <property name="visible">false</property>
+                              <style>
+                                <class name="dimmed"/>
+                              </style>
+                            </object>
+                          </child>
+
                         </object>
                       </child>
 
@@ -218,6 +240,17 @@
                               <property name="action-name">add-device-philipshue-syncbox.run</property>
                               <style>
                                 <class name="flat"/>
+                              </style>
+                            </object>
+                          </child>
+
+                          <child type="suffix">
+                            <object class="GtkImage" id="philipsHueSyncboxDiscoverIcon">
+                              <property name="icon-name">starred-symbolic</property>
+                              <property name="valign">center</property>
+                              <property name="visible">false</property>
+                              <style>
+                                <class name="dimmed"/>
                               </style>
                             </object>
                           </child>
@@ -295,6 +328,17 @@
                             </object>
                           </child>
 
+                          <child type="suffix">
+                            <object class="GtkImage" id="nanoleafDiscoverIcon">
+                              <property name="icon-name">starred-symbolic</property>
+                              <property name="valign">center</property>
+                              <property name="visible">false</property>
+                              <style>
+                                <class name="dimmed"/>
+                              </style>
+                            </object>
+                          </child>
+
                         </object>
                       </child>
                     </object>
@@ -323,6 +367,17 @@
                               <property name="action-name">add-device-ikea-dirigera.run</property>
                               <style>
                                 <class name="flat"/>
+                              </style>
+                            </object>
+                          </child>
+
+                          <child type="suffix">
+                            <object class="GtkImage" id="ikeaDirigeraDiscoverIcon">
+                              <property name="icon-name">starred-symbolic</property>
+                              <property name="valign">center</property>
+                              <property name="visible">false</property>
+                              <style>
+                                <class name="dimmed"/>
                               </style>
                             </object>
                           </child>
@@ -406,6 +461,17 @@
                             </object>
                           </child>
 
+                          <child type="suffix">
+                            <object class="GtkImage" id="shellyDiscoverIcon">
+                              <property name="icon-name">starred-symbolic</property>
+                              <property name="valign">center</property>
+                              <property name="visible">false</property>
+                              <style>
+                                <class name="dimmed"/>
+                              </style>
+                            </object>
+                          </child>
+
                         </object>
                       </child>
                     </object>
@@ -424,12 +490,12 @@
                       <property name="title" translatable="yes">Miscellaneous</property>
 
                       <child>
-                        <object class="AdwActionRow">
+                        <object class="AdwActionRow" id="discoverDevices">
                           <property name="title" translatable="yes">Discover devices</property>
                           <property name="subtitle" translatable="yes">It requires 'avahi-browse' installed.</property>
                           <property name="activatable">True</property>
                           <property name="action-name">discover.run</property>
-                          </object>
+                        </object>
                       </child>
 
                       <child>

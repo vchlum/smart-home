@@ -47,6 +47,7 @@ import * as PhilipsHueSyncboxApi from '../plugins/philipshue-syncbox/api.js';
 import * as NanoleafApi from '../plugins/nanoleaf/api.js';
 import * as IkeaDirigeraApi from '../plugins/ikea-dirigera/api.js';
 import * as ShellyApi from '../plugins/shelly/api.js';
+import { isAvahiBrowseInstalled } from '../avahi.js';
 
 export const PreferencesMain = GObject.registerClass({
     GTypeName: 'SmartHomeMain',
@@ -74,6 +75,13 @@ export const PreferencesMain = GObject.registerClass({
         "nanoleafRows",
         "ikeaDirigeraRows",
         "shellyRows",
+        'homeAssistantDiscoverIcon',
+        'philipsHueBridgeDiscoverIcon',
+        'philipsHueSyncboxDiscoverIcon',
+        'nanoleafDiscoverIcon',
+        'ikeaDirigeraDiscoverIcon',
+        'shellyDiscoverIcon',
+        "discoverDevices",
     ],
 }, class PreferencesMain extends Adw.NavigationPage {
     static _classInit(klass) {
@@ -104,7 +112,23 @@ export const PreferencesMain = GObject.registerClass({
         });
 
         klass.install_action('discover.run', null, (widget, actionName, parameter) => {
-            widget.discoverAll();
+            if (isAvahiBrowseInstalled()) {
+                widget.discoverAll();
+
+                if (
+                    widget._homeAssistantDiscoverIcon.visible ||
+                    widget._philipsHueBridgeDiscoverIcon.visible ||
+                    widget._philipsHueSyncboxDiscoverIcon.visible ||
+                    widget._nanoleafDiscoverIcon.visible ||
+                    widget._ikeaDirigeraDiscoverIcon.visible ||
+                    widget._shellyDiscoverIcon.visible
+
+                ) {
+                    widget._discoverDevices.subtitle = _("Sections above with discovered devices have been marked with a star.");
+                } else {
+                    widget._discoverDevices.subtitle = _("No new device discovered.");
+                }
+            }
         });
 
         klass.install_action('about.run', null, (widget, actionName, parameter) => {
@@ -122,6 +146,10 @@ export const PreferencesMain = GObject.registerClass({
         this._settingsLoaded = {};
         this._rows = {};
         this._pages = {};
+
+        if (isAvahiBrowseInstalled()) {
+            this._discoverDevices.subtitle = "";
+        }
     }
 
     writeSettings() {
@@ -1318,6 +1346,8 @@ export const PreferencesMain = GObject.registerClass({
             }
             if (found) { continue; }
 
+            this._homeAssistantDiscoverIcon.visible = true;
+
             await this.createDeviceTmpUI(
                 id,
                 pluginName,
@@ -1346,6 +1376,8 @@ export const PreferencesMain = GObject.registerClass({
             }
             if (found) { continue; }
 
+            this._philipsHueBridgeDiscoverIcon.visible = true;
+
             await this.createDeviceTmpUI(
                 id,
                 pluginName,
@@ -1368,6 +1400,8 @@ export const PreferencesMain = GObject.registerClass({
                 }
             }
             if (found) { continue; }
+
+            this._philipsHueSyncboxDiscoverIcon.visible = true;
 
             await this.createDeviceTmpUI(
                 id,
@@ -1392,6 +1426,8 @@ export const PreferencesMain = GObject.registerClass({
             }
             if (found) { continue; }
 
+            this._nanoleafDiscoverIcon.visible = true;
+
             await this.createDeviceTmpUI(
                 id,
                 pluginName,
@@ -1415,6 +1451,8 @@ export const PreferencesMain = GObject.registerClass({
             }
             if (found) { continue; }
 
+            this._ikeaDirigeraDiscoverIcon.visible = true;
+
             await this.createDeviceTmpUI(
                 id,
                 pluginName,
@@ -1437,6 +1475,8 @@ export const PreferencesMain = GObject.registerClass({
                 }
             }
             if (found) { continue; }
+
+            this._shellyDiscoverIcon.visible = true;
 
             await this.createDeviceTmpUI(
                 id,

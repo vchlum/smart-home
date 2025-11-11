@@ -381,3 +381,9 @@ msgstr "Nabídka tohoto zařízení může být připojena do jedné, univerzál
 
 msgid "The device has been merged into universal menu. Separate it in device's settings."
 msgstr "Zařízení bylo připojeno do univerzální nabídky. Oddělte jej v nastavení zařízení."
+
+msgid "Sections above with discovered devices have been marked with a star."
+msgstr "Sekca výše s rozpoznanými zařízeními jsou označené hvězdičkou."
+
+msgid "No new device discovered."
+msgstr "Žádná nová zařízení."

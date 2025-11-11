@@ -39,6 +39,22 @@ import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import GioUnix from 'gi://GioUnix';
 
+export function isAvahiBrowseInstalled() {
+    try {
+        let [success, stdout, stderr, exitCode] = GLib.spawn_command_line_sync('which avahi-browse');
+
+        if (success && exitCode === 0 && stdout.length > 0) {
+            return true;
+        }
+
+        [success, stdout, stderr, exitCode] = GLib.spawn_command_line_sync('avahi-browse --help');
+
+        return success && exitCode === 0;
+    } catch {
+        return false;
+    }
+}
+
 /**
  * https://gjs.guide/guides/gio/subprocesses.html#asynchronous-communication
  * 

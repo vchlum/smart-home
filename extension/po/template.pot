@@ -373,3 +373,9 @@ msgstr ""
 
 msgid "The device has been merged into universal menu. Separate it in device's settings."
 msgstr ""
+
+msgid "Sections above with discovered devices have been marked with a star."
+msgstr ""
+
+msgid "No new device discovered."
+msgstr ""
