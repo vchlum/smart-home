@@ -3,14 +3,14 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-10-10 17:46+0200\n"
-"PO-Revision-Date: 2025-01-18 12:51+0100\n"
+"PO-Revision-Date: 2025-12-06 20:23+0100\n"
 "Last-Translator: Christian Lauinger <christian@lauinger-clan.de>\n"
 "Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.6\n"
 
 msgid "Refresh menu"
 msgstr "Menü aktualisieren"
@@ -212,9 +212,201 @@ msgid ""
 "history of prior seizures or epilepsy."
 msgstr ""
 "Diese Anwendung nutzt schnell wechselnde Lichteffekte, die allein oder in "
-"Kombination mit bestimmten Bildschirminhalten bisher unerkannte "
-"epileptische Symptome oder Anfälle bei Personen auslösen können, bei denen "
-"keine Anfälle oder Epilepsie bekannt sind."
+"Kombination mit bestimmten Bildschirminhalten bisher unerkannte epileptische "
+"Symptome oder Anfälle bei Personen auslösen können, bei denen keine Anfälle "
+"oder Epilepsie bekannt sind."
 
 msgid "Disabled"
 msgstr "Deaktiviert"
+
+msgid "Remove device?"
+msgstr "Gerät entfernen?"
+
+msgid "This can not be undone. Settings related to the device will be lost."
+msgstr ""
+"Dies kann nicht rückgängig gemacht werden. Die Einstellungen für das Gerät "
+"gehen verloren."
+
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgid "Remove"
+msgstr "Entfernen"
+
+msgid "IP address already registered."
+msgstr "IP-Adresse bereits registriert."
+
+msgid "Please, insert Home Assistant IP address and an access token."
+msgstr ""
+"Bitte geben Sie die IP-Adresse von Home Assistant und einen Zugriffstoken "
+"ein."
+
+msgid "Press the button on the bridge and click 'Add'."
+msgstr "Drücken Sie die Taste auf der Brücke und klicken Sie auf „Hinzufügen“."
+
+msgid "Insert IP and press 'Add'."
+msgstr "Geben Sie die IP-Adresse ein und klicken Sie auf „Hinzufügen“."
+
+msgid ""
+"On the Nanoleaf controller, hold the on-off button for 5-7 seconds until the "
+"LED starts flashing. Alternatively, allow the API pairing in the app. "
+"Depends on your light. While the LED is flashing, press the 'Add' button."
+msgstr ""
+"Halten Sie auf dem Nanoleaf-Controller die Ein-/Aus-Taste 5–7 Sekunden lang "
+"gedrückt, bis die LED zu blinken beginnt. Alternativ können Sie die API-"
+"Kopplung in der App zulassen. Dies hängt von Ihrer Leuchte ab. Drücken Sie "
+"die Taste „Hinzufügen“, während die LED blinkt."
+
+msgid "Failed to connect to the device."
+msgstr "Die Verbindung zum Gerät konnte nicht hergestellt werden."
+
+msgid "Connected"
+msgstr "Verbunden"
+
+msgid ""
+"While this dialog is shown, hold the button on HDMI sync box until the led "
+"blinks green (~3 seconds) and release."
+msgstr ""
+"Während dieser Dialog angezeigt wird, halten Sie die Taste an der HDMI-"
+"Synchronisationsbox gedrückt, bis die LED grün blinkt (~3 Sekunden), und "
+"lassen Sie sie dann los."
+
+msgid "Press the button on the bridge."
+msgstr "Drücken Sie den Knopf auf der Brücke."
+
+msgid "Version"
+msgstr "Version"
+
+msgid "HDMI input"
+msgstr "HDMI-Eingang"
+
+msgid "Synchronization"
+msgstr "Synchronisierung"
+
+msgid "Intense"
+msgstr "Intensiv"
+
+msgid "High"
+msgstr "Hoch"
+
+msgid "Moderate"
+msgstr "Mäßig"
+
+msgid "Subtle"
+msgstr "Subtil"
+
+msgid "Movie"
+msgstr "Film"
+
+msgid "Game"
+msgstr "Spiel"
+
+msgid ""
+"The synchronization setting is now available in the section Philips Hue/"
+"Desktop Sync."
+msgstr ""
+"Die Synchronisierungseinstellung ist jetzt im Abschnitt „Philips Hue/Desktop "
+"Sync“ verfügbar."
+
+msgid ""
+"Insert IP address, user name, and password (if not set, leave empty) then "
+"press 'Add'."
+msgstr ""
+"Geben Sie die IP-Adresse, den Benutzernamen und das Passwort ein (falls "
+"nicht festgelegt, lassen Sie das Feld leer) und klicken Sie dann auf "
+"„Hinzufügen“."
+
+msgid "Username (use 'admin' for Gen 2+)"
+msgstr "Benutzername (verwenden Sie „admin” für Gen 2+)"
+
+msgid "Password (leave empty if not set)"
+msgstr "Passwort (leer lassen, wenn nicht festgelegt)"
+
+msgid "Username"
+msgstr "Benutzername"
+
+msgid "Password"
+msgstr "Passwort"
+
+msgid "Show power consumption"
+msgstr "Stromverbrauch anzeigen"
+
+msgid "IP address or URL (e.g.: 'http://ha')"
+msgstr "IP-Adresse oder URL (z. B.: „http://ha“)"
+
+msgid "Invalid URL."
+msgstr "Ungültige URL."
+
+msgid "Display"
+msgstr "Anzeige"
+
+msgid "Notebook mode"
+msgstr "Notebookmodus"
+
+msgid "Turn it on only if an external display is connected"
+msgstr "Schalten Sie es nur ein, wenn ein externes Display angeschlossen ist"
+
+msgid "Reduced panel icon padding"
+msgstr "Reduzierter Abstand zwischen den Symbolen auf der Systemleiste"
+
+msgid "Turn lights off on shutdown"
+msgstr "Lichter beim Herunterfahren ausschalten"
+
+msgid "On login lights also turn off on shutdown."
+msgstr ""
+"Beim Anmelden werden die Lichter auch beim Herunterfahren ausgeschaltet."
+
+msgid "Notification lights"
+msgstr "Benachrichtigungsleuchten"
+
+msgid "Notify only if an external display is connected"
+msgstr "Nur benachrichtigen, wenn ein externes Display angeschlossen ist"
+
+msgid "Notification light"
+msgstr "Benachrichtigungsleuchte"
+
+msgid "Add new notification light"
+msgstr "Neue Benachrichtigungsleuchte hinzufügen"
+
+msgid "Light"
+msgstr "Licht"
+
+msgid "Select light for notification."
+msgstr "Wählen Sie Licht für Benachrichtigungen."
+
+msgid "Notification title (regex)"
+msgstr "Benachrichtigungstitel (Regex)"
+
+msgid "Notification body (regex)"
+msgstr "Benachrichtigungstext (Regex)"
+
+msgid "Notification light settings"
+msgstr "Einstellungen für Benachrichtigungsleuchte"
+
+msgid "No lights detected"
+msgstr "Keine Lampen erkannt"
+
+msgid "Remember opened menu"
+msgstr "Geöffnetes Menü merken"
+
+msgid "Smart Home Universal Menu"
+msgstr "Smart Home Universalmenü"
+
+msgid "Device plugins can be merged into one universal menu."
+msgstr ""
+"Geräte-Plugins können in einem universellen Menü zusammengefasst werden."
+
+msgid "Merge into universal menu"
+msgstr "In das universelle Menü einfügen"
+
+msgid "This device's menu can be merged into one universal menu."
+msgstr ""
+"Das Menü dieses Geräts kann zu einem universellen Menü zusammengefasst "
+"werden."
+
+msgid ""
+"The device has been merged into universal menu. Separate it in device's "
+"settings."
+msgstr ""
+"Das Gerät wurde in das Universalmenü integriert. Trennen Sie es in den "
+"Geräteeinstellungen."
