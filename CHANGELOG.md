@@ -1,3 +1,5 @@
+## Version 20
+ * fix and simplify checking for avahi-browse
 ## Version 19
  * improve UX of device discovering
  * Updates German translation
