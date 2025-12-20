@@ -1,3 +1,6 @@
+## Version 19
+ * improve UX of device discovering
+ * fix empty prefs page on Gnome 49.2
 ## Version 18
  * colorize brightness icon if available
 ## Version 17
