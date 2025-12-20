@@ -4,9 +4,7 @@
   <requires lib="libadwaita" version="1.0"/>
   <template class="SmartHomePrefsPage" parent="AdwPreferencesPage">
     <child>
-      <object class="GtkScrolledWindow">
-        <property name="hscrollbar-policy">automatic</property>
-        <property name="vscrollbar-policy">automatic</property>
+      <object class="AdwPreferencesGroup">
         <property name="hexpand">true</property>
         <property name="vexpand">true</property>
         <property name="margin-bottom">50</property>
