@@ -233,6 +233,8 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 'changed::color-scheme',
                 () => {
                     this._updatePanelIconForDarkMode();
+                    /* Rebuild menu to update all icons for new dark mode */
+                    this.requestRebuild();
                 }
             );
             this._appendSignal(signal, this._interfaceSettings);
