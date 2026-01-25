@@ -180,6 +180,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._networkClient = undefined;
         this._reducedPadding = false;
         this._itemRefresher = {};
+        this._panelIconPack = SmartHomeIconPack.SYSTEM;
         this._iconPack = SmartHomeIconPack.SYSTEM;
         this._pluginSettings = {};
         this._notificationSettings = {};
@@ -409,14 +410,21 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
         this.readMenuSelectedSettings();
 
+        tmp = this._panelIconPack;
+        this._panelIconPack = this._settings.get_enum(
+            Utils.SETTINGS_PANEL_ICONPACK
+        );
+        if (tmp !== this._panelIconPack) {
+            /* Update panel icon immediately when panel icon pack preference changes */
+            this._updatePanelIconForDarkMode();
+        }
+
         tmp = this._iconPack;
         this._iconPack = this._settings.get_enum(
             Utils.SETTINGS_ICONPACK
         );
         if (tmp !== this._iconPack) {
             needsRebuild = true;
-            /* Update panel icon immediately when icon pack preference changes */
-            this._updatePanelIconForDarkMode();
         }
 
         if (Object.keys(this._pluginSettings).length > 0) {
@@ -639,6 +647,37 @@ export const SmartHomePanelMenu = GObject.registerClass({
     }
 
     /**
+     * Resolves the actual panel icon pack to use, handling the SYSTEM option.
+     * When SYSTEM is selected, auto-detects based on system dark mode.
+     * INVERTS the logic: dark mode uses BRIGHT icons, light mode uses DARK icons.
+     * 
+     * @method _resolvePanelIconPack
+     * @private
+     * @return {Number} The resolved panel icon pack (BRIGHT or DARK)
+     */
+    _resolvePanelIconPack() {
+        /* If not SYSTEM, return as-is */
+        if (this._panelIconPack !== SmartHomeIconPack.SYSTEM) {
+            return this._panelIconPack;
+        }
+
+        /* SYSTEM selected - auto-detect based on system theme and INVERT */
+        let isDarkMode = false;
+        
+        if (this._interfaceSettings) {
+            try {
+                const colorScheme = this._interfaceSettings.get_string('color-scheme');
+                isDarkMode = colorScheme === 'prefer-dark';
+            } catch (e) {
+                /* If detection fails, default to BRIGHT */
+            }
+        }
+        
+        /* INVERTED: dark mode → bright icons, light mode → dark icons */
+        return isDarkMode ? SmartHomeIconPack.BRIGHT : SmartHomeIconPack.DARK;
+    }
+
+    /**
      * Resolves the actual icon pack to use, handling the SYSTEM option.
      * When SYSTEM is selected, auto-detects based on system dark mode.
      * 
@@ -664,12 +703,13 @@ export const SmartHomePanelMenu = GObject.registerClass({
             }
         }
         
-        return isDarkMode ? SmartHomeIconPack.DARK : SmartHomeIconPack.BRIGHT;
+        /* INVERTED: dark mode → bright icons, light mode → dark icons */
+        return isDarkMode ? SmartHomeIconPack.BRIGHT : SmartHomeIconPack.DARK;
     }
 
     /**
      * Detects if dark mode is active and updates the panel icon accordingly.
-     * Respects user's icon pack preference (system, bright, dark, or none).
+     * Respects user's panel icon pack preference (system, bright, or dark).
      * 
      * @method _updatePanelIconForDarkMode
      * @private
@@ -679,9 +719,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
             return;
         }
 
-        const iconPack = this._resolveIconPack();
+        const iconPack = this._resolvePanelIconPack();
 
-        /* Apply appropriate icon effect based on selected/detected icon pack */
+        /* Apply appropriate icon effect based on selected/detected panel icon pack */
         this._panelIcon.clear_effects();
         
         const iconEffect = this._getIconBriConEffect(iconPack);

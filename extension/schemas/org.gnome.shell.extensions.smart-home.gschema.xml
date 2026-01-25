@@ -11,6 +11,11 @@
     <value value="2" nick="dark"/>
     <value value="3" nick="system"/>
   </enum>
+  <enum id="org.gnome.shell.extensions.smart-home.panel-icon-pack">
+    <value value="1" nick="bright"/>
+    <value value="2" nick="dark"/>
+    <value value="3" nick="system"/>
+  </enum>
   <schema id="org.gnome.shell.extensions.smart-home" path="/org/gnome/shell/extensions/smart-home/">
 
     <!-- See also: https://developer.gnome.org/glib/stable/gvariant-format-strings.html -->
@@ -30,6 +35,10 @@
     <key name="debug" type="b">
       <default>false</default>
       <summary>Enable debugging messages</summary>
+    </key>
+    <key name="panel-icon-pack" enum="org.gnome.shell.extensions.smart-home.panel-icon-pack">
+      <default>"system"</default>
+      <summary>Used panel icon pack</summary>
     </key>
     <key name="icon-pack" enum="org.gnome.shell.extensions.smart-home.icon-pack">
       <default>"system"</default>

@@ -36,6 +36,7 @@
 export const SETTINGS_SCHEMA = "org.gnome.shell.extensions.smart-home";
 export const SETTINGS_FORCE_ENGLISH = "force-english";
 export const SETTINGS_DEBUG = "debug";
+export const SETTINGS_PANEL_ICONPACK = "panel-icon-pack";
 export const SETTINGS_ICONPACK = "icon-pack";
 export const SETTINGS_REMEMBER_OPENED_SUBMENU = "remember-opened-submenu";
 export const SETTINGS_REDUCED_PADDING = "reduced-padding";
