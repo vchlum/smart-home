@@ -9,6 +9,7 @@
     <value value="0" nick="none"/>
     <value value="1" nick="bright"/>
     <value value="2" nick="dark"/>
+    <value value="3" nick="system"/>
   </enum>
   <schema id="org.gnome.shell.extensions.smart-home" path="/org/gnome/shell/extensions/smart-home/">
 
@@ -31,7 +32,7 @@
       <summary>Enable debugging messages</summary>
     </key>
     <key name="icon-pack" enum="org.gnome.shell.extensions.smart-home.icon-pack">
-      <default>"bright"</default>
+      <default>"system"</default>
       <summary>Used icon pack</summary>
     </key>
     <key name="smart-home-universal" type="a{sa{ss}}">

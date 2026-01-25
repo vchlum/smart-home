@@ -60,7 +60,8 @@ const SceneTypes = ['scene'];
 export const SmartHomeIconPack = {
     NONE: 0,
     BRIGHT: 1,
-    DARK: 2
+    DARK: 2,
+    SYSTEM: 3
 };
 
 export const SmartHomeMenuPosition = {
@@ -179,7 +180,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._networkClient = undefined;
         this._reducedPadding = false;
         this._itemRefresher = {};
-        this._iconPack = SmartHomeIconPack.BRIGHT;
+        this._iconPack = SmartHomeIconPack.SYSTEM;
         this._pluginSettings = {};
         this._notificationSettings = {};
         this._timers = [];
@@ -193,6 +194,8 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._notifyNotebookMode = false;
         this._createGroupAll = true;
         this._inUniversalMenu = false;
+        this._panelIcon = null;
+        this._interfaceSettings = null;
 
         this.readSettings();
 
@@ -213,15 +216,33 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
         let box = new St.BoxLayout({style_class: 'panel-status-menu-box'});
 
-        let icon = new St.Icon({
+        this._panelIcon = new St.Icon({
             gicon : Gio.icon_new_for_string(`${this.pluginMediaDir}/main.svg`),
             style_class : 'system-status-icon',
         });
 
-        let iconEffect = this._getIconBriConEffect(SmartHomeIconPack.BRIGHT);
-        icon.add_effect(iconEffect);
+        /* Initialize interface settings for dark mode detection */
+        try {
+            this._interfaceSettings = new Gio.Settings({
+                schema_id: 'org.gnome.desktop.interface'
+            });
+            
+            /* Listen for color scheme changes */
+            signal = this._interfaceSettings.connect(
+                'changed::color-scheme',
+                () => {
+                    this._updatePanelIconForDarkMode();
+                }
+            );
+            this._appendSignal(signal, this._interfaceSettings);
+        } catch (e) {
+            Utils.logError(`Failed to initialize interface settings for dark mode detection: ${e}`);
+        }
 
-        box.add_child(icon);
+        /* Apply initial icon color based on dark mode */
+        this._updatePanelIconForDarkMode();
+
+        box.add_child(this._panelIcon);
         this.add_child(box);
 
         signal = this._settings.connect(
@@ -394,6 +415,8 @@ export const SmartHomePanelMenu = GObject.registerClass({
         );
         if (tmp !== this._iconPack) {
             needsRebuild = true;
+            /* Update panel icon immediately when icon pack preference changes */
+            this._updatePanelIconForDarkMode();
         }
 
         if (Object.keys(this._pluginSettings).length > 0) {
@@ -602,16 +625,70 @@ export const SmartHomePanelMenu = GObject.registerClass({
         icon.clear_effects();
 
         if (clearOnly) {
-            iconEffect = this._getIconColorEffect(this._iconPack);
+            const resolvedIconPack = this._resolveIconPack();
+            iconEffect = this._getIconColorEffect(resolvedIconPack);
             icon.add_effect(iconEffect);
 
-            iconEffect = this._getIconBriConEffect(this._iconPack);
+            iconEffect = this._getIconBriConEffect(resolvedIconPack);
             icon.add_effect(iconEffect);
             return;
         }
 
         iconEffect = this._getIconColorEffect(null, color);
         icon.add_effect(iconEffect);
+    }
+
+    /**
+     * Resolves the actual icon pack to use, handling the SYSTEM option.
+     * When SYSTEM is selected, auto-detects based on system dark mode.
+     * 
+     * @method _resolveIconPack
+     * @private
+     * @return {Number} The resolved icon pack (NONE, BRIGHT, or DARK)
+     */
+    _resolveIconPack() {
+        /* If not SYSTEM, return as-is */
+        if (this._iconPack !== SmartHomeIconPack.SYSTEM) {
+            return this._iconPack;
+        }
+
+        /* SYSTEM selected - auto-detect based on system theme */
+        let isDarkMode = false;
+        
+        if (this._interfaceSettings) {
+            try {
+                const colorScheme = this._interfaceSettings.get_string('color-scheme');
+                isDarkMode = colorScheme === 'prefer-dark';
+            } catch (e) {
+                /* If detection fails, default to BRIGHT */
+            }
+        }
+        
+        return isDarkMode ? SmartHomeIconPack.DARK : SmartHomeIconPack.BRIGHT;
+    }
+
+    /**
+     * Detects if dark mode is active and updates the panel icon accordingly.
+     * Respects user's icon pack preference (system, bright, dark, or none).
+     * 
+     * @method _updatePanelIconForDarkMode
+     * @private
+     */
+    _updatePanelIconForDarkMode() {
+        if (!this._panelIcon) {
+            return;
+        }
+
+        const iconPack = this._resolveIconPack();
+
+        /* Apply appropriate icon effect based on selected/detected icon pack */
+        this._panelIcon.clear_effects();
+        
+        const iconEffect = this._getIconBriConEffect(iconPack);
+        
+        if (iconEffect) {
+            this._panelIcon.add_effect(iconEffect);
+        }
     }
 
     /**
@@ -627,7 +704,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let icon = null;
         let themeContext = St.ThemeContext.get_for_stage(global.stage);
 
-        if (this._iconPack === SmartHomeIconPack.NONE) {
+        const resolvedIconPack = this._resolveIconPack();
+
+        if (resolvedIconPack === SmartHomeIconPack.NONE) {
             return null;
         }
 
@@ -645,10 +724,10 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 IconSize * themeContext.scaleFactor * 0.8
             );
 
-            let iconEffect = this._getIconColorEffect(this._iconPack);
+            let iconEffect = this._getIconColorEffect(resolvedIconPack);
             icon.add_effect(iconEffect);
 
-            iconEffect = this._getIconBriConEffect(this._iconPack);
+            iconEffect = this._getIconBriConEffect(resolvedIconPack);
             icon.add_effect(iconEffect);
 
         } catch (e) {
@@ -672,7 +751,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let icon = null;
         let themeContext = St.ThemeContext.get_for_stage(global.stage);
 
-        if (this._iconPack === SmartHomeIconPack.NONE) {
+        const resolvedIconPack = this._resolveIconPack();
+
+        if (resolvedIconPack === SmartHomeIconPack.NONE) {
             return null;
         }
 
@@ -690,7 +771,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 IconSize * themeContext.scaleFactor
             );
 
-            let iconEffect = this._getIconBriConEffect(this._iconPack);
+            let iconEffect = this._getIconBriConEffect(resolvedIconPack);
             icon.add_effect(iconEffect);
 
         } catch(e) {
@@ -820,7 +901,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
             this._("Refresh menu")
         );
 
-        if (this._iconPack !== this._iconPack.NONE) {
+        const resolvedIconPack = this._resolveIconPack();
+
+        if (resolvedIconPack !== SmartHomeIconPack.NONE) {
             icon = this._getIconByPath(this.mainDir + '/media/HueIcons/settingsSoftwareUpdate.svg');
 
             if (icon !== null){
@@ -841,7 +924,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
             this._("Settings")
         );
 
-        if (this._iconPack !== this._iconPack.NONE) {
+        if (resolvedIconPack !== SmartHomeIconPack.NONE) {
             icon = this._getIconByPath(this.mainDir + '/media/HueIcons/tabbarSettings.svg');
 
             if (icon !== null) {
@@ -1112,6 +1195,11 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 delete(this._signals[id]);
             }
         }
+
+        /* Clean up interface settings after all signals are disconnected */
+        if (levels.includes(SmartHomeMenuLevel.NONE) && this._interfaceSettings) {
+            this._interfaceSettings = null;
+        }
     }
 
     /**
@@ -1198,7 +1286,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let icon;
         let iconPath;
 
-        if (this._iconPack === SmartHomeIconPack.NONE) {
+        const resolvedIconPack = this._resolveIconPack();
+
+        if (resolvedIconPack === SmartHomeIconPack.NONE) {
             return null;
         }
 
@@ -1465,7 +1555,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let icon;
         let iconPath = null;
 
-        if (this._iconPack === SmartHomeIconPack.NONE) {
+        const resolvedIconPack = this._resolveIconPack();
+
+        if (resolvedIconPack === SmartHomeIconPack.NONE) {
             return;
         }
 
@@ -1854,7 +1946,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
     }
 
     _enlargeOnHover(icon, hover) {
-        if (this._iconPack === SmartHomeIconPack.NONE) {
+        const resolvedIconPack = this._resolveIconPack();
+
+        if (resolvedIconPack === SmartHomeIconPack.NONE) {
             icon.style = hover ? 'font-size:220%; font-weight:bold;' : 'font-size:220%;';
         } else {
             let themeContext = St.ThemeContext.get_for_stage(global.stage);
