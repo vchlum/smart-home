@@ -89,6 +89,7 @@ export const PreferencesPage = GObject.registerClass({
         this._settingsLoaded[Utils.SETTINGS_REDUCED_PADDING] = this._settings.get_boolean(Utils.SETTINGS_REDUCED_PADDING);
         this._settingsLoaded[Utils.SETTINGS_DEBUG] = this._settings.get_boolean(Utils.SETTINGS_DEBUG);
         this._settingsLoaded[Utils.SETTINGS_ICONPACK] = this._settings.get_enum(Utils.SETTINGS_ICONPACK);
+        this._settingsLoaded[Utils.SETTINGS_PANEL_ICONPACK] = this._settings.get_enum(Utils.SETTINGS_PANEL_ICONPACK);
 
         for (let pluginName of Utils.PLUGIN_LIST) {
             this._settingsLoaded[pluginName] = this._settings.get_value(pluginName).deep_unpack();
@@ -101,4 +102,3 @@ export const PreferencesPage = GObject.registerClass({
         await this._prefsMain.updateUI(this._settingsLoaded, this._preferencesPage);
     }
 });
-

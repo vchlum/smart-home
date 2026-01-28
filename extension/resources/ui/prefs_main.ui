@@ -29,6 +29,22 @@
                           <property name="title" translatable="yes">General settings</property>
 
                           <child>
+                            <object class="AdwComboRow" id="comboPanelIconPack">
+                              <property name="title" translatable="yes">Panel icon pack</property>
+                              <property name="model">
+                                <object class="GtkStringList">
+                                  <items>
+                                    <item translatable="yes" comments="bright">bright</item>
+                                    <item translatable="yes" comments="dark">dark</item>
+                                    <item translatable="yes" comments="system">system</item>
+                                  </items>
+                                </object>
+                              </property>
+                              <signal name="notify::selected-item" handler="_panelIconPackSelected" swapped="no"/>
+                            </object>
+                          </child>
+
+                          <child>
                             <object class="AdwComboRow" id="comboIconPack">
                               <property name="title" translatable="yes">Icon pack</property>
                               <property name="model">
@@ -37,6 +53,7 @@
                                   <item translatable="yes" comments="none">none</item>
                                     <item translatable="yes" comments="bright">bright</item>
                                     <item translatable="yes" comments="dark">dark</item>
+                                    <item translatable="yes" comments="system">system</item>
                                   </items>
                                 </object>
                               </property>

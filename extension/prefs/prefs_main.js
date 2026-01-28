@@ -53,6 +53,7 @@ export const PreferencesMain = GObject.registerClass({
     GTypeName: 'SmartHomeMain',
     Template: 'resource:///org/gnome/Shell/Extensions/smart-home/ui/prefs_main.ui',
     InternalChildren: [
+        "comboPanelIconPack",
         "comboIconPack",
         "switchForceEnglish",
         "switchRememberSubmenu",
@@ -167,6 +168,9 @@ export const PreferencesMain = GObject.registerClass({
 
     async updateUI(settingsLoaded, preferencesPage) {
         this._settingsLoaded = settingsLoaded;
+        
+        /* Panel icon pack is offset by 1 because enum starts at 1 (no "none" option) */
+        this._comboPanelIconPack.selected = this._settingsLoaded[Utils.SETTINGS_PANEL_ICONPACK] - 1;
         this._comboIconPack.selected = this._settingsLoaded[Utils.SETTINGS_ICONPACK];
         this._switchRememberSubmenu.active = this._settingsLoaded[Utils.SETTINGS_REMEMBER_OPENED_SUBMENU];
         this._switchReducedPadding.active = this._settingsLoaded[Utils.SETTINGS_REDUCED_PADDING];
@@ -264,6 +268,14 @@ export const PreferencesMain = GObject.registerClass({
         } else {
             this._mergeUniversalShelly.active = false;
         }
+    }
+
+    _panelIconPackSelected(object) {
+        /* Panel icon pack enum starts at 1 (no "none" option), so add 1 to selected index */
+        this._settings.set_enum(
+            Utils.SETTINGS_PANEL_ICONPACK,
+            object.selected + 1
+        );
     }
 
     _iconPackSelected(object) {
