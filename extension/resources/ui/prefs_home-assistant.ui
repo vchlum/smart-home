@@ -113,6 +113,13 @@
                         </child>
 
                         <child>
+                          <object class="AdwExpanderRow" id="devicesVisibility">
+                            <property name="title" translatable="yes">Hidden devices</property>
+                            <property name="subtitle" translatable="yes">By enabling the item, the device will be hidden in the menu.</property>
+                          </object>
+                        </child>
+
+                        <child>
                           <object class="AdwExpanderRow">
                             <property name="title" translatable="yes">Advanced settings</property>
 

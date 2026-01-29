@@ -64,6 +64,7 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
         'offShutdown',
         'devicesOnLogin',
         'devicesNotification',
+        'devicesVisibility',
         'notifyNotebookMode',
         'spinConnectionTimeout',
     ],
@@ -87,6 +88,7 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
         this._onLoginSettings = {};
         this._notificationSettings = {};
         this._notificationDeviceList = [];
+        this._visibilitySettings = {};
 
         this._pluginSettings = this._settings.get_value(
             Utils.SETTINGS_HOMEASSISTANT
@@ -98,6 +100,10 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
 
         if (this._pluginSettings[this._id]['notification']) {
             this._notificationSettings = JSON.parse(this._pluginSettings[this._id]['notification']);
+        }
+
+        if (this._pluginSettings[this._id]['device-visibility']) {
+            this._visibilitySettings = JSON.parse(this._pluginSettings[this._id]['device-visibility']);
         }
 
         this._settingsignal = this._settings.connect(
@@ -117,6 +123,10 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
 
                 if (this._pluginSettings[this._id]['notification']) {
                     this._notificationSettings = JSON.parse(this._pluginSettings[this._id]['notification']);
+                }
+
+                if (this._pluginSettings[this._id]['device-visibility']) {
+                    this._visibilitySettings = JSON.parse(this._pluginSettings[this._id]['device-visibility']);
                 }
 
                 this.updateUI();
@@ -244,6 +254,7 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
         let lights = [];
         let scenes = [];
         let notificationLights = [];
+        let deviceVisibility = [];
 
         const sortFce = (a, b) => {
             if (a.title < b.title) {
@@ -312,11 +323,18 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
                     }
                 }
             }
+
+            if (['light', 'switch', 'cover', 'scene'].includes(data['entity_id'].split('.')[0])) {
+                deviceVisibility.push(
+                    this.createDeviceVisibility(data)
+                );
+            }
         }
 
         lights.sort(sortFce);
         scenes.sort(sortFce);
         this._notificationDeviceList.sort(sortFce);
+        deviceVisibility.sort(sortFce);
 
         for (let light of lights) {
             this._devicesOnLogin.add_row(light);
@@ -328,6 +346,10 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
 
         for (let light of notificationLights) {
             this._devicesNotification.add_row(light);
+        }
+
+        for (let device of deviceVisibility) {
+            this._devicesVisibility.add_row(device);
         }
     }
 
@@ -367,6 +389,36 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
                 this._onLoginSettings[object.id] = object.state;
 
                 this._pluginSettings[this._id]['on-login'] = JSON.stringify(this._onLoginSettings);
+                this._writeDevicesSettings();
+            }
+        );
+
+        return device;
+    }
+
+    createDeviceVisibility(data) {
+        let device = new SmartHomeDeviceLight.SmartHomeDeviceLight(
+            'hidden',
+            data['entity_id'],
+            `${data['attributes']['friendly_name']}`,
+            false,
+            false
+        );
+
+        device.setUI(
+            this._visibilitySettings[data['entity_id']]
+        );
+
+        device.connect(
+            'state-changed',
+            (object) => {
+                let id = object.id;
+                if (object.state) {
+                    this._visibilitySettings[id] = object.state;
+                } else {
+                    delete this._visibilitySettings.id;
+                }
+                this._pluginSettings[this._id]['device-visibility'] = JSON.stringify(this._visibilitySettings);
                 this._writeDevicesSettings();
             }
         );

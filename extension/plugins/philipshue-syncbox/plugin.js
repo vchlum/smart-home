@@ -49,9 +49,9 @@ export const Plugin =  GObject.registerClass({
         this._connectionTimeout = Utils.PHILIPSHUESYNCBOX_DEFAULT_TIMEOUT;
     }
 
-    settingRead() {
+    settingRead(needsRebuild) {
         if (!this._pluginSettings[this.id]) {
-            return; //device is being removed
+            return needsRebuild; //device is being removed
         }
 
         if (this._pluginSettings[this.id]['connection-timeout'] !== undefined) {
@@ -61,6 +61,8 @@ export const Plugin =  GObject.registerClass({
                 this._syncbox.setConnectionTimeout(this._connectionTimeout);
             }
         }
+
+        return needsRebuild;
     }
 
     preparePlugin() {

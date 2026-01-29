@@ -67,13 +67,15 @@ export const Plugin =  GObject.registerClass({
             }
 
             if (!this._pluginSettings[id]) {
-                return; //device is being removed
+                return needsRebuild; //device is being removed
             }
         }
 
         if (needsRebuild && this._prepared) {
             this.preparePlugin(true);
         }
+
+        return needsRebuild;
     }
 
     addPlugin(pluginID, plugin) {

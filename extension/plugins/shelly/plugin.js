@@ -79,7 +79,7 @@ export const Plugin =  GObject.registerClass({
             }
 
             if (!this._pluginSettings[id]) {
-                return; //device is being removed
+                return needsRebuild; //device is being removed
             }
         }
 
@@ -87,6 +87,8 @@ export const Plugin =  GObject.registerClass({
             this.clearInstance(true);
             this.preparePlugin(true);
         }
+
+        return needsRebuild;
     }
 
     preparePlugin(settingsRead = false) {

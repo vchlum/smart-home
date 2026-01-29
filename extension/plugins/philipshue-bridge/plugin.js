@@ -152,9 +152,9 @@ export const Plugin =  GObject.registerClass({
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
     }
 
-    settingRead() {
+    settingRead(needsRebuild) {
         if (!this._pluginSettings[this.id]) {
-            return; //device is being removed
+            return needsRebuild; //device is being removed
         }
 
         if (this._pluginSettings[this.id]['zones-first'] !== undefined) {
@@ -180,6 +180,8 @@ export const Plugin =  GObject.registerClass({
         if (this._pluginSettings[this.id]['off-shutdown'] !== undefined) {
             this._offShutdown = this._pluginSettings[this.id]['off-shutdown'] === 'true';
         }
+
+        return needsRebuild;
     }
 
     preparePlugin() {

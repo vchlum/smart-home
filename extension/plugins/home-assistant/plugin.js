@@ -51,9 +51,11 @@ export const Plugin =  GObject.registerClass({
         this._connectionTimeout = Utils.HOMEASSISTANT_DEFAULT_TIMEOUT;
     }
 
-    settingRead() {
+    settingRead(needsRebuild) {
+        let tmp;
+
         if (!this._pluginSettings[this.id]) {
-            return; //device is being removed
+            return needsRebuild; //device is being removed
         }
 
         if (this._pluginSettings[this.id]['connection-timeout'] !== undefined) {
@@ -71,6 +73,16 @@ export const Plugin =  GObject.registerClass({
         if (this._pluginSettings[this.id]['off-shutdown'] !== undefined) {
             this._offShutdown = this._pluginSettings[this.id]['off-shutdown'] === 'true';
         }
+
+        tmp = JSON.stringify(this._visibilitySettings);
+        if (this._pluginSettings[this.id]['device-visibility']) {
+            this._visibilitySettings = JSON.parse(this._pluginSettings[this.id]['device-visibility']);
+        }
+        if (tmp !== JSON.stringify(this._visibilitySettings)) {
+            needsRebuild = true;
+        }
+
+        return needsRebuild;
     }
 
     preparePlugin() {
@@ -165,6 +177,10 @@ export const Plugin =  GObject.registerClass({
 
         for (let item of data) {
             id = item['entity_id'];
+
+            if (this._visibilitySettings[id] !== undefined && this._visibilitySettings[id].switch) {
+                continue;
+            }
 
             if (id.startsWith('light')) {
                 this._states['lights'][id] = item;
