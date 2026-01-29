@@ -1,3 +1,6 @@
+## Version 21
+ * add dark mode support (thx sidevesh)
+ * home assistant: option to hide items
 ## Version 20
  * fix and simplify checking for avahi-browse
 ## Version 19
