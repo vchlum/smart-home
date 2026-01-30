@@ -1132,6 +1132,20 @@ export const SmartHomePanelMenu = GObject.registerClass({
             object = this._itemRefresher[uuid]['position'];
             if (object !== undefined) {
                 object.value = this._getGroupPositionValue(ids);
+
+                let up = this._itemRefresher[uuid]['button-up'];
+                if (up !== undefined && object.value == 0) {
+                    up.visible = false;
+                } else {
+                    up.visible = true;
+                }
+
+                let down = this._itemRefresher[uuid]['button-down'];
+                if (down !== undefined && object.value == 1) {
+                    down.visible = false;
+                } else {
+                    down.visible = true;
+                }
             }
 
             object = this._itemRefresher[uuid]['switch'];
@@ -2221,6 +2235,8 @@ export const SmartHomePanelMenu = GObject.registerClass({
             if (objectType) {
                 this._menuObjects[objectType]['button-up-down'] = updown;
             }
+            this._itemRefresher[uuid]['button-up'] = updown.get_children()[0];
+            this._itemRefresher[uuid]['button-down'] = updown.get_children()[1];
         }
 
         if (capabilities.includes('execute')) {
