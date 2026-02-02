@@ -49,6 +49,7 @@ export const Plugin =  GObject.registerClass({
         this._offShutdown = false;
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
         this._connectionTimeout = Utils.HOMEASSISTANT_DEFAULT_TIMEOUT;
+        this._visibilitySettings = {};
     }
 
     settingRead(needsRebuild) {
