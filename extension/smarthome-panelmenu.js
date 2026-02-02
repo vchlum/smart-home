@@ -1134,17 +1134,21 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 object.value = this._getGroupPositionValue(ids);
 
                 let up = this._itemRefresher[uuid]['button-up'];
-                if (up !== undefined && object.value == 0) {
-                    up.visible = false;
-                } else {
-                    up.visible = true;
+                if (up !== undefined) {
+                    if (object.value == 0) {
+                        up.visible = false;
+                    } else {
+                        up.visible = true;
+                    }
                 }
 
                 let down = this._itemRefresher[uuid]['button-down'];
-                if (down !== undefined && object.value == 1) {
-                    down.visible = false;
-                } else {
-                    down.visible = true;
+                if (down !== undefined) {
+                    if (object.value == 1) {
+                        down.visible = false;
+                    } else {
+                        down.visible = true;
+                    }
                 }
             }
 
