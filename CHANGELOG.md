@@ -1,3 +1,6 @@
+## Version 22
+ * show only useful up/down button
+ * home assistant: fix plugin not loading
 ## Version 21
  * add dark mode support (thx sidevesh)
  * home assistant: option to hide items
