@@ -3,7 +3,7 @@
     "settings-schema": "org.gnome.shell.extensions.smart-home",
     "name": "Smart Home",
     "description": "With this extension, you can control miscellaneous smart devices on your local network:\n * Home Assistant (lights, plugs, covers, scenes)\n * Philips Hue (Bridge, Syncbox, sync screen, sync music)\n * Nanoleaf devices (lights, scenes, sync screen)\n * Ikea Dirigera (lights, plugs, covers)\n * Shelly devices (lights, plugs, covers)\n\nPlease, report issues or bugs on GitHub.",
-    "version": 22,
+    "version": 23,
     "original-author": "chlumskyvaclav@gmail.com",
     "donations": {
       "kofi": "vchlum",
@@ -13,7 +13,8 @@
       "46",
       "47",
       "48",
-      "49"
+      "49",
+      "50"
     ],
     "gettext-domain": "smart-home",
     "url": "https://github.com/vchlum/smart-home"

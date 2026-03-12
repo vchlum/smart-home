@@ -1,3 +1,5 @@
+## Version 23
+ * Gnome 50 support
 ## Version 22
  * show only useful up/down button
  * home assistant: fix plugin not loading
