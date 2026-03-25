@@ -154,13 +154,14 @@ export const PreferencesMain = GObject.registerClass({
     }
 
     writeSettings() {
+        const pluginSettings = JSON.parse(JSON.stringify(this._settingsLoaded));
 
         for (let pluginName of Utils.PLUGIN_LIST) {
             this._settings.set_value(
                 pluginName,
                 new GLib.Variant(
                     Utils.SETTINGS_PLUGIN_TYPE,
-                    this._settingsLoaded[pluginName]
+                    pluginSettings[pluginName]
                 )
             );
         }

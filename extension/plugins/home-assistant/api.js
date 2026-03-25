@@ -232,7 +232,8 @@ export const HomeAssistantBridge =  GObject.registerClass({
         let msg = Message.new(method, url);
 
         msg.requestType = requestType;
-        msg.request_headers.append("ssl", "False");
+        let sslHeader = url.startsWith('https://') ? "True" : "False";
+        msg.request_headers.append("ssl", sslHeader);
         if (this._accessToken !== "") {
             msg.request_headers.append("Authorization", `Bearer ${this._accessToken}`);
         }
@@ -295,9 +296,9 @@ export const HomeAssistantBridge =  GObject.registerClass({
             uri: GLib.Uri.parse(this._ws, GLib.UriFlags.NONE)
         });
 
-        msg = Soup.Message.new("GET", this._ws),
-
-        msg.request_headers.append("ssl", "False");
+        msg = Soup.Message.new("GET", this._ws);
+        let sslHeader = this._ws.startsWith('wss://') ? "True" : "False";
+        msg.request_headers.append("ssl", sslHeader);
 
         this._wsSession.websocket_connect_async(
             msg,
