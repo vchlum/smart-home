@@ -1,3 +1,6 @@
+## Version 24
+ * home-assistant: fix ssl
+ * fix storing settings
 ## Version 23
  * Gnome 50 support
 ## Version 22
