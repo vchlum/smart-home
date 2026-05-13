@@ -1,3 +1,5 @@
+## Version 25
+ * fix hidden items loading
 ## Version 24
  * home-assistant: fix ssl
  * fix storing settings
