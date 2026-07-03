@@ -3497,12 +3497,14 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let selectedGroup = this._menuSelected['group'];
         let selectedDevice = this._menuSelected['device'];
 
-        this._openMenu = this._menuObjects['groups']['object'].menu;
-        if (selectedGroup && selectedGroup !== '_all_') {
-            this._openMenu = this._menuObjects['devices']['object'].menu;
-        }
-        if (selectedDevice && this._menuObjects['controls']['object']) {
-            this._openMenu = this._menuObjects['controls']['object'].menu;
+        if (this._rememberOpenedSubmenu) {
+            this._openMenu = this._menuObjects['groups']['object'].menu;
+            if (selectedGroup && selectedGroup !== '_all_') {
+                this._openMenu = this._menuObjects['devices']['object'].menu;
+            }
+            if (selectedDevice && this._menuObjects['controls']['object']) {
+                this._openMenu = this._menuObjects['controls']['object'].menu;
+            }
         }
 
         this.refreshMenu();
