@@ -1966,6 +1966,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
             'scroll-event',
             this.runOnlyOnceInTime.bind(
                 this,
+                slider,
                 500,
                 this._menuHandler.bind(
                     this,
@@ -3513,18 +3514,25 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
     /**
      * Creates timer for delayed function e.g.: slider scroll handle.
-     * Runs only one in specified time.
-     * 
+     * Runs only one in specified time, per key, so e.g. scrolling one
+     * device's slider does not throttle scroll input on another
+     * device's slider in the same menu.
+     *
      * @method runOnlyOnceInTime
      * @private
+     * @param {Object} key identifying which caller/widget this run belongs to
      * @param {Number} delay
      * @param {Object} delayed function
      */
-    runOnlyOnceInTime(delay, fnc) {
-        if (this._runOnlyOnceInProgress) {
+    runOnlyOnceInTime(key, delay, fnc) {
+        if (!this._runOnlyOnceInProgress) {
+            this._runOnlyOnceInProgress = new Map();
+        }
+
+        if (this._runOnlyOnceInProgress.get(key)) {
             return;
         }
-        this._runOnlyOnceInProgress = true;
+        this._runOnlyOnceInProgress.set(key, true);
 
         /**
          * e.g. the slider value is being modified back by the device status while moving the slider,
@@ -3535,7 +3543,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
             fnc();
 
-            this._runOnlyOnceInProgress = false;
+            this._runOnlyOnceInProgress.delete(key);
             this._timers = Utils.removeFromArray(this._timers, timerId);
         });
         this._timers.push(timerId);
