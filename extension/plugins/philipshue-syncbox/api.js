@@ -334,6 +334,7 @@ export const PhilipsHueSyncBox =  GObject.registerClass({
         } catch {
             Utils.logError(`HDMI sync box ${method} async-respond, failed to parse JSON`);
             this.data = [];
+            return;
         }
 
         switch (requestType) {
