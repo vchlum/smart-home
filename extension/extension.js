@@ -95,7 +95,7 @@ export default class SmartHomeExtension extends Extension {
 
         this._smarthome.clear();
         this._smarthome.disconnect(this._signalPluginReady);
-        this._signalPluginsReady = undefined;
+        this._signalPluginReady = undefined;
 
         for (let i in this._smarthome.instances) {
             this._smarthome.removePlugin(i);
