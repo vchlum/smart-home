@@ -446,7 +446,12 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 }
 
                 if (this._pluginSettings[id]['notification'] !== undefined) {
-                    this._notificationSettings = JSON.parse(this._pluginSettings[id]['notification']);
+                    try {
+                        this._notificationSettings = JSON.parse(this._pluginSettings[id]['notification']);
+                    } catch (e) {
+                        Utils.logError(`Failed to parse notification settings for ${this.id}: ${e}`);
+                        this._notificationSettings = {};
+                    }
                 }
 
                 if (this._pluginSettings[id]['notify-notebook-mode'] !== undefined) {
