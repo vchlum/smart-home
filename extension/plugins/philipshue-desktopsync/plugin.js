@@ -135,6 +135,9 @@ export const Plugin =  GObject.registerClass({
         signal = this._bridge.connect(
             'stream-disabled',
             () => {
+                if (this.streamer.clear) {
+                    this.streamer.clear();
+                }
                 this.streamer.disconnectStream();
                 this.streamer.disconnectSignals();
                 this.streamer = null;
@@ -153,6 +156,9 @@ export const Plugin =  GObject.registerClass({
             'connection-problem',
             () => {
                 if (this.streamer) {
+                    if (this.streamer.clear) {
+                        this.streamer.clear();
+                    }
                     this.streamer.disconnectStream();
                     this.streamer.disconnectSignals();
                     this.streamer = null;
