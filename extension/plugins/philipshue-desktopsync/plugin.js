@@ -527,8 +527,14 @@ export const Plugin =  GObject.registerClass({
             if (id) {
                 this.restartFunction = this.startStream;
             }
-            this._bridge.disableStream(this._currentAreaId);
-            this._currentAreaId = null;
+            /* a disable request may already be in flight (e.g. the user just
+             * switched this off) - avoid sending a second, malformed request
+             * with a stale/null area id, which would trigger a duplicate
+             * 'stream-disabled' event and tear down the restarted stream */
+            if (this._currentAreaId) {
+                this._bridge.disableStream(this._currentAreaId);
+                this._currentAreaId = null;
+            }
         } else if (id) {
             this.startStream();
         }
