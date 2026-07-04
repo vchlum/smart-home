@@ -259,14 +259,10 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._appendSignal(signal, this._settings);
 
         /* if the desktop is starting up, wait until starting is finished */
-        this._startingUpSignal = undefined;
         if (Main.layoutManager._startingUp) {
-            this._startingUpSignal = Main.layoutManager.connect(
+            signal = Main.layoutManager.connect(
                 'startup-complete',
                 () => {
-                    Main.layoutManager.disconnect(this._startingUpSignal);
-                    this._startingUpSignal = undefined;
-
                     this._networkClient = Main.panel.statusArea.quickSettings._network._client;
                     signal = this._networkClient.connect(
                         'notify::active-connections',
@@ -283,6 +279,8 @@ export const SmartHomePanelMenu = GObject.registerClass({
                     );
                 }
             );
+            /* tracked so a disable() before startup completes still disconnects this */
+            this._appendSignal(signal, Main.layoutManager);
         } else {
             this._networkClient = Main.panel.statusArea.quickSettings._network._client;
             signal = this._networkClient.connect(
