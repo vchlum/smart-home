@@ -180,6 +180,7 @@ export const ShellyDevice =  GObject.registerClass({
         } catch {
             Utils.logError(`Shelly device ${method} responded, failed to parse JSON`);
             this.data = [];
+            return;
         }
 
         switch (requestType) {

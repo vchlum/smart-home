@@ -1,3 +1,5 @@
+## Version 26
+ * bug fixes
 ## Version 25
  * fix hidden items loading
 ## Version 24

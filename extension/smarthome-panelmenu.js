@@ -259,14 +259,10 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._appendSignal(signal, this._settings);
 
         /* if the desktop is starting up, wait until starting is finished */
-        this._startingUpSignal = undefined;
         if (Main.layoutManager._startingUp) {
-            this._startingUpSignal = Main.layoutManager.connect(
+            signal = Main.layoutManager.connect(
                 'startup-complete',
                 () => {
-                    Main.layoutManager.disconnect(this._startingUpSignal);
-                    this._startingUpSignal = undefined;
-
                     this._networkClient = Main.panel.statusArea.quickSettings._network._client;
                     signal = this._networkClient.connect(
                         'notify::active-connections',
@@ -283,6 +279,8 @@ export const SmartHomePanelMenu = GObject.registerClass({
                     );
                 }
             );
+            /* tracked so a disable() before startup completes still disconnects this */
+            this._appendSignal(signal, Main.layoutManager);
         } else {
             this._networkClient = Main.panel.statusArea.quickSettings._network._client;
             signal = this._networkClient.connect(
@@ -448,7 +446,12 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 }
 
                 if (this._pluginSettings[id]['notification'] !== undefined) {
-                    this._notificationSettings = JSON.parse(this._pluginSettings[id]['notification']);
+                    try {
+                        this._notificationSettings = JSON.parse(this._pluginSettings[id]['notification']);
+                    } catch (e) {
+                        Utils.logError(`Failed to parse notification settings for ${this.id}: ${e}`);
+                        this._notificationSettings = {};
+                    }
                 }
 
                 if (this._pluginSettings[id]['notify-notebook-mode'] !== undefined) {
@@ -1963,6 +1966,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
             'scroll-event',
             this.runOnlyOnceInTime.bind(
                 this,
+                slider,
                 500,
                 this._menuHandler.bind(
                     this,
@@ -3512,18 +3516,25 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
     /**
      * Creates timer for delayed function e.g.: slider scroll handle.
-     * Runs only one in specified time.
-     * 
+     * Runs only one in specified time, per key, so e.g. scrolling one
+     * device's slider does not throttle scroll input on another
+     * device's slider in the same menu.
+     *
      * @method runOnlyOnceInTime
      * @private
+     * @param {Object} key identifying which caller/widget this run belongs to
      * @param {Number} delay
      * @param {Object} delayed function
      */
-    runOnlyOnceInTime(delay, fnc) {
-        if (this._runOnlyOnceInProgress) {
+    runOnlyOnceInTime(key, delay, fnc) {
+        if (!this._runOnlyOnceInProgress) {
+            this._runOnlyOnceInProgress = new Map();
+        }
+
+        if (this._runOnlyOnceInProgress.get(key)) {
             return;
         }
-        this._runOnlyOnceInProgress = true;
+        this._runOnlyOnceInProgress.set(key, true);
 
         /**
          * e.g. the slider value is being modified back by the device status while moving the slider,
@@ -3534,7 +3545,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
             fnc();
 
-            this._runOnlyOnceInProgress = false;
+            this._runOnlyOnceInProgress.delete(key);
             this._timers = Utils.removeFromArray(this._timers, timerId);
         });
         this._timers.push(timerId);
