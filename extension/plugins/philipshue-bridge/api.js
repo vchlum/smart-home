@@ -408,7 +408,11 @@ export const PhilipsHueBridge =  GObject.registerClass({
         }
 
         if (synchronous) {
-            this._session.send(msg, null);
+            try {
+                this._session.send(msg, null);
+            } catch (e) {
+                Utils.logError("synchronous send error: " + e);
+            }
             return;
         }
 
