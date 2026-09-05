@@ -59,6 +59,10 @@ export const PreferencesMain = GObject.registerClass({
         "switchRememberSubmenu",
         "switchReducedPadding",
         "switchDebug",
+        "switchApiEnabled",
+        "spinApiPort",
+        "entryApiToken",
+        "switchApiBindAll",
         "smartHomeUniversalRows",
         "universalComboIndicatorPosition",
         "hideUnavailableUniversal",
@@ -177,6 +181,10 @@ export const PreferencesMain = GObject.registerClass({
         this._switchReducedPadding.active = this._settingsLoaded[Utils.SETTINGS_REDUCED_PADDING];
         this._switchForceEnglish.active = this._settingsLoaded[Utils.SETTINGS_FORCE_ENGLISH];
         this._switchDebug.active = this._settingsLoaded[Utils.SETTINGS_DEBUG];
+        this._switchApiEnabled.active = this._settingsLoaded[Utils.SETTINGS_API_ENABLED];
+        this._spinApiPort.value = this._settingsLoaded[Utils.SETTINGS_API_PORT];
+        this._entryApiToken.text = this._settingsLoaded[Utils.SETTINGS_API_TOKEN];
+        this._switchApiBindAll.active = this._settingsLoaded[Utils.SETTINGS_API_BIND_ALL];
         let universalPluginSettings = this._settingsLoaded[Utils.SETTINGS_SMARTHOME_UNIVERSAL];
 
         for (let i of Object.keys(this._rows)) {
@@ -452,6 +460,38 @@ export const PreferencesMain = GObject.registerClass({
             Utils.SETTINGS_DEBUG,
             object.active
         );
+    }
+
+    _apiEnabledSwitched(object) {
+        this._settings.set_boolean(
+            Utils.SETTINGS_API_ENABLED,
+            object.active
+        );
+    }
+
+    _apiPortChanged(object) {
+        this._settings.set_int(
+            Utils.SETTINGS_API_PORT,
+            object.value
+        );
+    }
+
+    _apiBindAllSwitched(object) {
+        this._settings.set_boolean(
+            Utils.SETTINGS_API_BIND_ALL,
+            object.active
+        );
+    }
+
+    _apiRegenerateToken() {
+        let token = Utils.generateApiToken();
+
+        this._settings.set_string(
+            Utils.SETTINGS_API_TOKEN,
+            token
+        );
+
+        this._entryApiToken.text = token;
     }
 
     _universalIndicatorPositionSelected(object) {

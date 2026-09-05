@@ -393,3 +393,24 @@ msgstr "Skrytá zařízení"
 
 msgid "By enabling the item, the device will be hidden in the menu."
 msgstr "Aktivací položky skryjete zařízení."
+
+msgid "Lets local applications and scripts control devices over HTTP."
+msgstr "Umožnit lokálním aplikacím a skriptům ovládat zařízení přes HTTP."
+
+msgid "Enable local HTTP API"
+msgstr "Zapnout místní HTTP API"
+
+msgid "Port"
+msgstr "Port"
+
+msgid "Access token"
+msgstr "Přístupový token"
+
+msgid "Generate a new token"
+msgstr "Vygenerovat nový token"
+
+msgid "Listen on all network interfaces"
+msgstr "Poslouchat na všech síťových zařízeních"
+
+msgid "By default the API only listens on localhost. Enabling this exposes device control to your local network without encryption - only enable it if you understand and accept the risk."
+msgstr "Ve výchozím nastavení API poslouchá jen na localhost. Povolení této možnosti umožní ovládání zařízení z vaší lokální sítě bez šifrování - povolte pouze pokud rozumíte a akceptujete riziko."

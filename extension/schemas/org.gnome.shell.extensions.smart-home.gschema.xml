@@ -84,5 +84,22 @@
       <default>{}</default>
       <summary>Plugins miscellaneous storage.</summary>
     </key>
+    <key name="api-enabled" type="b">
+      <default>false</default>
+      <summary>Enable the local HTTP API</summary>
+    </key>
+    <key name="api-port" type="i">
+      <range min="1" max="65535"/>
+      <default>8787</default>
+      <summary>Port used by the local HTTP API</summary>
+    </key>
+    <key name="api-token" type="s">
+      <default>""</default>
+      <summary>Access token required by the local HTTP API</summary>
+    </key>
+    <key name="api-bind-all" type="b">
+      <default>false</default>
+      <summary>Listen on all network interfaces instead of only localhost</summary>
+    </key>
   </schema>
 </schemalist>

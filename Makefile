@@ -11,12 +11,14 @@ FILES_PACKAGE = \
 		../LICENSE \
 		../CHANGELOG.md \
 		../README.md \
+		../API.md \
 		prefs \
 		media \
 		plugins \
 		crypto \
 		semaphore.js \
 		smarthome.js \
+		api-server.js \
 		smarthome-panelmenu.js \
 		screenshot.js \
 		screen-geometry.js \

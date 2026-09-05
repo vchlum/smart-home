@@ -384,7 +384,7 @@ export const Plugin =  GObject.registerClass({
                     'type': 'scene',
                     'section': 'device',
                     'name': name,
-                    'capabilities': 'activate',
+                    'capabilities': ['activate'],
                     'associated' : [id]
                 };
                 this.data['devices'][name] = effect;
@@ -418,7 +418,7 @@ export const Plugin =  GObject.registerClass({
                     'type': 'scene',
                     'section': 'device',
                     'name': name,
-                    'capabilities': 'activate',
+                    'capabilities': ['activate'],
                     'associated' : [id]
                 };
                 this.data['devices'][name] = anim;

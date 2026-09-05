@@ -66,6 +66,11 @@ https://extensions.gnome.org/extension/7737/smart-home/
 ## Sync screen feature - example video
 [![Smart Home Sync screen](https://img.youtube.com/vi/XOh_eLX8--c/0.jpg)](https://www.youtube.com/watch?v=XOh_eLX8--c)
 
+## API
+The extension can expose a small local HTTP API so any other application or script running on your machine (a launcher, a keyboard-shortcut daemon, a home-made plugin, a status bar widget, ...) can list and control the same devices the Smart Home panel menu controls - including turning the Philips Hue Desktop Sync on/off.
+
+See the [API documentation](API.md) for details on available endpoints and usage examples.
+
 ## Manual installation
 
  1. `git clone https://github.com/vchlum/smart-home.git`

@@ -37,6 +37,8 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as MessageTray from 'resource:///org/gnome/shell/ui/messageTray.js';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as SmartHome from './smarthome.js';
+import * as Utils from './utils.js';
+import { ApiServer } from './api-server.js';
 
 let runNotify = [];
 
@@ -51,10 +53,12 @@ export default class SmartHomeExtension extends Extension {
     }
 
     enable() {
+        this._settings = this.getSettings();
+
         this._smarthome = new SmartHome.SmartHome(
             this.metadata,
             this.dir,
-            this.getSettings(),
+            this._settings,
             this.openPreferences.bind(this)
         );
 
@@ -85,6 +89,51 @@ export default class SmartHomeExtension extends Extension {
 
         MessageTray.Source.prototype.origAddNotification = MessageTray.Source.prototype.addNotification;
         MessageTray.Source.prototype.addNotification = this.addNotificationSmartHome;
+
+        this._apiServer = new ApiServer(this._smarthome);
+        this._applyApiSettings();
+
+        this._apiSettingsSignal = this._settings.connect(
+            'changed',
+            (settings, key) => {
+                if ([
+                    Utils.SETTINGS_API_ENABLED,
+                    Utils.SETTINGS_API_PORT,
+                    Utils.SETTINGS_API_TOKEN,
+                    Utils.SETTINGS_API_BIND_ALL
+                ].includes(key)) {
+                    this._applyApiSettings();
+                }
+            }
+        );
+    }
+
+    /**
+     * Starts/stops/restarts the local HTTP API based on current settings.
+     * Generates a token on first use if the API is enabled without one.
+     *
+     * @method _applyApiSettings
+     * @private
+     */
+    _applyApiSettings() {
+        let enabled = this._settings.get_boolean(Utils.SETTINGS_API_ENABLED);
+
+        if (! enabled) {
+            this._apiServer.stop();
+            return;
+        }
+
+        let token = this._settings.get_string(Utils.SETTINGS_API_TOKEN);
+        if (! token) {
+            /* triggers 'changed' again, which will call this function once more */
+            this._settings.set_string(Utils.SETTINGS_API_TOKEN, Utils.generateApiToken());
+            return;
+        }
+
+        let port = this._settings.get_int(Utils.SETTINGS_API_PORT);
+        let bindAll = this._settings.get_boolean(Utils.SETTINGS_API_BIND_ALL);
+
+        this._apiServer.start(port, token, bindAll);
     }
 
     disable() {
@@ -92,6 +141,11 @@ export default class SmartHomeExtension extends Extension {
 
         MessageTray.Source.prototype.addNotification = MessageTray.Source.prototype.origAddNotification;
         delete(MessageTray.Source.prototype.origAddNotification);
+
+        this._settings.disconnect(this._apiSettingsSignal);
+        this._apiSettingsSignal = undefined;
+        this._apiServer.stop();
+        this._apiServer = null;
 
         this._smarthome.clear();
         this._smarthome.disconnect(this._signalPluginReady);
@@ -102,5 +156,6 @@ export default class SmartHomeExtension extends Extension {
         }
 
         this._smarthome = null;
+        this._settings = null;
     }
 }

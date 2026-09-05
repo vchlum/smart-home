@@ -33,6 +33,8 @@
  * THE SOFTWARE.
  */
 
+import GLib from 'gi://GLib';
+
 export const SETTINGS_SCHEMA = "org.gnome.shell.extensions.smart-home";
 export const SETTINGS_FORCE_ENGLISH = "force-english";
 export const SETTINGS_DEBUG = "debug";
@@ -54,6 +56,11 @@ export const SETTINGS_HOMEASSISTANT = "home-assistant";
 export const SETTINGS_SHELLY = "shelly";
 export const SETTINGS_SMARTHOME_UNIVERSAL = "smart-home-universal";
 export const SETTINGS_PLUGIN_TYPE = "a{sa{ss}}";
+
+export const SETTINGS_API_ENABLED = "api-enabled";
+export const SETTINGS_API_PORT = "api-port";
+export const SETTINGS_API_TOKEN = "api-token";
+export const SETTINGS_API_BIND_ALL = "api-bind-all";
 
 export const PLUGIN_LIST = [
     SETTINGS_SMARTHOME_UNIVERSAL, /* must be first */
@@ -146,6 +153,18 @@ export function getUuid() {
      * this way it is possible - otherwise, the ID is useless
      */
     return Math.round((Math.random()*1000000));
+}
+
+/**
+ * Generates a random token suitable for authenticating
+ * local HTTP API requests.
+ *
+ * @method generateApiToken
+ * @return {String} random token
+ */
+export function generateApiToken() {
+    return GLib.uuid_string_random().replace(/-/g, '') +
+        GLib.uuid_string_random().replace(/-/g, '');
 }
 
 export function removeFromArray(arr, remove) {

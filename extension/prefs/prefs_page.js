@@ -90,6 +90,10 @@ export const PreferencesPage = GObject.registerClass({
         this._settingsLoaded[Utils.SETTINGS_DEBUG] = this._settings.get_boolean(Utils.SETTINGS_DEBUG);
         this._settingsLoaded[Utils.SETTINGS_ICONPACK] = this._settings.get_enum(Utils.SETTINGS_ICONPACK);
         this._settingsLoaded[Utils.SETTINGS_PANEL_ICONPACK] = this._settings.get_enum(Utils.SETTINGS_PANEL_ICONPACK);
+        this._settingsLoaded[Utils.SETTINGS_API_ENABLED] = this._settings.get_boolean(Utils.SETTINGS_API_ENABLED);
+        this._settingsLoaded[Utils.SETTINGS_API_PORT] = this._settings.get_int(Utils.SETTINGS_API_PORT);
+        this._settingsLoaded[Utils.SETTINGS_API_TOKEN] = this._settings.get_string(Utils.SETTINGS_API_TOKEN);
+        this._settingsLoaded[Utils.SETTINGS_API_BIND_ALL] = this._settings.get_boolean(Utils.SETTINGS_API_BIND_ALL);
 
         for (let pluginName of Utils.PLUGIN_LIST) {
             this._settingsLoaded[pluginName] = this._settings.get_value(pluginName).deep_unpack();
