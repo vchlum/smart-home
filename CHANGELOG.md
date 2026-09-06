@@ -1,3 +1,6 @@
+## Version 27
+ * REST API added
+ * catch error on synchronous sending
 ## Version 26
  * bug fixes
 ## Version 25
