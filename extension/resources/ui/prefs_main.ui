@@ -505,54 +505,56 @@
                   <property name="child">
                     <object class="AdwPreferencesGroup">
                       <property name="title" translatable="yes">HTTP API</property>
-                      <property name="description" translatable="yes">Lets local applications and scripts control devices over HTTP.</property>
 
                       <child>
-                        <object class="AdwSwitchRow" id="switchApiEnabled">
-                          <property name="title" translatable="yes">Enable local HTTP API</property>
-                          <signal name="notify::active" handler="_apiEnabledSwitched" swapped="no"/>
-                        </object>
-                      </child>
+                        <object class="AdwExpanderRow" id="httpApiRows">
+                          <property name="title" translatable="yes">HTTP API</property>
+                          <property name="subtitle" translatable="yes">Lets local applications and scripts control devices over HTTP.</property>
+                          <property name="show-enable-switch">true</property>
+                          <signal name="notify::enable-expansion" handler="_apiEnabledSwitched" swapped="no"/>
 
-                      <child>
-                        <object class="AdwSpinRow" id="spinApiPort">
-                          <property name="title" translatable="yes">Port</property>
-                          <property name="adjustment">
-                            <object class="GtkAdjustment">
-                              <property name="lower">1</property>
-                              <property name="upper">65535</property>
-                              <property name="value">8787</property>
-                              <property name="page-increment">10</property>
-                              <property name="step-increment">1</property>
-                              <signal name="value-changed" handler="_apiPortChanged" swapped="no"/>
-                            </object>
-                          </property>
-                        </object>
-                      </child>
-
-                      <child>
-                        <object class="AdwEntryRow" id="entryApiToken">
-                          <property name="title" translatable="yes">Access token</property>
-                          <property name="editable">false</property>
-                          <child type="suffix">
-                            <object class="GtkButton">
-                              <property name="valign">center</property>
-                              <property name="icon-name">view-refresh-symbolic</property>
-                              <property name="tooltip-text" translatable="yes">Generate a new token</property>
-                              <signal name="clicked" handler="_apiRegenerateToken" swapped="no"/>
-                              <style>
-                                <class name="flat"/>
-                              </style>
+                          <child>
+                            <object class="AdwSpinRow" id="spinApiPort">
+                              <property name="title" translatable="yes">Port</property>
+                              <property name="adjustment">
+                                <object class="GtkAdjustment">
+                                  <property name="lower">1</property>
+                                  <property name="upper">65535</property>
+                                  <property name="value">8787</property>
+                                  <property name="page-increment">10</property>
+                                  <property name="step-increment">1</property>
+                                  <signal name="value-changed" handler="_apiPortChanged" swapped="no"/>
+                                </object>
+                              </property>
                             </object>
                           </child>
-                        </object>
-                      </child>
 
-                      <child>
-                        <object class="AdwSwitchRow" id="switchApiBindAll">
-                          <property name="title" translatable="yes">Listen on all network interfaces</property>
-                          <property name="subtitle" translatable="yes">By default the API only listens on localhost. Enabling this exposes device control to your local network without encryption - only enable it if you understand and accept the risk.</property>
-                          <signal name="notify::active" handler="_apiBindAllSwitched" swapped="no"/>
+                          <child>
+                            <object class="AdwEntryRow" id="entryApiToken">
+                              <property name="title" translatable="yes">Access token</property>
+                              <property name="editable">false</property>
+                              <child type="suffix">
+                                <object class="GtkButton">
+                                  <property name="valign">center</property>
+                                  <property name="icon-name">view-refresh-symbolic</property>
+                                  <property name="tooltip-text" translatable="yes">Generate a new token</property>
+                                  <signal name="clicked" handler="_apiRegenerateToken" swapped="no"/>
+                                  <style>
+                                    <class name="flat"/>
+                                  </style>
+                                </object>
+                              </child>
+                            </object>
+                          </child>
+
+                          <child>
+                            <object class="AdwSwitchRow" id="switchApiBindAll">
+                              <property name="title" translatable="yes">Listen on all network interfaces</property>
+                              <property name="subtitle" translatable="yes">By default the API only listens on localhost. Enabling this exposes device control to your local network without encryption - only enable it if you understand and accept the risk.</property>
+                              <signal name="notify::active" handler="_apiBindAllSwitched" swapped="no"/>
+                            </object>
+                          </child>
+
                         </object>
                       </child>
 

@@ -59,7 +59,7 @@ export const PreferencesMain = GObject.registerClass({
         "switchRememberSubmenu",
         "switchReducedPadding",
         "switchDebug",
-        "switchApiEnabled",
+        "httpApiRows",
         "spinApiPort",
         "entryApiToken",
         "switchApiBindAll",
@@ -181,7 +181,7 @@ export const PreferencesMain = GObject.registerClass({
         this._switchReducedPadding.active = this._settingsLoaded[Utils.SETTINGS_REDUCED_PADDING];
         this._switchForceEnglish.active = this._settingsLoaded[Utils.SETTINGS_FORCE_ENGLISH];
         this._switchDebug.active = this._settingsLoaded[Utils.SETTINGS_DEBUG];
-        this._switchApiEnabled.active = this._settingsLoaded[Utils.SETTINGS_API_ENABLED];
+        this._httpApiRows.enable_expansion = this._settingsLoaded[Utils.SETTINGS_API_ENABLED];
         this._spinApiPort.value = this._settingsLoaded[Utils.SETTINGS_API_PORT];
         this._entryApiToken.text = this._settingsLoaded[Utils.SETTINGS_API_TOKEN];
         this._switchApiBindAll.active = this._settingsLoaded[Utils.SETTINGS_API_BIND_ALL];
@@ -465,7 +465,7 @@ export const PreferencesMain = GObject.registerClass({
     _apiEnabledSwitched(object) {
         this._settings.set_boolean(
             Utils.SETTINGS_API_ENABLED,
-            object.active
+            object.enable_expansion
         );
     }
 
