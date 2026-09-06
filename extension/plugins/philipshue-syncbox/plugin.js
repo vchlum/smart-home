@@ -34,6 +34,7 @@
  */
 
 import GObject from 'gi://GObject';
+import Gio from 'gi://Gio';
 import * as Utils from '../../utils.js';
 import * as SmartHomePanelMenu from '../../smarthome-panelmenu.js';
 import * as Api from './api.js';
@@ -113,6 +114,56 @@ export const Plugin =  GObject.registerClass({
             let signal = this._syncboxSignals.pop();
             this._syncbox.disconnect(signal);
         }
+    }
+
+    /**
+     * Discovers Philips Hue HDMI sync boxes via avahi and reports the
+     * current IP address of this sync box, matched by its unique ID (the
+     * settings key / this.id).
+     *
+     * @method _discoverDeviceIp
+     * @param {Function} callback called with { <uniqueId>: <ip> }
+     * @private
+     */
+    _discoverDeviceIp(callback) {
+        let discovery = new Api.DiscoveryPhilipsSyncBox(
+            Gio.File.new_for_path(this.mainDir)
+        );
+        discovery.connect('discoverFinished', () => {
+            let result = {};
+
+            for (let syncbox of discovery.discoveredSyncBox) {
+                if (! syncbox['uniqueId'] || ! syncbox['ipAddress']) {
+                    continue;
+                }
+
+                if (syncbox['uniqueId'] === this.id) {
+                    result[this.id] = syncbox['ipAddress'];
+                    break;
+                }
+            }
+
+            callback(result);
+        });
+        discovery.discover();
+    }
+
+    /**
+     * Applies a newly discovered IP address to the running sync box
+     * connection.
+     *
+     * @method _applyDeviceIp
+     * @param {String} id settings key of the sync box
+     * @param {String} ip new IP address
+     * @private
+     */
+    _applyDeviceIp(id, ip) {
+        if (! this._syncbox) {
+            return;
+        }
+
+        this._syncbox.ip = ip;
+        this.requestData();
     }
 
     clearInstance() {

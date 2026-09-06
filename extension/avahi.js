@@ -37,7 +37,6 @@
 import GObject from 'gi://GObject';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
-import GioUnix from 'gi://GioUnix';
 
 export function isAvahiBrowseInstalled() {
     return GLib.find_program_in_path('avahi-browse') !== null;
@@ -71,7 +70,7 @@ export const Avahi = GObject.registerClass({
     _init(props={}) {
         super._init(props);
 
-        this._pid = null;
+        this._subprocess = null;
         this.error = null;
 
         this.discovered = {};
@@ -146,70 +145,60 @@ export const Avahi = GObject.registerClass({
     /**
      * Discover mDNS devices via avahi-browse.
      * Emits signal when finished.
-     * 
+     *
+     * Uses Gio.Subprocess instead of GLib.spawn_async_with_pipes because
+     * the latter is wrapped by GNOME Shell to throw when a child setup
+     * function is passed (and it is not async-signal-safe).
+     *
      * @method discover
      */
     async discover() {
-        if(this._pid) {
+        if (this._subprocess) {
             return;
         }
 
         try {
-
-            let [, pid, stdin, stdout, stderr] = GLib.spawn_async_with_pipes(
-                null,
+            this._subprocess = Gio.Subprocess.new(
                 ['avahi-browse', this._service, '-r', '-k', '-p', '-t'],
-                null,
-                GLib.SpawnFlags.SEARCH_PATH | GLib.SpawnFlags.DO_NOT_REAP_CHILD,
-                () => {
-                    /* child_setup can not be null, but we do not need it */
-                }
+                Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_SILENCE
             );
-
-            this._pid = pid;
-
-            GLib.close(stdin);
-
-            let stdoutStream = new Gio.DataInputStream({
-                base_stream: new GioUnix.InputStream({
-                    fd: stdout,
-                    close_fd: true
-                }),
-                close_base_stream: true
-            });
-
-            let stdoutLines = [];
-            this._readOutput(stdoutStream, stdoutLines);
-
-            let stderrStream = new Gio.DataInputStream({
-                base_stream: new GioUnix.InputStream({
-                    fd: stderr,
-                    close_fd: true
-                }),
-                close_base_stream: true
-            });
-
-            let stderrLines = [];
-            this._readOutput(stderrStream, stderrLines);
-
-            GLib.child_watch_add(GLib.PRIORITY_DEFAULT_IDLE, pid, (pid, status) => {
-                if (status === 0) {
-                    this.emit("finished");
-                } else {
-                    console.error(new Error(stderrLines.join('\n')));
-                }
-
-                stdoutStream.close(null);
-                stderrStream.close(null);
-                GLib.spawn_close_pid(pid);
-
-                this._pid = null;
-            });
-
         } catch (e) {
             this.error = e;
+            this._subprocess = null;
             this.emit("error");
+            return;
         }
 
+        let stdoutStream = new Gio.DataInputStream({
+            base_stream: this._subprocess.get_stdout_pipe(),
+            close_base_stream: true
+        });
+
+        this._readOutput(stdoutStream, []);
+
+        this._subprocess.wait_async(null, (proc, res) => {
+            let succeeded = false;
+
+            try {
+                proc.wait_finish(res);
+                succeeded = proc.get_successful();
+            } catch (e) {
+                this.error = e;
+            }
+
+            try {
+                stdoutStream.close(null);
+            } catch (e) {
+                console.error(e);
+            }
+
+            this._subprocess = null;
+
+            if (succeeded) {
+                this.emit("finished");
+            } else {
+                this.emit("error");
+            }
+        });
     }
 })

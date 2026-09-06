@@ -285,6 +285,87 @@ export const Plugin =  GObject.registerClass({
         }
     }
 
+    /**
+     * Discovers Philips Hue bridges (avahi and cloud) and reports the
+     * current IP address of this bridge, matched by its bridge ID (the
+     * settings key / this.id).
+     *
+     * @method _discoverDeviceIp
+     * @param {Function} callback called with { <bridgeId>: <ip> }
+     * @private
+     */
+    _discoverDeviceIp(callback) {
+        let discovery = new Api.DiscoveryPhilipsHueBridges();
+        discovery.connect('discoverFinished', () => {
+            let result = {};
+
+            for (let bridge of discovery.discoveredBridges) {
+                if (! bridge['bridgeid'] || ! bridge['internalipaddress']) {
+                    continue;
+                }
+
+                if (bridge['bridgeid'].toLowerCase() === this.id.toLowerCase()) {
+                    result[this.id] = bridge['internalipaddress'];
+                    break;
+                }
+            }
+
+            callback(result);
+        });
+        discovery.discover();
+    }
+
+    /**
+     * Applies a newly discovered IP address to the running bridge
+     * connection.
+     *
+     * @method _applyDeviceIp
+     * @param {String} id settings key of the bridge
+     * @param {String} ip new IP address
+     * @private
+     */
+    _applyDeviceIp(id, ip) {
+        this._propagateIpToDesktopSync(id, ip);
+
+        if (! this._bridge) {
+            return;
+        }
+
+        this._bridge.ip = ip;
+        this._bridge.stopEventStreamRequest();
+        this._bridge.keepEventStreamRequest();
+        this.requestData();
+    }
+
+    /**
+     * The Philips Hue desktop sync plugin, when enabled, talks to the very
+     * same bridge and is stored under the same bridge ID. Keep its IP
+     * address in sync whenever this bridge's IP address changes.
+     *
+     * @method _propagateIpToDesktopSync
+     * @param {String} id settings key of the bridge (shared with desktop sync)
+     * @param {String} ip new IP address
+     * @private
+     */
+    _propagateIpToDesktopSync(id, ip) {
+        let syncSettings = this._settings.get_value(
+            Utils.SETTINGS_PHILIPSHUEDESKTOPSYNC
+        ).deep_unpack();
+
+        if (! syncSettings[id] || syncSettings[id]['ip'] === undefined || syncSettings[id]['ip'] === ip) {
+            return;
+        }
+
+        Utils.logDebug(`Philips Hue Bridge ${id}: propagating IP address ${ip} to desktop sync.`);
+
+        syncSettings[id]['ip'] = ip;
+
+        this._settings.set_value(
+            Utils.SETTINGS_PHILIPSHUEDESKTOPSYNC,
+            new GLib.Variant(Utils.SETTINGS_PLUGIN_TYPE, syncSettings)
+        );
+    }
+
     clearInstance() {
         Utils.logDebug(`Philips Hue Bridge ${this.id} clearing.`);
 

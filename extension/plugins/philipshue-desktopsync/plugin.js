@@ -82,6 +82,12 @@ export const Plugin =  GObject.registerClass({
             this._notebookMode = this._pluginSettings[this.id]['notebook-mode'] === 'true';
         }
 
+        /* the related Philips Hue bridge (same bridge ID) may have changed
+         * its IP address - apply it to the running connection too */
+        if (this._pluginSettings[this.id]['ip'] !== undefined) {
+            this._applyBridgeIp(this._pluginSettings[this.id]['ip']);
+        }
+
         this.miscStorage = this.readSettingsMiscellaneous();
 
         return needsRebuild;
@@ -420,6 +426,66 @@ export const Plugin =  GObject.registerClass({
             let signal = this._bridgeSignals.pop();
             this._bridge.disconnect(signal);
         }
+    }
+
+    /**
+     * Discovers Philips Hue bridges (avahi and cloud) and reports the
+     * current IP address of the bridge this desktop sync is bound to,
+     * matched by its bridge ID (the settings key / this.id, shared with
+     * the philipshue-bridge plugin).
+     *
+     * @method _discoverDeviceIp
+     * @param {Function} callback called with { <bridgeId>: <ip> }
+     * @private
+     */
+    _discoverDeviceIp(callback) {
+        let discovery = new BridgeApi.DiscoveryPhilipsHueBridges();
+        discovery.connect('discoverFinished', () => {
+            let result = {};
+
+            for (let bridge of discovery.discoveredBridges) {
+                if (! bridge['bridgeid'] || ! bridge['internalipaddress']) {
+                    continue;
+                }
+
+                if (bridge['bridgeid'].toLowerCase() === this.id.toLowerCase()) {
+                    result[this.id] = bridge['internalipaddress'];
+                    break;
+                }
+            }
+
+            callback(result);
+        });
+        discovery.discover();
+    }
+
+    /**
+     * @method _applyDeviceIp
+     * @param {String} id settings key of the bridge
+     * @param {String} ip new IP address
+     * @private
+     */
+    _applyDeviceIp(id, ip) {
+        this._applyBridgeIp(ip);
+    }
+
+    /**
+     * Applies a new bridge IP address to the running connection.
+     *
+     * @method _applyBridgeIp
+     * @param {String} ip new IP address
+     * @private
+     */
+    _applyBridgeIp(ip) {
+        if (! this._bridge || ! ip || this._ip === ip) {
+            return;
+        }
+
+        this._ip = ip;
+        this._bridge.ip = ip;
+        this._bridge.stopEventStreamRequest();
+        this._bridge.keepEventStreamRequest();
+        this.requestData();
     }
 
     clearInstance() {

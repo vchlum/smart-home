@@ -991,7 +991,103 @@ export const SmartHomePanelMenu = GObject.registerClass({
      * @method connectionClosed
      */
     connectionClosed() {
+        this.rediscoverDeviceIp();
         this.requestRebuild();
+    }
+
+    /**
+     * Re-discovers the IP address of the plugin's device(s) and updates
+     * the settings if it changed. A device may be discoverable via avahi
+     * (mDNS) or a cloud service, but its DHCP-assigned IP address can
+     * change over time. The device is matched by its ID (which is the
+     * settings key), so the stored IP address can be corrected
+     * automatically without user interaction.
+     *
+     * A plugin opts in by implementing "_discoverDeviceIp(callback)". That
+     * method runs the plugin-specific network discovery and invokes
+     * "callback({ <settings-id>: <ip-address>, ... })" with every device it
+     * managed to locate on the network. This parent class then persists
+     * any changed IP address into the settings.
+     *
+     * Optionally, a plugin may also implement "_applyDeviceIp(id, ip)" to
+     * apply the new IP address to an already running connection (plugins
+     * that rebuild their connections on a settings change do not need it).
+     *
+     * @method rediscoverDeviceIp
+     */
+    rediscoverDeviceIp() {
+        if (typeof this._discoverDeviceIp !== 'function') {
+            return;
+        }
+
+        if (this._ipRediscoveryRunning) {
+            return;
+        }
+        this._ipRediscoveryRunning = true;
+
+        Utils.logDebug(`Re-discovering device IP address for ${this.pluginName} - ${this.id}.`);
+
+        /* safety net in case the plugin never calls the callback */
+        this._ipRediscoveryTimer = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 30, () => {
+            this._ipRediscoveryTimer = null;
+            this._ipRediscoveryRunning = false;
+            return GLib.SOURCE_REMOVE;
+        });
+
+        this._discoverDeviceIp((discovered) => {
+            if (this._ipRediscoveryTimer) {
+                GLib.Source.remove(this._ipRediscoveryTimer);
+                this._ipRediscoveryTimer = null;
+            }
+            this._ipRediscoveryRunning = false;
+            this._applyDiscoveredDeviceIp(discovered);
+        });
+    }
+
+    /**
+     * Compares discovered IP addresses with the stored ones and writes
+     * the changed ones into the settings (matched by device ID / settings
+     * key).
+     *
+     * @method _applyDiscoveredDeviceIp
+     * @param {Object} discovered map of settings-id to discovered ip address
+     * @private
+     */
+    _applyDiscoveredDeviceIp(discovered) {
+        if (! discovered || Object.keys(discovered).length === 0) {
+            return;
+        }
+
+        let pluginSettings = this._settings.get_value(this.pluginName).deep_unpack();
+        let changed = false;
+
+        for (let id in discovered) {
+            let ip = discovered[id];
+
+            if (! ip || ! pluginSettings[id] || pluginSettings[id]['ip'] === undefined) {
+                continue;
+            }
+
+            if (pluginSettings[id]['ip'] === ip) {
+                continue;
+            }
+
+            Utils.logDebug(`${this.pluginName} - ${id}: IP address changed from ${pluginSettings[id]['ip']} to ${ip}.`);
+
+            pluginSettings[id]['ip'] = ip;
+            changed = true;
+
+            if (typeof this._applyDeviceIp === 'function') {
+                this._applyDeviceIp(id, ip);
+            }
+        }
+
+        if (changed) {
+            this._settings.set_value(
+                this.pluginName,
+                new GLib.Variant(Utils.SETTINGS_PLUGIN_TYPE, pluginSettings)
+            );
+        }
     }
 
     /**
@@ -1012,6 +1108,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 return GLib.SOURCE_REMOVE;
             }
 
+            this.rediscoverDeviceIp();
             this.requestData();
 
             this._tryReconnect(

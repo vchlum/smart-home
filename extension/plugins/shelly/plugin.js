@@ -34,6 +34,7 @@
  */
 
 import GObject from 'gi://GObject';
+import GLib from 'gi://GLib';
 import * as Utils from '../../utils.js';
 import * as Semaphore from '../../semaphore.js';
 import * as SmartHomePanelMenu from '../../smarthome-panelmenu.js';
@@ -561,6 +562,79 @@ export const Plugin =  GObject.registerClass({
 
     requestData() {
         this._semaphore.callFunction(this._updateDevices.bind(this));
+    }
+
+    /**
+     * Discovers Shelly devices via avahi and reports their current IP
+     * address. Each discovered device is probed via its unauthenticated
+     * "/shelly" endpoint to read its real ID, which is then matched
+     * against the configured devices (the settings keys). The connections
+     * are rebuilt from settings on change, so no _applyDeviceIp() is
+     * needed.
+     *
+     * @method _discoverDeviceIp
+     * @param {Function} callback called with { <id>: <ip>, ... }
+     * @private
+     */
+    _discoverDeviceIp(callback) {
+        let discovery = new Api.DiscoveryShelly();
+        discovery.connect('discoverFinished', () => {
+            let ips = Object.keys(discovery.discoveredDevices);
+            let result = {};
+            let pending = ips.length;
+
+            if (pending === 0) {
+                callback(result);
+                return;
+            }
+
+            for (let ip of ips) {
+                let probe = new Api.ShellyDevice({id: ip, ip: ip, gen: 0});
+                let done = false;
+                let probeTimer = null;
+
+                let finish = () => {
+                    if (done) {
+                        return;
+                    }
+                    done = true;
+                    if (probeTimer) {
+                        GLib.Source.remove(probeTimer);
+                        probeTimer = null;
+                    }
+                    probe.clear();
+                    pending--;
+                    if (pending === 0) {
+                        callback(result);
+                    }
+                };
+
+                probe.connect('shelly', () => {
+                    let data = probe.data || {};
+                    let id = data['id'];
+                    if (! id && data['type'] && data['mac']) {
+                        id = `${data['type']}_${data['mac']}`;
+                    }
+
+                    if (id && this._pluginSettings[id]) {
+                        result[id] = ip;
+                    }
+
+                    finish();
+                });
+                probe.connect('connection-problem', finish);
+
+                /* a dead IP does not always emit connection-problem */
+                probeTimer = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 8, () => {
+                    probeTimer = null;
+                    finish();
+                    return GLib.SOURCE_REMOVE;
+                });
+
+                probe.getShelly();
+            }
+        });
+        discovery.discover();
     }
 
     getOnDevices(ids) {
