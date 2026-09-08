@@ -370,6 +370,13 @@ export const NanoleafDevice =  GObject.registerClass({
     }
 
     enableUDP() {
+        if (this._udpConnecting) {
+            return;
+        }
+        this._udpConnecting = true;
+
+        this._closeUdpSocket();
+
         let address = Gio.InetSocketAddress.new_from_string(
             this._ip,
             60222
@@ -385,9 +392,18 @@ export const NanoleafDevice =  GObject.registerClass({
             address,
             null,
             (object, res) =>  {
-                this._udp = object.connect_finish(res);
+                this._udpConnecting = false;
+
+                try {
+                    this._udp = object.connect_finish(res);
+                } catch (e) {
+                    Utils.logError("UDP connection to Nanoleaf device failed: " + e);
+                    this._udp = undefined;
+                }
+
                 if (!this._udp) {
                     Utils.logError("UDP connection to Nanoleaf device not established.");
+                    this.emit('udp-stopped');
                     return;
                 }
 
@@ -400,34 +416,58 @@ export const NanoleafDevice =  GObject.registerClass({
         );
     }
 
+    /**
+     * Close the UDP socket, if any, without emitting 'udp-stopped'. Used
+     * internally so re-establishing the connection doesn't look like a drop.
+     *
+     * @method _closeUdpSocket
+     * @private
+     */
+    _closeUdpSocket() {
+        if (! this._udp) {
+            return;
+        }
+
+        try {
+            this._udpCancelleable.cancel();
+            this._udp.get_socket().close();
+        } catch (e) {
+            Utils.logDebug("Error closing Nanoleaf UDP socket: " + e);
+        }
+
+        this._udp = undefined;
+        this._udpOutputStream = undefined;
+    }
+
     disableUDP() {
         if (! this._udp) {
             return;
         }
-        this._udpCancelleable.cancel();
-        this._udp.get_socket().close();
-        this._udp = undefined;
+
+        this._closeUdpSocket();
 
         this.emit('udp-stopped');
     }
 
     sendUDPMsg(data) {
         if (!this._udp || !this._udpOutputStream) {
-            this.enableUDP();
-        } else {
-            this._udpOutputStream.write_all_async(
-                data,
-                GLib.PRIORITY_DEFAULT,
-                this._udpCancelleable,
-                (object, res) => {
-                    try {
-                        object.write_all_finish(res);
-                    } catch {
-                        this.disableUDP();
-                    }
-                }
-            );
+            /* socket is down, reconnection is driven by the 'udp-stopped'
+               listener; drop this frame instead of racing enableUDP() calls */
+            return;
         }
+
+        this._udpOutputStream.write_all_async(
+            data,
+            GLib.PRIORITY_DEFAULT,
+            this._udpCancelleable,
+            (object, res) => {
+                try {
+                    object.write_all_finish(res);
+                } catch {
+                    this.disableUDP();
+                }
+            }
+        );
     }
 
     async keepEventStreamRequest() {

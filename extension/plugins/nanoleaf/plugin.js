@@ -41,6 +41,12 @@ import * as SmartHomePanelMenu from '../../smarthome-panelmenu.js';
 import * as ScreenMirror from './screen-mirror.js';
 import * as Api from './api.js';
 
+/* screen mirror UDP reconnect backoff: base delay, cap and max attempts
+   before giving up on a dropped mirroring session */
+const MIRROR_RETRY_BASE_MS = 1000;
+const MIRROR_RETRY_MAX_MS = 30000;
+const MIRROR_MAX_RETRIES = 8;
+
 /**
  * Nanoleaf class for controlling Nanoleaf devices.
  *
@@ -802,14 +808,14 @@ export const Plugin =  GObject.registerClass({
     startMirrorScreen(id, display) {
         let signal;
 
-        if (! this._mirroring[id]) {
-            this._mirroring[id] = {
-                'signals-device': [],
-                'signals-mirror': [],
-            };
-        }
-
         this.stopMirrorScreen(id);
+
+        this._mirroring[id] = {
+            'signals-device': [],
+            'signals-mirror': [],
+            'retryCount': 0,
+            'retryTimer': null,
+        };
 
         signal = this._devices[id].connect(
             'ext-control',
@@ -822,6 +828,11 @@ export const Plugin =  GObject.registerClass({
         signal = this._devices[id].connect(
             'udp-ready',
             async () => {
+                this._mirroring[id]['retryCount'] = 0;
+                if (this._mirroring[id]['retryTimer']) {
+                    GLib.Source.remove(this._mirroring[id]['retryTimer']);
+                    this._mirroring[id]['retryTimer'] = null;
+                }
                 this._mirroring[id]['panelLayout'] = this._devices[id].allData['panelLayout'];
                 this._mirroring[id]['display'] = display;
                 this._mirroring[id]['brightness'] = this.data['devices'][id]['brightness'];
@@ -838,7 +849,7 @@ export const Plugin =  GObject.registerClass({
         signal = this._devices[id].connect(
             'udp-stopped',
             () => {
-                this.stopMirrorScreen(id);
+                this._retryMirrorScreen(id);
             }
         );
         this._mirroring[id]['signals-device'].push(signal);
@@ -857,9 +868,66 @@ export const Plugin =  GObject.registerClass({
         this._devices[id].extControl(true);
     }
 
+    /**
+     * Called whenever the UDP link used for screen mirroring drops (e.g. a
+     * transient network problem). Instead of tearing the whole mirroring
+     * session down immediately, retry re-establishing it with a backoff,
+     * since the panels just keep showing the last received frame while
+     * nothing is being sent. Only give up and stop mirroring for good once
+     * MIRROR_MAX_RETRIES is exceeded.
+     *
+     * The retry chain reschedules itself on a timer rather than waiting for
+     * another 'udp-stopped' signal: if the retry's extControl(true) request
+     * fails outright (e.g. the network is down enough to break HTTP too),
+     * the device never re-emits 'udp-stopped' for that attempt (it's already
+     * disconnected), so a purely reactive retry would stall after one try.
+     * 'udp-ready' cancels the pending timer and resets the count once the
+     * link actually comes back.
+     *
+     * @method _retryMirrorScreen
+     * @private
+     * @param {String} id device id
+     */
+    _retryMirrorScreen(id) {
+        if (! this._mirroring[id] || this._mirroring[id]['retryTimer']) {
+            return;
+        }
+
+        const retryCount = this._mirroring[id]['retryCount'] + 1;
+        this._mirroring[id]['retryCount'] = retryCount;
+
+        if (retryCount > MIRROR_MAX_RETRIES) {
+            Utils.logError(`Nanoleaf screen mirror on ${id} lost connection, giving up after ${MIRROR_MAX_RETRIES} retries.`);
+            this.stopMirrorScreen(id);
+            this._devices[id].extControl(false);
+            return;
+        }
+
+        const delay = Math.min(MIRROR_RETRY_BASE_MS * (2 ** (retryCount - 1)), MIRROR_RETRY_MAX_MS);
+        Utils.logDebug(`Nanoleaf screen mirror on ${id} dropped, retrying in ${delay}ms (attempt ${retryCount}/${MIRROR_MAX_RETRIES}).`);
+
+        this._mirroring[id]['retryTimer'] = GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
+            if (! this._mirroring[id]) {
+                return GLib.SOURCE_REMOVE;
+            }
+            this._mirroring[id]['retryTimer'] = null;
+
+            this._devices[id].extControl(true);
+            /* queue the next attempt now; 'udp-ready' will cancel it if
+               this one actually succeeds */
+            this._retryMirrorScreen(id);
+            return GLib.SOURCE_REMOVE;
+        });
+    }
+
     stopMirrorScreen(id, clear = false) {
         if (! this._mirroring[id]) {
             return;
+        }
+
+        if (this._mirroring[id]['retryTimer']) {
+            GLib.Source.remove(this._mirroring[id]['retryTimer']);
+            this._mirroring[id]['retryTimer'] = null;
         }
 
         while (this._mirroring[id]['signals-device'].length > 0) {
