@@ -44,12 +44,47 @@ let runNotify = [];
 
 export default class SmartHomeExtension extends Extension {
 
-    addNotificationSmartHome(notification) {
-        for (let notify of runNotify) {
-            notify(notification.title, notification.body);
+    /**
+     * Wraps MessageTray.Source.prototype.addNotification so every notification
+     * is also offered to the registered notify callbacks. The original method
+     * is captured in a closure (not stored on the prototype) so the patch
+     * survives other extensions patching the same method, and is only undone
+     * in disable() when our wrapper is still the outermost one.
+     *
+     * @method _patchAddNotification
+     * @private
+     */
+    _patchAddNotification() {
+        let original = MessageTray.Source.prototype.addNotification;
+
+        this._addNotificationWrapper = function (notification) {
+            for (let notify of runNotify) {
+                notify(notification.title, notification.body);
+            }
+
+            return original.call(this, notification);
+        };
+
+        MessageTray.Source.prototype.addNotification = this._addNotificationWrapper;
+        this._addNotificationOriginal = original;
+    }
+
+    /**
+     * Reverts _patchAddNotification(). If another extension has since wrapped
+     * addNotification on top of ours, our wrapper is left in place (removing
+     * it would break their chain) and only the closed-over original still
+     * runs through it.
+     *
+     * @method _unpatchAddNotification
+     * @private
+     */
+    _unpatchAddNotification() {
+        if (MessageTray.Source.prototype.addNotification === this._addNotificationWrapper) {
+            MessageTray.Source.prototype.addNotification = this._addNotificationOriginal;
         }
 
-        MessageTray.Source.prototype.origAddNotification.call(this, notification);
+        this._addNotificationWrapper = null;
+        this._addNotificationOriginal = null;
     }
 
     enable() {
@@ -87,8 +122,7 @@ export default class SmartHomeExtension extends Extension {
 
         this._smarthome.refreshPlugins();
 
-        MessageTray.Source.prototype.origAddNotification = MessageTray.Source.prototype.addNotification;
-        MessageTray.Source.prototype.addNotification = this.addNotificationSmartHome;
+        this._patchAddNotification();
 
         this._apiServer = new ApiServer(this._smarthome);
         this._applyApiSettings();
@@ -139,8 +173,7 @@ export default class SmartHomeExtension extends Extension {
     disable() {
         runNotify = [];
 
-        MessageTray.Source.prototype.addNotification = MessageTray.Source.prototype.origAddNotification;
-        delete(MessageTray.Source.prototype.origAddNotification);
+        this._unpatchAddNotification();
 
         this._settings.disconnect(this._apiSettingsSignal);
         this._apiSettingsSignal = undefined;

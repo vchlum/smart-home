@@ -266,8 +266,8 @@ export class ApiServer {
 
     _sendJson(msg, statusCode, obj) {
         let body = new TextEncoder().encode(JSON.stringify(obj));
-        msg.get_response_headers().replace('Content-Type', 'application/json');
         msg.set_status(statusCode, null);
+        /* set_response() also sets the Content-Type header from its first arg */
         msg.set_response('application/json', Soup.MemoryUse.COPY, body);
     }
 

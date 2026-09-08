@@ -141,18 +141,16 @@ export function logError(msg) {
 }
 
 /**
- * Generate almost useless and amost unique number
- * 
+ * Generate a unique string usable to disambiguate menu object keys.
+ * Items in this.refreshMenuObjects may occur more than once, so a plain
+ * device id is not enough - the suffix keeps such keys distinct.
+ *
  * @method getUuid
  * @private
- * @return {Number} randomly generated number
+ * @return {String} randomly generated identifier
  */
 export function getUuid() {
-
-    /* items in this.refreshMenuObjects may occure more then ones,
-     * this way it is possible - otherwise, the ID is useless
-     */
-    return Math.round((Math.random()*1000000));
+    return GLib.uuid_string_random();
 }
 
 /**
