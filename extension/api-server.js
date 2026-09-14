@@ -297,16 +297,36 @@ export class ApiServer {
         }
 
         let header = msg.get_request_headers().get_one('Authorization');
-        if (header && header === `Bearer ${this._token}`) {
+        if (header && this._timingSafeEqual(header, `Bearer ${this._token}`)) {
             return true;
         }
 
         header = msg.get_request_headers().get_one('X-Api-Key');
-        if (header && header === this._token) {
+        if (header && this._timingSafeEqual(header, this._token)) {
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * Compares two strings in constant time to avoid leaking the length of
+     * a match via response-time differences (timing attacks) when checking
+     * the API token.
+     *
+     * @method _timingSafeEqual
+     * @private
+     */
+    _timingSafeEqual(a, b) {
+        if (a.length !== b.length) {
+            return false;
+        }
+
+        let mismatch = 0;
+        for (let i = 0; i < a.length; i++) {
+            mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+        }
+        return mismatch === 0;
     }
 
     /**
