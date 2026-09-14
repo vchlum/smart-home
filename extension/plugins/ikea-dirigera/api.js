@@ -403,8 +403,14 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
 
     _getCharChallenge() {
         const CODE_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
-        const randomIndex = Math.floor(Math.random() * CODE_ALPHABET.length);
-        return CODE_ALPHABET[randomIndex];
+        // GLib.uuid_string_random() is backed by a cryptographically secure
+        // source (e.g. /dev/urandom), unlike Math.random().
+        const maxValid = 256 - (256 % CODE_ALPHABET.length);
+        let randomByte;
+        do {
+            randomByte = parseInt(GLib.uuid_string_random().replace(/-/g, '').slice(0, 2), 16);
+        } while (randomByte >= maxValid);
+        return CODE_ALPHABET[randomByte % CODE_ALPHABET.length];
     }
 
     hexStringToArray(hexString) {
