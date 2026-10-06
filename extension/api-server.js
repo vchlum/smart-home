@@ -337,9 +337,11 @@ export class ApiServer {
      *
      * @method _resolveByNameOrId
      * @private
+     * If filterFn is given, only objects it accepts are matched by name.
+     *
      * @return {Object} {status: 'ok'|'ambiguous'|'none', id}
      */
-    _resolveByNameOrId(map, key, nameFn) {
+    _resolveByNameOrId(map, key, nameFn, filterFn = null) {
         if (map[key] !== undefined) {
             return {'status': 'ok', 'id': key};
         }
@@ -348,6 +350,9 @@ export class ApiServer {
         let matches = [];
 
         for (let id in map) {
+            if (filterFn && ! filterFn(map[id])) {
+                continue;
+            }
             let name = nameFn(map[id]);
             if (name && name.toLowerCase() === lower) {
                 matches.push(id);
@@ -366,15 +371,22 @@ export class ApiServer {
     /**
      * Resolves a plugin instance by its id or by its configured name.
      *
+     * A Philips Hue bridge and its desktop sync instance share the same
+     * settings (and so the same name), so name matching is scoped:
+     * with sync === true only desktop sync instances are considered,
+     * otherwise they are skipped. Exact ids always resolve.
+     *
      * @method _resolvePlugin
      * @private
      * @return {Array} [status, pluginID, instance]
      */
-    _resolvePlugin(key) {
+    _resolvePlugin(key, sync = false) {
         let result = this._resolveByNameOrId(
             this._smarthome.instances,
             key,
-            (instance) => this._instanceName(instance)
+            (instance) => this._instanceName(instance),
+            (instance) => instance &&
+                (instance.pluginName === Utils.SETTINGS_PHILIPSHUEDESKTOPSYNC) === sync
         );
 
         if (result.status !== 'ok') {
@@ -579,7 +591,7 @@ export class ApiServer {
 
         /* POST /sync/<pluginID> */
         if (parts.length === 2 && parts[0] === 'sync' && method === 'POST') {
-            let [status, , instance] = this._resolvePlugin(parts[1]);
+            let [status, , instance] = this._resolvePlugin(parts[1], true);
             if (status === 'ambiguous') {
                 this._sendError(msg, 409, 'Multiple plugin instances match that name.');
                 return;

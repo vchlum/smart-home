@@ -75,6 +75,9 @@ Matching is case-insensitive.
 - If more than one plugin/device/group shares the exact same name (e.g. two
   lights both called "Lamp"), you get `409 Conflict` asking you to rename one
   of them (in the Hue app / device's own app) or to use the id instead.
+- A Philips Hue bridge and its desktop sync instance share the same name.
+  By name, `plugins/...` endpoints resolve to the bridge and `sync/...`
+  endpoints to the desktop sync instance.
 
 Devices are grouped per **plugin instance**. A plugin instance is one
 configured device/bridge, e.g. one Philips Hue Bridge, one Home Assistant
