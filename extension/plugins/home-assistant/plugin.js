@@ -47,6 +47,7 @@ export const Plugin =  GObject.registerClass({
         this.id = id;
         this._bridgeSignals = [];
         this._offShutdown = false;
+        this._devicesVisibilityMode = false; // false = blacklist, true = whitelist
         this._visibilitySettings = {};
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
         this._connectionTimeout = Utils.HOMEASSISTANT_DEFAULT_TIMEOUT;
@@ -73,6 +74,14 @@ export const Plugin =  GObject.registerClass({
 
         if (this._pluginSettings[this.id]['off-shutdown'] !== undefined) {
             this._offShutdown = this._pluginSettings[this.id]['off-shutdown'] === 'true';
+        }
+
+        tmp = this._devicesVisibilityMode;
+        if (this._pluginSettings[this.id]['devices-visibility-mode'] !== undefined) {
+            this._devicesVisibilityMode = this._pluginSettings[this.id]['devices-visibility-mode'] === 'true';
+        }
+        if (tmp !== this._devicesVisibilityMode) {
+            needsRebuild = true;
         }
 
         tmp = JSON.stringify(this._visibilitySettings);
@@ -179,8 +188,16 @@ export const Plugin =  GObject.registerClass({
         for (let item of data) {
             id = item['entity_id'];
 
-            if (this._visibilitySettings[id] !== undefined && this._visibilitySettings[id].switch) {
-                continue;
+            if (this._devicesVisibilityMode) {
+                // whitelist mode
+                if (this._visibilitySettings[id] === undefined || !this._visibilitySettings[id].switch) {
+                    continue;
+                }
+            } else {
+                // blacklist mode
+                if (this._visibilitySettings[id] !== undefined && this._visibilitySettings[id].switch) {
+                    continue;
+                }
             }
 
             if (id.startsWith('light')) {

@@ -388,11 +388,17 @@ msgstr "Sekce výše s rozpoznanými zařízeními jsou označené hvězdičkou.
 msgid "No new device discovered."
 msgstr "Žádná nová zařízení."
 
-msgid "Hidden devices"
-msgstr "Skrytá zařízení"
+msgid "Blacklist or whitelist devices"
+msgstr "Skrytá nebo zobrazená zařízení"
 
-msgid "By enabling the item, the device will be hidden in the menu."
-msgstr "Aktivací položky skryjete zařízení."
+msgid "You can explicitly hide or explicitly show devices"
+msgstr "Můžete explicitně skrýt nebo explicitně zobrazit zařízení"
+
+msgid "Blacklist/Whitelist mode"
+msgstr "Režim ukrývání/zobrazování zařízení"
+
+msgid "OFF means blacklist; ON means whitelist"
+msgstr "VYPNUTO znamená ukrývat; ZAPNUTO znamená zobrazovat"
 
 msgid "Lets local applications and scripts control devices over HTTP."
 msgstr "Umožnit lokálním aplikacím a skriptům ovládat zařízení přes HTTP."

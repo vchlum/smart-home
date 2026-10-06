@@ -66,6 +66,7 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
         'devicesNotification',
         'devicesVisibility',
         'notifyNotebookMode',
+        'devicesVisibilityMode',
         'spinConnectionTimeout',
     ],
 }, class SmartHomeHomeAssistant extends Adw.NavigationPage {
@@ -182,6 +183,12 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
         }
         this._notifyNotebookMode.active = notifyNotebookMode;
 
+        let devicesVisibilityMode = false;
+        if (this._pluginSettings[this._id]['devices-visibility-mode'] !== undefined) {
+            devicesVisibilityMode = this._pluginSettings[this._id]['devices-visibility-mode'] === 'true';
+        }
+        this._devicesVisibilityMode.active = devicesVisibilityMode;
+
         let connectionTimeout = Utils.HOMEASSISTANT_DEFAULT_TIMEOUT;
         if (this._pluginSettings[this._id]['connection-timeout'] !== undefined) {
             connectionTimeout = Number(this._pluginSettings[this._id]['connection-timeout']);
@@ -247,6 +254,11 @@ export const SmartHomeHomeAssistant = GObject.registerClass({
 
     _notifyNotebookModeSwitched(object) {
         this._pluginSettings[this._id]['notify-notebook-mode'] = String(object.active);
+        this._writeDevicesSettings();
+    }
+
+    _devicesVisibilityModeSwitched(object) {
+        this._pluginSettings[this._id]['devices-visibility-mode'] = String(object.active);
         this._writeDevicesSettings();
     }
 

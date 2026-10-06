@@ -114,8 +114,17 @@
 
                         <child>
                           <object class="AdwExpanderRow" id="devicesVisibility">
-                            <property name="title" translatable="yes">Hidden devices</property>
-                            <property name="subtitle" translatable="yes">By enabling the item, the device will be hidden in the menu.</property>
+                            <property name="title" translatable="yes">Blacklist or whitelist devices</property>
+                            <property name="subtitle" translatable="yes">You can explicitly hide or explicitly show devices</property>
+
+                            <child>
+                              <object class="AdwSwitchRow" id="devicesVisibilityMode">
+                                <property name="title" translatable="yes">Blacklist/Whitelist mode</property>
+                                <property name="subtitle" translatable="yes">OFF means blacklist; ON means whitelist</property>
+                                <signal name="notify::active" handler="_devicesVisibilityModeSwitched" swapped="no"/>
+                              </object>
+                            </child>
+
                           </object>
                         </child>
 
