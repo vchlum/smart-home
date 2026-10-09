@@ -988,6 +988,7 @@ export const Plugin =  GObject.registerClass({
     }
 
     colorSingle(id, value) {
+        this.stopMirrorScreen(id);
         let [h, s, l] = Utils.rgbToHsv(value['r'], value['g'], value['b']);
         this._devices[id].setDeviceColor(h, s);
 
@@ -1001,13 +1002,13 @@ export const Plugin =  GObject.registerClass({
             if (onDevices.length > 0 && (! onDevices.includes(i))) {
                 continue;
             }
-
+            this.stopMirrorScreen(i);
             this._devices[i].setDeviceColor(h, s);
         }
     }
 
     colorTemperatureSingle(id, value) {
-
+        this.stopMirrorScreen(id);
         let temp = Utils.RGBToKelvin(
             value['r'],
             value['g'],
@@ -1026,7 +1027,7 @@ export const Plugin =  GObject.registerClass({
             if (onDevices.length > 0 && (! onDevices.includes(i))) {
                 continue;
             }
-
+            this.stopMirrorScreen(i);
             let temp = Utils.RGBToKelvin(
                 value['r'],
                 value['g'],
