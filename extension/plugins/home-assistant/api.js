@@ -327,6 +327,12 @@ export const HomeAssistantBridge =  GObject.registerClass({
             return;
         }
 
+        /* cleared while connecting */
+        if (this._cleared) {
+            this._disconnectWs();
+            return;
+        }
+
         signal = this._wsConnection.connect(
             'closed',
             this._disconnectWs.bind(this)
@@ -381,6 +387,11 @@ export const HomeAssistantBridge =  GObject.registerClass({
                 let signal = this._signalsWs.pop();
                 this._wsConnection.disconnect(signal);
             }
+
+            if (this._wsConnection.get_state() === Soup.WebsocketState.OPEN) {
+                this._wsConnection.close(Soup.WebsocketCloseCode.NORMAL, null);
+            }
+
             this._wsConnection = undefined;
         }
 
@@ -478,6 +489,8 @@ export const HomeAssistantBridge =  GObject.registerClass({
     }
 
     clear() {
+        this._cleared = true;
+        this._disconnectWs();
         this.clearTimers();
     }
 });

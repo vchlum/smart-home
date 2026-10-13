@@ -355,8 +355,10 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
             return;
         }
 
-        if (!this._connection) {
+        /* no connection or cleared while connecting */
+        if (!this._connection || this._cleared) {
             this._disableEventStream();
+            return;
         }
 
         signal = this._connection.connect(
@@ -523,6 +525,8 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
     }
 
     clear() {
+        this._cleared = true;
+        this._disableEventStream();
         this.clearTimers();
     }
 });

@@ -130,7 +130,16 @@ export const ScreenMirror =  GObject.registerClass({
                     return GLib.SOURCE_REMOVE;
                 }
 
-                this._invokeEvent();
+                /* a capture slower than the interval would otherwise overlap
+                   with the next one, each holding a full-screen texture */
+                if (this._invoking) {
+                    return GLib.SOURCE_CONTINUE;
+                }
+
+                this._invoking = true;
+                this._invokeEvent()
+                    .catch(e => Utils.logError(`Nanoleaf screen mirror failed: ${e}`))
+                    .finally(() => { this._invoking = false; });
                 return GLib.SOURCE_CONTINUE;
             });
         }
@@ -221,6 +230,11 @@ export const ScreenMirror =  GObject.registerClass({
     }
 
     clear() {
+        if (this._runningEvent !== undefined) {
+            GLib.Source.remove(this._runningEvent);
+            this._runningEvent = undefined;
+        }
+
         if (this._screenGeometry) {
             this._screenGeometry.destroy();
             this._screenGeometry = null;

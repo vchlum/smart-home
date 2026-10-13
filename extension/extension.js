@@ -40,8 +40,6 @@ import * as SmartHome from './smarthome.js';
 import * as Utils from './utils.js';
 import { ApiServer } from './api-server.js';
 
-let runNotify = [];
-
 export default class SmartHomeExtension extends Extension {
 
     /**
@@ -56,10 +54,13 @@ export default class SmartHomeExtension extends Extension {
      */
     _patchAddNotification() {
         let original = MessageTray.Source.prototype.addNotification;
+        let extension = this;
 
+        /* iterate the live instances, so removed plugins are not kept alive */
         this._addNotificationWrapper = function (notification) {
-            for (let notify of runNotify) {
-                notify(notification.title, notification.body);
+            let instances = extension._smarthome?.instances ?? {};
+            for (let pluginID in instances) {
+                instances[pluginID].runNotify?.(notification.title, notification.body);
             }
 
             return original.call(this, notification);
@@ -100,14 +101,6 @@ export default class SmartHomeExtension extends Extension {
         this._signalPluginReady = this._smarthome.connect(
             'plugin-ready',
             (object, pluginID) => {
-                if (this._smarthome.instances[pluginID].runNotify !== undefined) {
-                    runNotify.push(
-                        this._smarthome.instances[pluginID].runNotify.bind(
-                            this._smarthome.instances[pluginID]
-                        )
-                    );
-                }
-
                 if (this._smarthome.instances[pluginID].inUniversalMenu()) {
                     return;
                 }
@@ -171,8 +164,6 @@ export default class SmartHomeExtension extends Extension {
     }
 
     disable() {
-        runNotify = [];
-
         this._unpatchAddNotification();
 
         this._settings.disconnect(this._apiSettingsSignal);
