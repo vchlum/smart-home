@@ -180,6 +180,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._networkClient = undefined;
         this._reducedPadding = false;
         this._itemRefresher = {};
+        this._appliedLook = new WeakMap();
         this._panelIconPack = SmartHomeIconPack.SYSTEM;
         this._iconPack = SmartHomeIconPack.SYSTEM;
         this._pluginSettings = {};
@@ -632,13 +633,37 @@ export const SmartHomePanelMenu = GObject.registerClass({
         return effect;
     }
 
+    /**
+     * Remembers what was applied on the actor last time.
+     * Recreating effects (offscreen FBOs) or icons on every refresh
+     * allocates GPU memory that is not released until GC runs.
+     *
+     * @method _lookChanged
+     * @private
+     * @param {Object} actor
+     * @param {String} key describing the requested look
+     * @return {Boolean} true if the look differs from the last one
+     */
+    _lookChanged(actor, key) {
+        if (this._appliedLook.get(actor) === key) {
+            return false;
+        }
+        this._appliedLook.set(actor, key);
+        return true;
+    }
+
     _setIconColor(icon, color, clearOnly = false) {
         let iconEffect;
+
+        const resolvedIconPack = this._resolveIconPack();
+        const key = clearOnly ? `pack:${resolvedIconPack}` : `color:${color}`;
+        if (!this._lookChanged(icon, key)) {
+            return;
+        }
 
         icon.clear_effects();
 
         if (clearOnly) {
-            const resolvedIconPack = this._resolveIconPack();
             iconEffect = this._getIconColorEffect(resolvedIconPack);
             icon.add_effect(iconEffect);
 
@@ -1300,6 +1325,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
         this._menuObjects = {};
         this._itemRefresher = {};
+        this._appliedLook = new WeakMap();
         this._openMenu = undefined;
 
         this.menu._getMenuItems().forEach(item => {
@@ -1736,18 +1762,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
             return;
         }
 
-        icon = object.get_children()[0];
-        while (icon) {
-            object.remove_child(icon);
-            icon.destroy();
-            icon = object.get_children()[0];
-        }
-
         switch (itemType) {
-            case SmartHomeItemType.GROUP_ANY:
-            case SmartHomeItemType.GROUP_ALL:
-                break;
-
             case SmartHomeItemType.GROUP:
                 iconPath = `${this.mediaDir}/${this.data['groups'][id]['icon']}`;
                 break;
@@ -1761,6 +1776,17 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
             default:
                 break;
+        }
+
+        if (!this._lookChanged(object, `${resolvedIconPack}:${iconPath}`)) {
+            return;
+        }
+
+        icon = object.get_children()[0];
+        while (icon) {
+            object.remove_child(icon);
+            icon.destroy();
+            icon = object.get_children()[0];
         }
 
         if (iconPath) {
@@ -1894,6 +1920,10 @@ export const SmartHomePanelMenu = GObject.registerClass({
      * @private
      */
     _setColorSwitch(object, c) {
+        if (!this._lookChanged(object, `${c}`)) {
+            return;
+        }
+
         if (!c) {
             object.clear_effects();
             return;
@@ -1914,13 +1944,23 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
     /**
      * Sets color on item slider.
-     * 
-     * @method _setColorSwitch
+     * St keeps a theme node for every distinct inline style forever,
+     * so the color is quantized to bound the number of styles.
+     *
+     * @method _setColorSlider
      * @param {Object} object
-     * @param {Array} color 
+     * @param {Array} color
      * @private
      */
     _setColorSlider(object, c) {
+        if (c) {
+            c = c.map(v => Math.min(255, Math.round(v / 36) * 36));
+        }
+
+        if (!this._lookChanged(object, `${c}`)) {
+            return;
+        }
+
         if (!c) {
             object.style = null;
             return;
