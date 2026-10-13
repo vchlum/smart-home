@@ -201,16 +201,15 @@ export const Plugin =  GObject.registerClass({
                 this.data['groups'][groupName]['groupsIds'].push(groupID);
             }
 
-            for (let deviceID in this._plugins[pluginID].data['groups'][id]['services']) {
-                this.data['groups'][groupName]['services'].push(
-                    `${pluginID}::${deviceID}`
-                );
-            }
+            /* called on every data refresh, push only ids not present yet */
+            for (let key of ['services', 'lights']) {
+                for (let deviceID of this._plugins[pluginID].data['groups'][id][key] ?? []) {
+                    let newDeviceID = `${pluginID}::${deviceID}`;
 
-            for (let deviceID in this._plugins[pluginID].data['groups'][id]['lights']) {
-                this.data['groups'][groupName]['lights'].push(
-                    `${pluginID}::${deviceID}`
-                );
+                    if (this.data['groups'][groupName][key].indexOf(newDeviceID) === -1) {
+                        this.data['groups'][groupName][key].push(newDeviceID);
+                    }
+                }
             }
 
         }
