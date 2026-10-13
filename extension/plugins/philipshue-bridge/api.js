@@ -590,6 +590,13 @@ export const PhilipsHueBridge =  GObject.registerClass({
                         reject("Stream reading not finished.");
                         return;
                     }
+
+                    /* zero bytes means the device closed the stream (EOF) */
+                    if (bytes.get_size() === 0) {
+                        reject("Event stream closed by device.");
+                        return;
+                    }
+
                     decoder = new TextDecoder();
                     response = decoder.decode(bytes.get_data());
 
