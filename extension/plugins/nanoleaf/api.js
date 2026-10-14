@@ -487,16 +487,37 @@ export const NanoleafDevice =  GObject.registerClass({
             return;
         }
 
+        /* a stream replaced by a restart must not stop the new one */
+        const cancellable = this._eventStreamCancelleable;
+
         this._eventStreamConnected = true;
 
-        while (this._eventStreamConnected) {
+        while (this._eventStreamConnected && this._eventStreamCancelleable === cancellable) {
             try {
-                await this._requestEventStreamData();
+                await this._requestEventStreamData(cancellable);
             } catch {
-                this.stopEventStreamRequest();
+                if (this._eventStreamCancelleable === cancellable) {
+                    this.stopEventStreamRequest();
+                }
                 break;
             }
         }
+    }
+
+    /**
+     * Reconnects the event stream if it is running.
+     * A connection started before the network was ready
+     * may hang for minutes as the stream has no timeout.
+     *
+     * @method restartEventStreamRequest
+     */
+    restartEventStreamRequest() {
+        if (! this._eventStreamCancelleable) {
+            return;
+        }
+
+        this.stopEventStreamRequest();
+        this.keepEventStreamRequest();
     }
 
     _enableEventStream(){
@@ -534,7 +555,7 @@ export const NanoleafDevice =  GObject.registerClass({
         this._eventStreamCancelleable = null;
     }
 
-    _requestEventStreamData() {
+    _requestEventStreamData(cancellable) {
         return new Promise((resolve, reject) => {
             let method = "GET";
             let requestType = RequestType.EVENT;
@@ -551,7 +572,7 @@ export const NanoleafDevice =  GObject.registerClass({
             this._sessionEventstream.send_async(
                 msg,
                 Soup.MessagePriority.NORMAL,
-                this._eventStreamCancelleable,
+                cancellable,
                 async (session, res) => {
                     let statusCode;
                     let inputStream;
@@ -574,7 +595,7 @@ export const NanoleafDevice =  GObject.registerClass({
                         case Soup.Status.OK:
                             while (true) {
                                 try {
-                                    await this._readEventStream(inputStream, requestType);
+                                    await this._readEventStream(inputStream, requestType, cancellable);
                                 } catch {
                                     reject("Reading event stream ended.");
                                     break;
@@ -593,13 +614,13 @@ export const NanoleafDevice =  GObject.registerClass({
         });
     }
 
-    _readEventStream(inputStream, requestType) {
+    _readEventStream(inputStream, requestType, cancellable) {
         return new Promise((resolve, reject) => {
             let eventType = 0;
             inputStream.read_bytes_async(
                 1024,
                 GLib.PRIORITY_DEFAULT,
-                this._eventStreamCancelleable,
+                cancellable,
                 (stream, res) => {
                     let bytes;
                     let decoder;

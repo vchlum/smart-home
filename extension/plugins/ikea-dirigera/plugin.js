@@ -183,6 +183,17 @@ export const Plugin =  GObject.registerClass({
         }
     }
 
+    /**
+     * Restarts event streams after the network has changed.
+     *
+     * @method restartEventStreams
+     */
+    restartEventStreams() {
+        if (this._bridge) {
+            this._bridge.restartEventStreamRequest();
+        }
+    }
+
     clearInstance() {
         Utils.logDebug(`Ikea Dirigera ${this.id} clearing.`);
 

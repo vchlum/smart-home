@@ -312,18 +312,42 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
         });
         msg.request_headers.append("ssl", "False");
         msg.request_headers.append("Authorization", `Bearer ${this._accessToken}`);
+
+        this._eventsCancellable = new Gio.Cancellable();
+
         this._sessionEvents.websocket_connect_async(
             msg,
             'origin',
             [],
             1,
-            null,
+            this._eventsCancellable,
             this._enableEventStreamCallback.bind(this)
         );
     }
 
+    /**
+     * Reconnects the event stream if it is connected or connecting.
+     * A connection started before the network was ready
+     * may hang for minutes as the websocket has no timeout.
+     *
+     * @method restartEventStreamRequest
+     */
+    restartEventStreamRequest() {
+        if (! this._sessionEvents) {
+            return;
+        }
+
+        this._disableEventStream();
+        this.keepEventStreamRequest();
+    }
+
     _disableEventStream() {
         Utils.logDebug(`Ikea Dirigera disabling event stream, IP ${this._ip}.`);
+
+        if (this._eventsCancellable) {
+            this._eventsCancellable.cancel();
+            this._eventsCancellable = null;
+        }
 
         if (this._eventsPing) {
             GLib.Source.remove(this._eventsPing);
@@ -347,13 +371,28 @@ export const IkeaDirigeraBridge =  GObject.registerClass({
 
     _enableEventStreamCallback(session, res) {
         let signal;
+        let connection;
 
         try {
-            this._connection = session.websocket_connect_finish(res);
+            connection = session.websocket_connect_finish(res);
         } catch {
-            this._sessionEvents = undefined;
+            if (session === this._sessionEvents) {
+                this._eventsCancellable = null;
+                this._sessionEvents = undefined;
+            }
             return;
         }
+
+        /* replaced by restart while connecting */
+        if (session !== this._sessionEvents) {
+            if (connection && connection.get_state() === Soup.WebsocketState.OPEN) {
+                connection.close(Soup.WebsocketCloseCode.NO_STATUS, null);
+            }
+            return;
+        }
+
+        this._eventsCancellable = null;
+        this._connection = connection;
 
         /* no connection or cleared while connecting */
         if (!this._connection || this._cleared) {

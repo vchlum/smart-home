@@ -168,6 +168,17 @@ export const Plugin =  GObject.registerClass({
         }
     }
 
+    /**
+     * Restarts event streams after the network has changed.
+     *
+     * @method restartEventStreams
+     */
+    restartEventStreams() {
+        if (this._bridge) {
+            this._bridge.restartWebSocket();
+        }
+    }
+
     clearInstance() {
         Utils.logDebug(`Home Assistant ${this.id} clearing.`);
 

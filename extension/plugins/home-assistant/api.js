@@ -35,6 +35,7 @@
 
 import Soup from 'gi://Soup';
 import GLib from 'gi://GLib';
+import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import * as Avahi from '../../avahi.js';
 import * as Utils from '../../utils.js';
@@ -304,24 +305,58 @@ export const HomeAssistantBridge =  GObject.registerClass({
         let sslHeader = this._ws.startsWith('wss://') ? "True" : "False";
         msg.request_headers.append("ssl", sslHeader);
 
+        this._wsCancellable = new Gio.Cancellable();
+
         this._wsSession.websocket_connect_async(
             msg,
             null,
             null,
             null,
-            null,
+            this._wsCancellable,
             this._authWebSocketCallback.bind(this)
         );
     }
 
-    _authWebSocketCallback(session, res) {
-        let signal;
-        try {
-            this._wsConnection = session.websocket_connect_finish(res);
-        } catch {
-            this._wsSession = undefined;
+    /**
+     * Reconnects the websocket if it is connected or connecting.
+     * A connection started before the network was ready
+     * may hang for minutes as the websocket has no timeout.
+     *
+     * @method restartWebSocket
+     */
+    restartWebSocket() {
+        if (! this._wsSession) {
             return;
         }
+
+        this._disconnectWs();
+        this.authWebSocket();
+    }
+
+    _authWebSocketCallback(session, res) {
+        let signal;
+        let connection;
+
+        try {
+            connection = session.websocket_connect_finish(res);
+        } catch {
+            if (session === this._wsSession) {
+                this._wsCancellable = null;
+                this._wsSession = undefined;
+            }
+            return;
+        }
+
+        /* replaced by restart while connecting */
+        if (session !== this._wsSession) {
+            if (connection && connection.get_state() === Soup.WebsocketState.OPEN) {
+                connection.close(Soup.WebsocketCloseCode.NORMAL, null);
+            }
+            return;
+        }
+
+        this._wsCancellable = null;
+        this._wsConnection = connection;
 
         if (!this._wsConnection) {
             return;
@@ -382,6 +417,11 @@ export const HomeAssistantBridge =  GObject.registerClass({
     }
 
     _disconnectWs() {
+        if (this._wsCancellable) {
+            this._wsCancellable.cancel();
+            this._wsCancellable = null;
+        }
+
         if (this._wsConnection) {
             while (this._signalsWs.length > 0) {
                 let signal = this._signalsWs.pop();

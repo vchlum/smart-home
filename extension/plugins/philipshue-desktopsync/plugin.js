@@ -488,6 +488,17 @@ export const Plugin =  GObject.registerClass({
         this.requestData();
     }
 
+    /**
+     * Restarts event streams after the network has changed.
+     *
+     * @method restartEventStreams
+     */
+    restartEventStreams() {
+        if (this._bridge) {
+            this._bridge.restartEventStreamRequest();
+        }
+    }
+
     clearInstance() {
         Utils.logDebug(`Philips Hue desktop sync ${this.id} clearing.`);
 

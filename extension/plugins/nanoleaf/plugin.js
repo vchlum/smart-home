@@ -144,6 +144,19 @@ export const Plugin =  GObject.registerClass({
         }
     }
 
+    /**
+     * Restarts event streams after the network has changed.
+     *
+     * @method restartEventStreams
+     */
+    restartEventStreams() {
+        for (let id in this._devices) {
+            if (this._devices[id]) {
+                this._devices[id].restartEventStreamRequest();
+            }
+        }
+    }
+
     clearInstance(settingsRead = false) {
         Utils.logDebug(`Nanoleaf clearing.`);
 

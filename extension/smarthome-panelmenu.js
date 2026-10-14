@@ -270,9 +270,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
                     this._networkClient = Main.panel.statusArea.quickSettings._network._client;
                     signal = this._networkClient.connect(
                         'notify::active-connections',
-                        () => {
-                            this.requestRebuild();
-                        }
+                        this._networkChanged.bind(this)
                     );
                     this._appendSignal(signal, this._networkClient);
 
@@ -289,9 +287,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
             this._networkClient = Main.panel.statusArea.quickSettings._network._client;
             signal = this._networkClient.connect(
                 'notify::active-connections',
-                () => {
-                    this.requestRebuild();
-                }
+                this._networkChanged.bind(this)
             );
             this._appendSignal(signal, this._networkClient);
 
@@ -303,6 +299,23 @@ export const SmartHomePanelMenu = GObject.registerClass({
         }
 
         this.connectDbusSession();
+    }
+
+    /**
+     * Network connections changed, e.g. VPN or Wi-Fi went up.
+     * Connections opened before the change may hang without timeout,
+     * so the plugin restarts its event streams before the rebuild.
+     * A plugin opts in by implementing "restartEventStreams()".
+     *
+     * @method _networkChanged
+     * @private
+     */
+    _networkChanged() {
+        if (typeof this.restartEventStreams === 'function') {
+            this.restartEventStreams();
+        }
+
+        this.requestRebuild();
     }
 
     _dbusShutdown() {
