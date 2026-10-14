@@ -2917,8 +2917,8 @@ export const SmartHomePanelMenu = GObject.registerClass({
         button.set_child(content);
 
         this._menuObjects[type]['unselect'] = button;
-        /* the button is not in the stage yet, so it can not be measured here */
-        button.width = 0;
+        /* hidden by visibility, zero size would break offscreen effects of the icon */
+        button.visible = false;
 
         signal = button.connect(
             'clicked',
@@ -3665,23 +3665,23 @@ export const SmartHomePanelMenu = GObject.registerClass({
         }
 
         if (! this._createGroupAll) {
-            this._menuObjects['groups']['unselect'].width = 0;
+            this._menuObjects['groups']['unselect'].visible = false;
             this._menuObjects['groups']['default'].visible = false;
             this._menuObjects['groups']['hidden'] = this._menuObjects['groups']['default'];
         } else if (groupId === '_all_' || ! this._createGroupAll) {
-            this._menuObjects['groups']['unselect'].width = 0;
+            this._menuObjects['groups']['unselect'].visible = false;
 
             this._menuObjects['groups']['hidden'].visible = true;
             this._menuObjects['groups']['default'].visible = false;
             this._menuObjects['groups']['hidden'] = this._menuObjects['groups']['default'];
         } else {
-            this._menuObjects['groups']['unselect'].width = -1;
+            this._menuObjects['groups']['unselect'].visible = true;
         }
 
         if (deviceId) {
-            this._menuObjects['devices']['unselect'].width = -1;
+            this._menuObjects['devices']['unselect'].visible = true;
         } else {
-            this._menuObjects['devices']['unselect'].width = 0;
+            this._menuObjects['devices']['unselect'].visible = false;
         }
 
         let selectedGroup = this._menuSelected['group'];
