@@ -134,6 +134,8 @@ export const GStreamer = GObject.registerClass({
         if (this._signal) {
             let bus = this._pipeline.get_bus();
             bus.disconnect(this._signal);
+            /* the watch source keeps the bus attached to the main loop */
+            bus.remove_signal_watch();
             this._signal = null;
         }
     }

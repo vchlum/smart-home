@@ -517,18 +517,37 @@ export function isExternalMonitorOn() {
     return false;
 }
 
+/**
+ * Composites the area of the screenshot to the stream and returns its pixbuf.
+ * The stream is shared by all areas of the frame and only the pixbuf
+ * is used, so the PNG data are dropped to keep just one area in memory.
+ *
+ * @method compositeToStream
+ * @return {Object} pixbuf of the area
+ */
+async function compositeToStream(screenshot, stream, texture, x, y, w, h, scale, cursor) {
+    stream.seek(0, GLib.SeekType.SET, null);
+    stream.truncate(0, null);
+
+    return await screenshot.composite_to_stream(
+        texture,
+        x, y, w, h,
+        scale,
+        cursor.texture, cursor.x, cursor.y, cursor.scale,
+        stream
+    );
+}
+
 async function blackColorTopBottom(screenshot, stream, texture, scale, cursor, x, y, w, h) {
     let color;
     let topBlack = 0;
     let bottomBlack = 0;
     let tmpY;
 
-    const pixbuf = await screenshot.composite_to_stream(
-        texture,
+    const pixbuf = await compositeToStream(
+        screenshot, stream, texture,
         x, y, w, h,
-        scale,
-        cursor.texture, cursor.x, cursor.y, cursor.scale,
-        stream
+        scale, cursor
     );
 
     const rowstride = pixbuf.get_rowstride();
@@ -671,12 +690,10 @@ function getAvagarePixelRGB(pixels, rowstride, n_channels) {
 }
 
 export async function getRectangleColorFromScreenshot(screenshot, stream, texture, scale, cursor, x, y, w, h, shiftX, shiftY) {
-    const pixbuf = await screenshot.composite_to_stream(
-        texture,
+    const pixbuf = await compositeToStream(
+        screenshot, stream, texture,
         shiftX + x, shiftY + y, w, h,
-        scale,
-        cursor.texture, cursor.x, cursor.y, cursor.scale,
-        stream
+        scale, cursor
     );
 
     const rowstride = pixbuf.get_rowstride();
