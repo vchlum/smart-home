@@ -57,6 +57,7 @@ export const Plugin =  GObject.registerClass({
         this._initialized = {};
         this._pluginRebuild = {};
         this._semaphore = new Semaphore.Semaphore(1);
+        this._rebuildDelay = 500; /* every plugin triggers the rebuild, coalesce it */
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
     }
 
@@ -150,6 +151,8 @@ export const Plugin =  GObject.registerClass({
         for ( let pluginID in this._plugins) {
             this.removePlugin(pluginID);
         }
+
+        this.cancelPendingRebuild();
 
         if (!settingsRead) {
             this._semaphore.clear();

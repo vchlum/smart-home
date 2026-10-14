@@ -187,6 +187,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._notificationSettings = {};
         this._timers = [];
         this._needsRebuild = true;
+        /* plugins may set the delay before calling super._init() */
+        this._rebuildDelay = this._rebuildDelay ?? 0;
+        this._rebuildTimer = null;
         this._menuObjects = {};
         this._allMenusSelected = {};
         this._menuSelected = {};
@@ -1212,6 +1215,8 @@ export const SmartHomePanelMenu = GObject.registerClass({
     requestRebuild() {
         Utils.logDebug(`Rebuilding menu ${this.pluginName} - ${this.id} requested.`);
 
+        /* the rebuild will happen once the new data are ready */
+        this.cancelPendingRebuild();
         this.clearMenu();
         if (this._hideUnavailable) {
             this.visible = false;
@@ -1227,10 +1232,45 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
     /**
      * Actuall proces of menu rebuilding.
+     * With non-zero this._rebuildDelay, the rebuild is postponed
+     * and repeated requests in the meantime are coalesced into one.
      *
      * @method rebuildMenuDo
      */
     rebuildMenuDo() {
+        if (this._rebuildDelay > 0) {
+            if (!this._rebuildTimer) {
+                this._rebuildTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._rebuildDelay, () => {
+                    this._rebuildTimer = null;
+                    this._rebuildMenuNow();
+                    return GLib.SOURCE_REMOVE;
+                });
+            }
+            return;
+        }
+
+        this._rebuildMenuNow();
+    }
+
+    /**
+     * Cancels the rebuild scheduled by rebuildMenuDo().
+     *
+     * @method cancelPendingRebuild
+     */
+    cancelPendingRebuild() {
+        if (this._rebuildTimer) {
+            GLib.Source.remove(this._rebuildTimer);
+            this._rebuildTimer = null;
+        }
+    }
+
+    /**
+     * Rebuilds the menu immediately.
+     *
+     * @method _rebuildMenuNow
+     * @private
+     */
+    _rebuildMenuNow() {
         Utils.logDebug(`Actually rebuilding the menu ${this.pluginName} - ${this.id}.`);
 
         this.readMenuSelectedSettings();
@@ -1258,6 +1298,11 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let ids;
         let itemType;
         let object;
+
+        /* the menu items may not match the data, the pending rebuild will use the fresh data */
+        if (this._rebuildTimer) {
+            return;
+        }
 
         Utils.logDebug(`Refreshing UI elements in the menu ${this.pluginName} - ${this.id}.`);
 

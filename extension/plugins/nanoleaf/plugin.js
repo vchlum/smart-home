@@ -72,6 +72,7 @@ export const Plugin =  GObject.registerClass({
         this._displays = [];
         this._mirroring = {};
         this._requestedBrightness = {};
+        this._rebuildDelay = 500; /* every device triggers the rebuild, coalesce it */
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
 
         this._screenMirror = new ScreenMirror.ScreenMirror();
@@ -145,6 +146,8 @@ export const Plugin =  GObject.registerClass({
 
     clearInstance(settingsRead = false) {
         Utils.logDebug(`Nanoleaf clearing.`);
+
+        this.cancelPendingRebuild();
 
         if (this._onStartTimer) {
             GLib.Source.remove(this._onStartTimer);
