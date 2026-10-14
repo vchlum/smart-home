@@ -565,72 +565,45 @@ export const SmartHomePanelMenu = GObject.registerClass({
     }
 
     /**
-     * Returns effect that can be applied on icon
-     * 
-     * @method _getIconColorEffect
+     * Returns colorize tint of the icon pack.
+     *
+     * @method _getIconPackTint
      * @private
-     * @param {Enum} requested icon effect
-     * @return {Object} effect
+     * @param {Enum} iconPack
+     * @return {Object} color or null if the pack is not tinted
      */
-    _getIconColorEffect(reqEffect, iconColor = null) {
-        let color;
-        switch (reqEffect) {
-
+    _getIconPackTint(iconPack) {
+        switch (iconPack) {
             case SmartHomeIconPack.BRIGHT:
-                color = getColor(237, 237, 237);
-                break;
+                return getColor(237, 237, 237);
 
             case SmartHomeIconPack.DARK:
-                color = getColor(40, 40, 40);
-                break;
-
-            default:
-                if (!iconColor) {
-                    return null;
-                }
-                color = getColor(iconColor[0], iconColor[1], iconColor[2]);
-                break;
-        }
-
-        let effect = new Clutter.ColorizeEffect({tint: color});
-        return effect;
-    }
-
-    /**
-     * Returns effect that can be applied on icon
-     * 
-     * @method _getIconBriConEffect
-     * @private
-     * @param {Enum} requested icon effect
-     * @return {Object} effect
-     */
-    _getIconBriConEffect(reqEffect) {
-
-        let bri = 0.0;
-        let cont = 0.0;
-
-        let effect = new Clutter.BrightnessContrastEffect();
-        switch (reqEffect) {
-
-            case SmartHomeIconPack.BRIGHT:
-
-                bri = 0.8;
-                cont = 0.2;
-                break;
-
-            case SmartHomeIconPack.DARK:
-
-                bri = 0.2;
-                cont = 0.2;
-                break;
+                return getColor(40, 40, 40);
 
             default:
                 return null;
         }
+    }
 
-        effect.set_brightness(bri);
-        effect.set_contrast(cont);
-        return effect;
+    /**
+     * Returns brightness and contrast of the icon pack.
+     *
+     * @method _getIconPackBriCon
+     * @private
+     * @param {Enum} iconPack
+     * @return {Array} [brightness, contrast] or null if not adjusted
+     */
+    _getIconPackBriCon(iconPack) {
+        switch (iconPack) {
+            case SmartHomeIconPack.BRIGHT:
+                return [0.8, 0.2];
+
+            case SmartHomeIconPack.DARK:
+                return [0.2, 0.2];
+
+            default:
+                return null;
+        }
     }
 
     /**
@@ -660,17 +633,11 @@ export const SmartHomePanelMenu = GObject.registerClass({
         }
 
         if (clearOnly) {
-            switch (resolvedIconPack) {
-                case SmartHomeIconPack.BRIGHT:
-                    this._applyColorEffects(icon, getColor(237, 237, 237), [0.8, 0.2]);
-                    break;
-                case SmartHomeIconPack.DARK:
-                    this._applyColorEffects(icon, getColor(40, 40, 40), [0.2, 0.2]);
-                    break;
-                default:
-                    this._applyColorEffects(icon, null, null);
-                    break;
-            }
+            this._applyColorEffects(
+                icon,
+                this._getIconPackTint(resolvedIconPack),
+                this._getIconPackBriCon(resolvedIconPack)
+            );
             return;
         }
 
@@ -683,6 +650,8 @@ export const SmartHomePanelMenu = GObject.registerClass({
      * A replaced offscreen effect keeps its texture in GPU memory
      * until the effect is garbage collected, so replacing the effects
      * on every refresh leaks GPU memory.
+     * The effects are enabled only while the actor has non-zero size,
+     * offscreen effect on zero-sized actor fails in cogl_framebuffer_set_viewport().
      *
      * @method _applyColorEffects
      * @private
@@ -701,22 +670,57 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 return;
             }
 
-            colorEffect = new Clutter.ColorizeEffect();
+            colorEffect = new Clutter.ColorizeEffect({enabled: false});
             actor.add_effect_with_name('smart-home-colorize', colorEffect);
 
-            briConEffect = new Clutter.BrightnessContrastEffect();
+            briConEffect = new Clutter.BrightnessContrastEffect({enabled: false});
             actor.add_effect_with_name('smart-home-bricon', briConEffect);
+
+            /* the handler lives as long as the actor, no need to disconnect */
+            actor.connect('notify::allocation', () => {
+                this._syncColorEffects(actor);
+            });
         }
 
-        colorEffect.enabled = tint ? true : false;
+        actor._smartHomeColorEffects = {'tint': !!tint, 'briCon': !!briCon};
+
         if (tint) {
             colorEffect.tint = tint;
         }
 
-        briConEffect.enabled = briCon ? true : false;
         if (briCon) {
             briConEffect.set_brightness(briCon[0]);
             briConEffect.set_contrast(briCon[1]);
+        }
+
+        this._syncColorEffects(actor);
+    }
+
+    /**
+     * Enables requested color effects only if the actor has non-zero size.
+     *
+     * @method _syncColorEffects
+     * @private
+     * @param {Object} actor
+     */
+    _syncColorEffects(actor) {
+        const requested = actor._smartHomeColorEffects;
+        const colorEffect = actor.get_effect('smart-home-colorize');
+        const briConEffect = actor.get_effect('smart-home-bricon');
+
+        if (!requested || !colorEffect || !briConEffect) {
+            return;
+        }
+
+        const box = actor.get_allocation_box();
+        const hasSize = box.get_width() > 0 && box.get_height() > 0;
+
+        if (colorEffect.enabled !== (hasSize && requested['tint'])) {
+            colorEffect.enabled = hasSize && requested['tint'];
+        }
+
+        if (briConEffect.enabled !== (hasSize && requested['briCon'])) {
+            briConEffect.enabled = hasSize && requested['briCon'];
         }
     }
 
@@ -796,13 +800,11 @@ export const SmartHomePanelMenu = GObject.registerClass({
         const iconPack = this._resolvePanelIconPack();
 
         /* Apply appropriate icon effect based on selected/detected panel icon pack */
-        this._panelIcon.clear_effects();
-        
-        const iconEffect = this._getIconBriConEffect(iconPack);
-        
-        if (iconEffect) {
-            this._panelIcon.add_effect(iconEffect);
-        }
+        this._applyColorEffects(
+            this._panelIcon,
+            null,
+            this._getIconPackBriCon(iconPack)
+        );
     }
 
     /**
@@ -838,11 +840,11 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 IconSize * themeContext.scaleFactor * 0.8
             );
 
-            let iconEffect = this._getIconColorEffect(resolvedIconPack);
-            icon.add_effect(iconEffect);
-
-            iconEffect = this._getIconBriConEffect(resolvedIconPack);
-            icon.add_effect(iconEffect);
+            this._applyColorEffects(
+                icon,
+                this._getIconPackTint(resolvedIconPack),
+                this._getIconPackBriCon(resolvedIconPack)
+            );
 
         } catch (e) {
             Utils.logError(`Failed to get gnome icon: ${iconName}: ${e}`);
@@ -885,8 +887,11 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 IconSize * themeContext.scaleFactor
             );
 
-            let iconEffect = this._getIconBriConEffect(resolvedIconPack);
-            icon.add_effect(iconEffect);
+            this._applyColorEffects(
+                icon,
+                null,
+                this._getIconPackBriCon(resolvedIconPack)
+            );
 
         } catch(e) {
             Utils.logError(`Failed to get icon ${iconPath}: ${e}`);
