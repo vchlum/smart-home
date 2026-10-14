@@ -176,6 +176,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this._hideUnavailable = Utils.ALL_DEFAULT_HIDE_UNAVAILABLE;
         this._indicatorPosition = SmartHomeMenuPosition.RIGHT;
         this._signals = {};
+        this._signalKey = 0;
         this._dbusSignals = [];
         this._networkClient = undefined;
         this._reducedPadding = false;
@@ -1478,7 +1479,9 @@ export const SmartHomePanelMenu = GObject.registerClass({
      * @param {Enum} level of the signal
      */
     _appendSignal(signal, object, menuLevel = SmartHomeMenuLevel.NONE, disconnectFce = null) {
-        this._signals[signal] = {
+        /* JS signal ids (e.g. PopupMenu) are counted per object and collide, use own key */
+        this._signals[this._signalKey++] = {
+            'id': signal,
             'object': object,
             'menuLevel': menuLevel,
             'disconnectFce': disconnectFce
@@ -1492,16 +1495,16 @@ export const SmartHomePanelMenu = GObject.registerClass({
      * @param {Array} levels of signals to be disconnected
      */
     disconnectSignals(levels = [SmartHomeMenuLevel.NONE]) {
-        for (let id in this._signals) {
-            if (levels.includes(this._signals[id]['menuLevel']) ||
+        for (let key in this._signals) {
+            if (levels.includes(this._signals[key]['menuLevel']) ||
                 levels.includes(SmartHomeMenuLevel.NONE)) {
 
-                if (this._signals[id]['disconnectFce']) {
-                    this._signals[id]['disconnectFce']();
+                if (this._signals[key]['disconnectFce']) {
+                    this._signals[key]['disconnectFce']();
                 } else {
-                    this._signals[id]['object'].disconnect(id);
+                    this._signals[key]['object'].disconnect(this._signals[key]['id']);
                 }
-                delete(this._signals[id]);
+                delete(this._signals[key]);
             }
         }
 

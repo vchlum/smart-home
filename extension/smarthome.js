@@ -128,6 +128,11 @@ export const SmartHome = GObject.registerClass({
         try {
             let plugin = await this._importModule(pluginName);
 
+            /* disabled while the module was loading, the instance would never be removed */
+            if (this._cleared) {
+                return;
+            }
+
             const pluginInstance = new plugin.Plugin(
                 id,
                 pluginName,
@@ -267,6 +272,7 @@ export const SmartHome = GObject.registerClass({
     clear() {
         Utils.logDebug(`Clearing.`);
 
+        this._cleared = true;
         this._settings.disconnect(this.signal);
 
         this._semaphore.clear();
