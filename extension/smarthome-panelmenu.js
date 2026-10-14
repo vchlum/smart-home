@@ -1356,6 +1356,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         }
 
         this._timers = [];
+        this._runOnlyOnceInProgress = undefined;
     }
 
     /**
@@ -2881,7 +2882,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         button.set_child(content);
 
         this._menuObjects[type]['unselect'] = button;
-        button.orig_width = button.width;
+        /* the button is not in the stage yet, so it can not be measured here */
         button.width = 0;
 
         signal = button.connect(
@@ -3080,12 +3081,10 @@ export const SmartHomePanelMenu = GObject.registerClass({
         );
 
         if (! this._createGroupAll) {
-            /* remove menu arrow symbol*/
-            subMenu.remove_child(
-                subMenu.get_children()[
-                    subMenu.get_children().length - 1
-                ]
-            );
+            /* hide menu arrow symbol, removed child would not be destroyed with the menu */
+            subMenu.get_children()[
+                subMenu.get_children().length - 1
+            ].visible = false;
         }
 
         signal = subMenu.connect(
@@ -3641,11 +3640,11 @@ export const SmartHomePanelMenu = GObject.registerClass({
             this._menuObjects['groups']['default'].visible = false;
             this._menuObjects['groups']['hidden'] = this._menuObjects['groups']['default'];
         } else {
-            this._menuObjects['groups']['unselect'].width = this._menuObjects['groups']['unselect'].orig_width;
+            this._menuObjects['groups']['unselect'].width = -1;
         }
 
         if (deviceId) {
-            this._menuObjects['devices']['unselect'].width = this._menuObjects['groups']['unselect'].orig_width;
+            this._menuObjects['devices']['unselect'].width = -1;
         } else {
             this._menuObjects['devices']['unselect'].width = 0;
         }
