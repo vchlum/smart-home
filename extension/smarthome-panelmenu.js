@@ -653,27 +653,71 @@ export const SmartHomePanelMenu = GObject.registerClass({
     }
 
     _setIconColor(icon, color, clearOnly = false) {
-        let iconEffect;
-
         const resolvedIconPack = this._resolveIconPack();
         const key = clearOnly ? `pack:${resolvedIconPack}` : `color:${color}`;
         if (!this._lookChanged(icon, key)) {
             return;
         }
 
-        icon.clear_effects();
-
         if (clearOnly) {
-            iconEffect = this._getIconColorEffect(resolvedIconPack);
-            icon.add_effect(iconEffect);
-
-            iconEffect = this._getIconBriConEffect(resolvedIconPack);
-            icon.add_effect(iconEffect);
+            switch (resolvedIconPack) {
+                case SmartHomeIconPack.BRIGHT:
+                    this._applyColorEffects(icon, getColor(237, 237, 237), [0.8, 0.2]);
+                    break;
+                case SmartHomeIconPack.DARK:
+                    this._applyColorEffects(icon, getColor(40, 40, 40), [0.2, 0.2]);
+                    break;
+                default:
+                    this._applyColorEffects(icon, null, null);
+                    break;
+            }
             return;
         }
 
-        iconEffect = this._getIconColorEffect(null, color);
-        icon.add_effect(iconEffect);
+        this._applyColorEffects(icon, getColor(color[0], color[1], color[2]), null);
+    }
+
+    /**
+     * Applies colorize and brightness-contrast effects on the actor.
+     * The effects are created only once per actor and then just updated.
+     * A replaced offscreen effect keeps its texture in GPU memory
+     * until the effect is garbage collected, so replacing the effects
+     * on every refresh leaks GPU memory.
+     *
+     * @method _applyColorEffects
+     * @private
+     * @param {Object} actor
+     * @param {Object} tint color or null to disable colorize effect
+     * @param {Array} briCon [brightness, contrast] or null to disable brightness-contrast effect
+     */
+    _applyColorEffects(actor, tint, briCon) {
+        let colorEffect = actor.get_effect('smart-home-colorize');
+        let briConEffect = actor.get_effect('smart-home-bricon');
+
+        if (!colorEffect || !briConEffect) {
+            actor.clear_effects();
+
+            if (!tint && !briCon) {
+                return;
+            }
+
+            colorEffect = new Clutter.ColorizeEffect();
+            actor.add_effect_with_name('smart-home-colorize', colorEffect);
+
+            briConEffect = new Clutter.BrightnessContrastEffect();
+            actor.add_effect_with_name('smart-home-bricon', briConEffect);
+        }
+
+        colorEffect.enabled = tint ? true : false;
+        if (tint) {
+            colorEffect.tint = tint;
+        }
+
+        briConEffect.enabled = briCon ? true : false;
+        if (briCon) {
+            briConEffect.set_brightness(briCon[0]);
+            briConEffect.set_contrast(briCon[1]);
+        }
     }
 
     /**
@@ -1926,21 +1970,12 @@ export const SmartHomePanelMenu = GObject.registerClass({
         }
 
         if (!c) {
-            object.clear_effects();
+            this._applyColorEffects(object, null, null);
             return;
         }
         let [r, g, b] = c;
-        let color = getColor(r, g, b);
 
-        object.clear_effects();
-
-        let colorEffect = new Clutter.ColorizeEffect({tint: color});
-        object.add_effect(colorEffect);
-
-        let briConEffect = new Clutter.BrightnessContrastEffect();
-        briConEffect.set_brightness(0.4);
-        briConEffect.set_contrast(0.4);
-        object.add_effect(briConEffect);
+        this._applyColorEffects(object, getColor(r, g, b), [0.4, 0.4]);
     }
 
     /**
