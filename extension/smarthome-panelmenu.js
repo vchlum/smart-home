@@ -324,57 +324,32 @@ export const SmartHomePanelMenu = GObject.registerClass({
     }
 
     connectDbusSession() {
-        let signal;
+        /* the subscription must be removed on the bus it was made on */
+        const subscriptions = [
+            [Gio.DBus.system, 'org.freedesktop.login1.Manager', 'PrepareForShutdown', '/org/freedesktop/login1'],
+            [Gio.DBus.session, 'org.gnome.SessionManager.EndSessionDialog', 'ConfirmedLogout', '/org/gnome/SessionManager/EndSessionDialog'],
+            [Gio.DBus.session, 'org.gnome.SessionManager.EndSessionDialog', 'ConfirmedReboot', '/org/gnome/SessionManager/EndSessionDialog'],
+            [Gio.DBus.session, 'org.gnome.SessionManager.EndSessionDialog', 'ConfirmedShutdown', '/org/gnome/SessionManager/EndSessionDialog'],
+        ];
 
-        signal = Gio.DBus.system.signal_subscribe(
-            null,
-            'org.freedesktop.login1.Manager',
-            'PrepareForShutdown',
-            '/org/freedesktop/login1',
-            null,
-            Gio.DBusSignalFlags.NONE,
-            this._dbusShutdown.bind(this)
-        );
-        this._dbusSignals.push(signal);
-
-        signal = Gio.DBus.session.signal_subscribe(
-            null,
-            'org.gnome.SessionManager.EndSessionDialog',
-            'ConfirmedLogout',
-            '/org/gnome/SessionManager/EndSessionDialog',
-            null,
-            Gio.DBusSignalFlags.NONE,
-            this._dbusShutdown.bind(this)
-          );
-          this._dbusSignals.push(signal);
-
-          signal = Gio.DBus.session.signal_subscribe(
-            null,
-            'org.gnome.SessionManager.EndSessionDialog',
-            'ConfirmedReboot',
-            '/org/gnome/SessionManager/EndSessionDialog',
-            null,
-            Gio.DBusSignalFlags.NONE,
-            this._dbusShutdown.bind(this)
-          );
-          this._dbusSignals.push(signal);
-
-          signal = Gio.DBus.session.signal_subscribe(
-            null,
-            'org.gnome.SessionManager.EndSessionDialog',
-            'ConfirmedShutdown',
-            '/org/gnome/SessionManager/EndSessionDialog',
-            null,
-            Gio.DBusSignalFlags.NONE,
-            this._dbusShutdown.bind(this)
-          );
-          this._dbusSignals.push(signal);
+        for (let [bus, iface, member, path] of subscriptions) {
+            let signal = bus.signal_subscribe(
+                null,
+                iface,
+                member,
+                path,
+                null,
+                Gio.DBusSignalFlags.NONE,
+                this._dbusShutdown.bind(this)
+            );
+            this._dbusSignals.push([bus, signal]);
+        }
     }
 
     disconnectDbusSession() {
         while (this._dbusSignals.length > 0) {
-            let signal = this._dbusSignals.pop();
-            Gio.DBus.session.signal_unsubscribe(signal);
+            let [bus, signal] = this._dbusSignals.pop();
+            bus.signal_unsubscribe(signal);
         }
     }
 
@@ -3299,7 +3274,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 }
             }
         );
-        this._appendSignal(signal, subMenu, SmartHomeMenuLevel.MENU);
+        this._appendSignal(signal, subMenu.menu, SmartHomeMenuLevel.MENU);
 
         let iconPath = this.mainDir + `/media/HueIcons/uicontrolsColorScenes.svg`
         let icon = this._getIconByPath(iconPath);
@@ -3347,7 +3322,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
                 }
             }
         );
-        this._appendSignal(signal, subMenu, SmartHomeMenuLevel.MENU);
+        this._appendSignal(signal, subMenu.menu, SmartHomeMenuLevel.MENU);
 
         let iconPath = this.mainDir + `/media/HueIcons/uicontrolsScenes.svg`
         let icon = this._getIconByPath(iconPath);
