@@ -223,7 +223,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         let box = new St.BoxLayout({style_class: 'panel-status-menu-box'});
 
         this._panelIcon = new St.Icon({
-            gicon : Gio.icon_new_for_string(`${this.pluginMediaDir}/main.svg`),
+            gicon : Gio.icon_new_for_string(`${this.pluginMediaDir}/main-symbolic.svg`),
             style_class : 'system-status-icon',
         });
 
@@ -237,7 +237,6 @@ export const SmartHomePanelMenu = GObject.registerClass({
             signal = this._interfaceSettings.connect(
                 'changed::color-scheme',
                 () => {
-                    this._updatePanelIconForDarkMode();
                     /* Rebuild menu to update all icons for new dark mode */
                     this.requestRebuild();
                 }
@@ -247,8 +246,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
             Utils.logError(`Failed to initialize interface settings for dark mode detection: ${e}`);
         }
 
-        /* Apply initial icon color based on dark mode */
-        this._updatePanelIconForDarkMode();
+        this._updatePanelIconColor();
 
         box.add_child(this._panelIcon);
         this.add_child(box);
@@ -409,7 +407,7 @@ export const SmartHomePanelMenu = GObject.registerClass({
         );
         if (tmp !== this._panelIconPack) {
             /* Update panel icon immediately when panel icon pack preference changes */
-            this._updatePanelIconForDarkMode();
+            this._updatePanelIconColor();
         }
 
         tmp = this._iconPack;
@@ -717,37 +715,6 @@ export const SmartHomePanelMenu = GObject.registerClass({
     }
 
     /**
-     * Resolves the actual panel icon pack to use, handling the SYSTEM option.
-     * When SYSTEM is selected, auto-detects based on system dark mode.
-     * INVERTS the logic: dark mode uses BRIGHT icons, light mode uses DARK icons.
-     * 
-     * @method _resolvePanelIconPack
-     * @private
-     * @return {Number} The resolved panel icon pack (BRIGHT or DARK)
-     */
-    _resolvePanelIconPack() {
-        /* If not SYSTEM, return as-is */
-        if (this._panelIconPack !== SmartHomeIconPack.SYSTEM) {
-            return this._panelIconPack;
-        }
-
-        /* SYSTEM selected - auto-detect based on system theme and INVERT */
-        let isDarkMode = false;
-        
-        if (this._interfaceSettings) {
-            try {
-                const colorScheme = this._interfaceSettings.get_string('color-scheme');
-                isDarkMode = colorScheme === 'prefer-dark';
-            } catch (e) {
-                /* If detection fails, default to BRIGHT */
-            }
-        }
-        
-        /* INVERTED: dark mode → bright icons, light mode → dark icons */
-        return isDarkMode ? SmartHomeIconPack.BRIGHT : SmartHomeIconPack.DARK;
-    }
-
-    /**
      * Resolves the actual icon pack to use, handling the SYSTEM option.
      * When SYSTEM is selected, auto-detects based on system dark mode.
      * 
@@ -778,25 +745,24 @@ export const SmartHomePanelMenu = GObject.registerClass({
     }
 
     /**
-     * Detects if dark mode is active and updates the panel icon accordingly.
-     * Respects user's panel icon pack preference (system, bright, or dark).
-     * 
-     * @method _updatePanelIconForDarkMode
+     * Sets the color of the panel icon. The icon is symbolic, so with the
+     * system option it takes the color of the panel text like the other
+     * panel icons, also in the overview or with a modified shell theme.
+     * The bright and dark options force their color.
+     *
+     * @method _updatePanelIconColor
      * @private
      */
-    _updatePanelIconForDarkMode() {
+    _updatePanelIconColor() {
         if (!this._panelIcon) {
             return;
         }
 
-        const iconPack = this._resolvePanelIconPack();
+        const color = this._getIconPackTint(this._panelIconPack);
 
-        /* Apply appropriate icon effect based on selected/detected panel icon pack */
-        this._applyColorEffects(
-            this._panelIcon,
-            null,
-            this._getIconPackBriCon(iconPack)
-        );
+        this._panelIcon.style = color
+            ? `color: rgb(${color.red}, ${color.green}, ${color.blue});`
+            : null;
     }
 
     /**
