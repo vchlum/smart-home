@@ -1,3 +1,8 @@
+## Version 30
+ * API: fix Philips Hue bridge and its desktop sync instance share the same name
+ * home assistant: allow to switch from blacklist to whitelist
+ * fix stopping nanoleaf screen-mirror on swithing color or temperature
+ * miscellaneous fixes and leaks fixes
 ## Version 29
  * fix timers
 ## Version 28
