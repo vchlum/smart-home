@@ -1470,6 +1470,8 @@ export const SmartHomePanelMenu = GObject.registerClass({
      * @param {Array} levels of signals to be disconnected
      */
     disconnectSignals(levels = [SmartHomeMenuLevel.NONE]) {
+        this.cancelPendingRebuild();
+
         for (let key in this._signals) {
             if (levels.includes(this._signals[key]['menuLevel']) ||
                 levels.includes(SmartHomeMenuLevel.NONE)) {

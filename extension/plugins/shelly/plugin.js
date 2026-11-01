@@ -118,6 +118,8 @@ export const Plugin =  GObject.registerClass({
     clearInstance(settingsRead = false) {
         Utils.logDebug(`Shelly clearing.`);
 
+        this.cancelPendingRebuild();
+
         if (!settingsRead) {
             this._semaphore.clear();
             this._semaphore = null;
