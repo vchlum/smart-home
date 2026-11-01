@@ -1,3 +1,5 @@
+## Version 31
+ * fix proper disconnecting menu rebuild timer
 ## Version 30
  * API: fix Philips Hue bridge and its desktop sync instance share the same name
  * home assistant: allow to switch from blacklist to whitelist
