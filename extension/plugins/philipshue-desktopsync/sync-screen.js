@@ -166,11 +166,13 @@ export const SyncSceen =  GObject.registerClass({
         this._timers.push(timerId);
     }
 
-    clear() {
+    destroy() {
         if (this._screenGeometry) {
             this._screenGeometry.destroy();
             this._screenGeometry = null;
         }
+
+        super.destroy();
     }
 
     /**

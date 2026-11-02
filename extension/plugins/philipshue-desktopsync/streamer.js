@@ -170,4 +170,14 @@ export const Streamer =  GObject.registerClass({
         this.dtls.disconnect(this._signalConnect);
         this.dtls.disconnect(this._signalDisconnect);
     }
+
+    /**
+     * Stop streaming and release resources, so the object can be forgotten.
+     *
+     * @method destroy
+     */
+    destroy() {
+        this.disconnectStream();
+        this.disconnectSignals();
+    }
 });

@@ -170,11 +170,6 @@ export const SmartHome = GObject.registerClass({
             return;
         }
 
-        this.instances[pluginID].clearNotify();
-        this.instances[pluginID].disconnectDbusSession();
-        this.instances[pluginID].disconnectSignals();
-        this.instances[pluginID].clearInstance();
-        this.instances[pluginID].clearMenu();
         this.instances[pluginID].destroy();
         this.instances[pluginID] = null;
         delete(this.instances[pluginID]);
@@ -265,11 +260,11 @@ export const SmartHome = GObject.registerClass({
     }
 
     /**
-     * Clear class, so it can be safely forgotten.
-     * 
-     * @method clear
+     * Remove all plugins and clear class, so it can be safely forgotten.
+     *
+     * @method destroy
      */
-    clear() {
+    destroy() {
         Utils.logDebug(`Clearing.`);
 
         this._cleared = true;
@@ -277,5 +272,9 @@ export const SmartHome = GObject.registerClass({
 
         this._semaphore.clear();
         this._semaphore = null;
+
+        for (let i in this.instances) {
+            this.removePlugin(i);
+        }
     }
 });
