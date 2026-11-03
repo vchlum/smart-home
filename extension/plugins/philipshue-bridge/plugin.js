@@ -377,7 +377,7 @@ export const Plugin =  GObject.registerClass({
         }
     }
 
-    clearInstance() {
+    destroy() {
         Utils.logDebug(`Philips Hue Bridge ${this.id} clearing.`);
 
         this.disconnectBridgeSignals();
@@ -388,6 +388,8 @@ export const Plugin =  GObject.registerClass({
 
         this._bridge.clear();
         this._bridge = null;
+
+        super.destroy();
     }
 
     _preparseGroup(type, data) {

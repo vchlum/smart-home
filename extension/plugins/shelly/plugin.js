@@ -132,6 +132,11 @@ export const Plugin =  GObject.registerClass({
         }
     }
 
+    destroy() {
+        this.clearInstance();
+        super.destroy();
+    }
+
     _createShellyDevice(name) {
         let device = {
             'type': 'device',

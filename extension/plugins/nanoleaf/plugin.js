@@ -184,6 +184,11 @@ export const Plugin =  GObject.registerClass({
         }
     }
 
+    destroy() {
+        this.clearInstance();
+        super.destroy();
+    }
+
     getEffectColor(name, data) {
         if (! data['animations']) {
             return [null, null, null];

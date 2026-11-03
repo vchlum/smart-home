@@ -4038,7 +4038,6 @@ export const SmartHomePanelMenu = GObject.registerClass({
 
     /**
      * Fully clear the instance and destroy the object.
-     * Plugins clean up their own resources in "clearInstance()".
      *
      * @method destroy
      */
@@ -4046,9 +4045,6 @@ export const SmartHomePanelMenu = GObject.registerClass({
         this.clearNotify();
         this.disconnectDbusSession();
         this.disconnectSignals();
-        if (typeof this.clearInstance === 'function') {
-            this.clearInstance();
-        }
         this.clearMenu();
 
         super.destroy();

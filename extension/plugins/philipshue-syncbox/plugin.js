@@ -166,13 +166,15 @@ export const Plugin =  GObject.registerClass({
         this.requestData();
     }
 
-    clearInstance() {
+    destroy() {
         Utils.logDebug(`Philips Hue sync box ${this.id} clearing.`);
 
         this.disconnectSyncboxSignals();
 
         this._syncbox.clear();
         this._syncbox = null;
+
+        super.destroy();
     }
 
     requestData() {

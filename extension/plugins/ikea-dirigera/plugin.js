@@ -194,7 +194,7 @@ export const Plugin =  GObject.registerClass({
         }
     }
 
-    clearInstance() {
+    destroy() {
         Utils.logDebug(`Ikea Dirigera ${this.id} clearing.`);
 
         this.disconnectBridgeSignals();
@@ -205,6 +205,8 @@ export const Plugin =  GObject.registerClass({
 
         this._bridge.clear();
         this._bridge = null;
+
+        super.destroy();
     }
 
     _dateReceived() {

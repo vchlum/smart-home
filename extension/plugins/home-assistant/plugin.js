@@ -179,7 +179,7 @@ export const Plugin =  GObject.registerClass({
         }
     }
 
-    clearInstance() {
+    destroy() {
         Utils.logDebug(`Home Assistant ${this.id} clearing.`);
 
         this.disconnectBridgeSignals();
@@ -190,6 +190,8 @@ export const Plugin =  GObject.registerClass({
 
         this._bridge.clear();
         this._bridge = null;
+
+        super.destroy();
     }
 
     _preparseStates(data) {

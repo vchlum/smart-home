@@ -118,13 +118,6 @@ export const Plugin =  GObject.registerClass({
         this._pluginsSignal[pluginID].push(signal);
     }
 
-    removePlugin(pluginID) {
-        this.disconnectPluginSignals(pluginID);
-
-        delete(this._pluginsSignal[pluginID]);
-        delete(this._plugins[pluginID]);
-    }
-
     preparePlugin(settingsRead = false) {
         this._initialized = {};
         this._pluginRebuild = {};
@@ -145,19 +138,22 @@ export const Plugin =  GObject.registerClass({
         }
     }
 
-    clearInstance(settingsRead = false) {
+    destroy() {
         Utils.logDebug(`Smart Home universal plugin clearing.`);
 
         for ( let pluginID in this._plugins) {
-            this.removePlugin(pluginID);
+            this.disconnectPluginSignals(pluginID);
+
+            delete(this._pluginsSignal[pluginID]);
+            delete(this._plugins[pluginID]);
         }
 
         this.cancelPendingRebuild();
 
-        if (!settingsRead) {
-            this._semaphore.clear();
-            this._semaphore = null;
-        }
+        this._semaphore.clear();
+        this._semaphore = null;
+
+        super.destroy();
     }
 
     _findNewGroupId(pluginID, origGroupID) {
