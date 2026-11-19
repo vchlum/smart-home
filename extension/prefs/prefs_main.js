@@ -1570,8 +1570,12 @@ export const PreferencesMain = GObject.registerClass({
             version: `${this._metadata.version}`,
             website: "https://github.com/vchlum/smart-home",
             issue_url: "https://github.com/vchlum/smart-home/issues",
-            developers: ["Václav Chlumský <chlumskyvaclav@gmail.com>"],
+            developers: ["Václav Chlumský <chlumskyvaclav@gmail.com>",
+"Swapnil Devesh https://github.com/sidevesh",
+"Anna Simmons https://github.com/LinuxSBC"
+],
             translator_credits: `[DE] Christian Lauinger https://github.com/ChrisLauinger77
+[DE] Christoph Thiede https://github.com/LinqLover
 [PL] Ly https://github.com/pkly`,
             release_notes: releaseNotes.join(""),
             /*

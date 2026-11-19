@@ -1,3 +1,8 @@
+## Version 32
+ * sort scenes alphabetically
+ * panel icon: Use a symbolic icon that follows the panel text color
+ * plugin icons: Draw the logos as filled shapes
+ * use destroy instead of clearInstance
 ## Version 31
  * fix proper disconnecting menu rebuild timer
 ## Version 30
