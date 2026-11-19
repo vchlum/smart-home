@@ -3539,7 +3539,13 @@ export const SmartHomePanelMenu = GObject.registerClass({
             }
         }
 
-        for (let id in this.data['devices']) {
+        let sortedIds = Object.keys(this.data['devices']).sort(
+            (a, b) => String(this.data['devices'][a]['name'] ?? '').localeCompare(
+                String(this.data['devices'][b]['name'] ?? '')
+            )
+        );
+
+        for (let id of sortedIds) {
             device = this.data['devices'][id];
             if (! SceneTypes.includes(device['type'])) {
                 continue;
