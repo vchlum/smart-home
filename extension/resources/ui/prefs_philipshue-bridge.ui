@@ -135,6 +135,12 @@
                         </child>
 
                         <child>
+                          <object class="AdwExpanderRow" id="hideGroups">
+                            <property name="title" translatable="yes">Hide groups</property>
+                          </object>
+                        </child>
+
+                        <child>
                           <object class="AdwExpanderRow">
                             <property name="title" translatable="yes">Advanced settings</property>
 

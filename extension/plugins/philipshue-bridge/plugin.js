@@ -149,6 +149,7 @@ export const Plugin =  GObject.registerClass({
         this._connectionTimeout = Utils.PHILIPSHUEBRIDGE_DEFAULT_TIMEOUT;
         this._bridgeSignals = [];
         this._offShutdown = false;
+        this._hiddenGroups = [];
         super._init(id, pluginName, metadata, mainDir, settings, openPref);
     }
 
@@ -179,6 +180,11 @@ export const Plugin =  GObject.registerClass({
 
         if (this._pluginSettings[this.id]['off-shutdown'] !== undefined) {
             this._offShutdown = this._pluginSettings[this.id]['off-shutdown'] === 'true';
+        }
+
+        this._hiddenGroups = [];
+        if (this._pluginSettings[this.id]['hidden-groups']) {
+            this._hiddenGroups = JSON.parse(this._pluginSettings[this.id]['hidden-groups']);
         }
 
         return needsRebuild;
@@ -395,6 +401,10 @@ export const Plugin =  GObject.registerClass({
     _preparseGroup(type, data) {
         for (let d of data) {
             if (d['type'] === type) {
+                if (this._hiddenGroups.includes(d['id'])) {
+                    continue;
+                }
+
                 this._groups[d['id']] = d;
                 this._groupsChildren[d['id']] = [];
                 for (let child of d['children']) {

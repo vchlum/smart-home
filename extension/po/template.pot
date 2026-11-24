@@ -379,3 +379,46 @@ msgstr ""
 
 msgid "No new device discovered."
 msgstr ""
+
+msgid "Blacklist or whitelist devices"
+msgstr ""
+
+msgid "You can explicitly hide or explicitly show devices"
+msgstr ""
+
+msgid "Blacklist/Whitelist mode"
+msgstr ""
+
+msgid "OFF means blacklist; ON means whitelist"
+msgstr ""
+
+msgid "Lets local applications and scripts control devices over HTTP."
+msgstr ""
+
+msgid "Enable local HTTP API"
+msgstr ""
+
+msgid "Port"
+msgstr ""
+
+msgid "Access token"
+msgstr ""
+
+msgid "Generate a new token"
+msgstr ""
+
+msgid "Listen on all network interfaces"
+msgstr ""
+
+msgid "By default the API only listens on localhost. Enabling this exposes device control to your local network without encryption - only enable it if you understand and accept the risk."
+msgstr ""
+
+msgid "Hide groups"
+msgstr ""
+
+msgid "Zone"
+msgstr ""
+
+msgid "Room"
+msgstr ""
+

@@ -68,6 +68,7 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
         'devicesOnLogin',
         'devicesNotification',
         'notifyNotebookMode',
+        'hideGroups',
         'spinConnectionTimeout',
     ],
 }, class SmartHomePhilipsHueBridge extends Adw.NavigationPage {
@@ -90,6 +91,7 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
         this._onLoginSettings = {};
         this._notificationSettings = {};
         this._notificationDeviceList = [];
+        this._hiddenGroups = [];
 
         this._pluginSettings = this._settings.get_value(
             Utils.SETTINGS_PHILIPSHUEBRIDGE
@@ -101,6 +103,10 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
 
         if (this._pluginSettings[this._id]['notification']) {
             this._notificationSettings = JSON.parse(this._pluginSettings[this._id]['notification']);
+        }
+
+        if (this._pluginSettings[this._id]['hidden-groups']) {
+            this._hiddenGroups = JSON.parse(this._pluginSettings[this._id]['hidden-groups']);
         }
 
         this._settingsignal = this._settings.connect(
@@ -305,6 +311,7 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
         let lights = [];
         let scenes = [];
         let notificationLights = [];
+        let groups = [];
 
         const sortFce = (a, b) => {
             if (a.title < b.title) {
@@ -319,6 +326,10 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
         }
 
         for (let data of bridge.data['data']) {
+            if (data['type'] === 'room' || data['type'] === 'zone') {
+                groups.push(this._createHideGroup(data));
+            }
+
             if (data['type'] === 'light') {
                 lights.push(this._createLightOnLogin(
                     'light',
@@ -363,6 +374,7 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
         }
 
         lights.sort(sortFce);
+        groups.sort(sortFce);
         scenes.sort(sortFce);
         this._notificationDeviceList.sort(sortFce);
 
@@ -377,6 +389,33 @@ export const SmartHomePhilipsHueBridge = GObject.registerClass({
         for (let light of notificationLights) {
             this._devicesNotification.add_row(light);
         }
+
+        for (let group of groups) {
+            this._hideGroups.add_row(group);
+        }
+    }
+
+    _createHideGroup(data) {
+        let row = new Adw.SwitchRow({
+            title: data['metadata']['name'],
+            subtitle: data['type'] === 'zone' ? _("Zone") : _("Room"),
+            active: this._hiddenGroups.includes(data['id'])
+        });
+
+        row.connect(
+            'notify::active',
+            (object) => {
+                this._hiddenGroups = this._hiddenGroups.filter((id) => id !== data['id']);
+                if (object.active) {
+                    this._hiddenGroups.push(data['id']);
+                }
+
+                this._pluginSettings[this._id]['hidden-groups'] = JSON.stringify(this._hiddenGroups);
+                this._writeDevicesSettings();
+            }
+        );
+
+        return row;
     }
 
     _getRoomNameOfLight(bridgeData, id) {

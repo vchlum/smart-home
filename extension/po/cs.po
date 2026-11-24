@@ -420,3 +420,12 @@ msgstr "Poslouchat na všech síťových zařízeních"
 
 msgid "By default the API only listens on localhost. Enabling this exposes device control to your local network without encryption - only enable it if you understand and accept the risk."
 msgstr "Ve výchozím nastavení API poslouchá jen na localhost. Povolení této možnosti umožní ovládání zařízení z vaší lokální sítě bez šifrování - povolte pouze pokud rozumíte a akceptujete riziko."
+
+msgid "Hide groups"
+msgstr "Skrýt skupiny"
+
+msgid "Zone"
+msgstr "Zóna"
+
+msgid "Room"
+msgstr "Místnost"
