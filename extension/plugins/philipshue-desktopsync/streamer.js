@@ -45,6 +45,7 @@ export const Streamer =  GObject.registerClass({
         this._streamingFunction = null;
         this.brightness = 1.0;
         this.intensity = 100;
+        this.sliderValue = 0.5; /* raw 0..1 panel slider value (screen sync: intensity preset) */
         this.streamingId = null;
 
         this.dtls = new DTLSClient.DTLSClient({
@@ -93,6 +94,7 @@ export const Streamer =  GObject.registerClass({
             this.brightness = 0.1;
         }
         this.intensity = (1 - intensity) * 500 + 100;
+        this.sliderValue = intensity;
     }
 
     /**
