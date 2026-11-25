@@ -305,6 +305,7 @@ export const DTLSClient =  GObject.registerClass({
 
                 this._ouputCancelleable = new Gio.Cancellable();
                 this._outputStream = this._connection.get_output_stream();
+                this._writePending = false;
 
                 this._inputCancelleable = new Gio.Cancellable();
                 this._readResponse();
@@ -1147,6 +1148,15 @@ export const DTLSClient =  GObject.registerClass({
             return false;
         }
 
+        /* A GIO stream allows one pending write. The screen sync sends ~60 times a
+         * second, so drop the frame (UDP, the next one follows in ~17 ms) instead of
+         * starting a second write while the previous one is still in flight. This check
+         * comes before the sequence counter and the encryption so the DTLS record
+         * numbering stays continuous. */
+        if (this._writePending) {
+            return false;
+        }
+
         this.streamSeq++;
 
         let packet = {
@@ -1161,12 +1171,22 @@ export const DTLSClient =  GObject.registerClass({
 
         msg = msg.concat(encryptedMsg);
 
+        this._writePending = true;
         this._outputStream.write_all_async(
             msg,
             GLib.PRIORITY_DEFAULT,
             this._ouputCancelleable,
             (o, res) => {
-                this._outputStream.write_all_finish(res);
+                this._writePending = false;
+                try {
+                    o.write_all_finish(res);
+                } catch (e) {
+                    /* cancelled on disconnect, or the network went away: the next
+                     * frame (or the reconnect logic) takes over */
+                    if (!e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
+                        Utils.logDebug(`DTLS write failed: ${e}`);
+                    }
+                }
             }
         );
         return true;
